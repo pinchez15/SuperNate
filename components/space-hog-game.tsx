@@ -51,6 +51,7 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
   const [spaceshipImage, setSpaceshipImage] = useState<HTMLImageElement | null>(null)
   const [storyMode, setStoryMode] = useState(true)
   const [storyIndex, setStoryIndex] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
 
   const bgMusicRef = useRef<HTMLAudioElement | null>(null)
   const laserSoundRef = useRef<HTMLAudioElement | null>(null)
@@ -63,6 +64,16 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
   const starsRef = useRef<Star[]>([])
   const keysPressed = useRef<Set<string>>(new Set())
   const animationFrameRef = useRef<number>()
+
+  // Mobile detection
+  useEffect(() => {
+    const checkMobile = () => {
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      setIsMobile(isTouchDevice || isMobileUA)
+    }
+    checkMobile()
+  }, [])
 
   useEffect(() => {
     // Background music (looping)
@@ -161,17 +172,7 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
 
       if (e.key === " ") {
         e.preventDefault()
-        // Fire laser
-        lasersRef.current.push({
-          x: 400,
-          y: 550,
-          angle: playerAngleRef.current,
-        })
-
-        if (laserSoundRef.current) {
-          laserSoundRef.current.currentTime = 0
-          laserSoundRef.current.play().catch(() => {})
-        }
+        fireLaser()
       }
     }
 
@@ -378,7 +379,8 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
         // Instruction text - positioned below hedgehog
         ctx.font = "bold 18px monospace"
         ctx.fillStyle = "#F54E00"
-        ctx.fillText("Press SPACE to continue", 0, 150)
+        const instructionText = isMobile ? "Tap to continue" : "Press SPACE to continue"
+        ctx.fillText(instructionText, 0, 150)
 
         ctx.restore()
       } else {
@@ -485,6 +487,27 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
     }
   }
 
+  const fireLaser = () => {
+    lasersRef.current.push({
+      x: 400,
+      y: 550,
+      angle: playerAngleRef.current,
+    })
+
+    if (laserSoundRef.current) {
+      laserSoundRef.current.currentTime = 0
+      laserSoundRef.current.play().catch(() => {})
+    }
+  }
+
+  const handleRotateLeft = () => {
+    playerAngleRef.current -= 0.1
+  }
+
+  const handleRotateRight = () => {
+    playerAngleRef.current += 0.1
+  }
+
   const handlePlayAgain = () => {
     // Stop background music
     if (bgMusicRef.current) {
@@ -524,11 +547,67 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
     "Help me blast the PDfffff aliens to free NateHog and his memories from their synergistic clutches!",
   ]
 
+  // Handle mobile canvas tap to shoot
+  const handleCanvasTap = () => {
+    if (storyMode) {
+      // Progress story on tap
+      if (storyIndex < STORY_PARTS.length - 1) {
+        setStoryIndex(storyIndex + 1)
+      } else {
+        setStoryMode(false)
+      }
+    } else {
+      // Fire laser on tap
+      fireLaser()
+    }
+  }
+
   return (
     <>
+      {isMobile && (
+        <div className="bg-[#DC9300] text-[#151515] text-center py-2 px-4 mb-2 rounded text-sm font-bold">
+          📱 Turn your device sideways for the best experience!
+        </div>
+      )}
+      
       <div className="relative bg-[#151515] rounded-lg overflow-hidden shadow-2xl border-4 border-[#2C2C2C]">
-        <canvas ref={canvasRef} width={800} height={600} className="w-full h-auto" />
+        <canvas 
+          ref={canvasRef} 
+          width={800} 
+          height={600} 
+          className="w-full h-auto"
+          onClick={isMobile ? handleCanvasTap : undefined}
+          style={{ touchAction: 'none' }}
+        />
       </div>
+      
+      {isMobile && !storyMode && (
+        <div className="flex gap-4 justify-center mt-4">
+          {/* Rotate Left Button */}
+          <button
+            onTouchStart={handleRotateLeft}
+            className="bg-[#F54E00] hover:bg-[#F54E00]/90 text-white font-bold py-6 px-8 rounded-lg text-xl shadow-lg active:scale-95 transition-transform"
+            style={{ touchAction: 'none' }}
+          >
+            ← AIM LEFT
+          </button>
+          
+          {/* Rotate Right Button */}
+          <button
+            onTouchStart={handleRotateRight}
+            className="bg-[#F54E00] hover:bg-[#F54E00]/90 text-white font-bold py-6 px-8 rounded-lg text-xl shadow-lg active:scale-95 transition-transform"
+            style={{ touchAction: 'none' }}
+          >
+            AIM RIGHT →
+          </button>
+        </div>
+      )}
+      
+      {isMobile && !storyMode && (
+        <p className="text-center text-[#EEEFE9]/70 text-sm mt-3">
+          Tap canvas to shoot • Use buttons to aim
+        </p>
+      )}
 
       {/* Memory unlocked modal */}
       <Dialog open={currentMemory !== null} onOpenChange={() => handleCloseModal()}>
