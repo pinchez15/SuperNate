@@ -27,29 +27,58 @@ export function CockpitDashboard() {
           {/* Left side - Missing Poster */}
           <div className="flex flex-col gap-4">
             <div
-              className="bg-[#EEEFE9] p-2 shadow-lg border-2 border-[#D0D1C9] relative w-32"
+              className="bg-[#EEEFE9] shadow-lg border-2 border-[#D0D1C9] relative"
               style={{
+                width: "153.6px",
+                padding: "9.6px",
                 transform: "rotate(-8deg)",
                 transformOrigin: "top center",
               }}
             >
               {/* Tape piece */}
-              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-3 bg-yellow-100/60 opacity-70 rotate-6 shadow-sm" />
+              <div 
+                className="absolute left-1/2 -translate-x-1/2 bg-yellow-100/60 opacity-70 rotate-6 shadow-sm"
+                style={{
+                  top: "-4.8px",
+                  width: "38.4px",
+                  height: "14.4px",
+                }}
+              />
 
               <div className="text-center space-y-1">
-                <h3 className="text-[10px] font-bold text-[#F54E00] uppercase tracking-wide border-b border-[#F54E00] pb-0.5">
+                <h3 
+                  className="font-bold text-[#F54E00] uppercase tracking-wide border-b border-[#F54E00]"
+                  style={{
+                    fontSize: "12px",
+                    paddingBottom: "2.4px",
+                  }}
+                >
                   MISSING!
                 </h3>
 
                 <div className="flex justify-center">
-                  <div className="w-12 h-12 relative border border-[#151515] rounded overflow-hidden bg-white">
+                  <div 
+                    className="relative border border-[#151515] rounded overflow-hidden bg-white"
+                    style={{
+                      width: "57.6px",
+                      height: "57.6px",
+                    }}
+                  >
                     <Image src="/natehog.png" alt="NateHog" fill className="object-contain" />
                   </div>
                 </div>
 
-                <h4 className="text-[9px] font-bold text-[#151515]">NateHog</h4>
+                <h4 
+                  className="font-bold text-[#151515]"
+                  style={{ fontSize: "10.8px" }}
+                >
+                  NateHog
+                </h4>
 
-                <p className="text-[7px] text-[#151515] leading-tight">
+                <p 
+                  className="text-[#151515] leading-tight"
+                  style={{ fontSize: "8.4px" }}
+                >
                   Last seen using <span className="font-bold">Cursor</span>, <span className="font-bold">Vercel</span>,{" "}
                   <span className="font-bold">Supabase</span>, <span className="font-bold">Tableau</span>. Has{" "}
                   <span className="font-bold">MBA</span>. Missed by a plethora of children.
@@ -191,7 +220,7 @@ export function CockpitDashboard() {
                     rel="noopener noreferrer"
                     className="text-sm text-[#F54E00] hover:text-[#DC9300] font-mono underline transition-colors"
                   >
-                    NateHog gives power to his business @ Cappawork.com
+                    NateHog spend most of his power on his business @ Cappawork.com
                   </a>
                 </div>
               )}
@@ -206,7 +235,7 @@ export function CockpitDashboard() {
                     rel="noopener noreferrer"
                     className="text-sm text-[#F54E00] hover:text-[#DC9300] font-mono underline transition-colors"
                   >
-                    He made a startup called that LinkedIn crushed with feature. But its still kind cool and has nice UI. Work Portfolio - workportfolio.io
+                    He made a startup called that LinkedIn crushed with feature. But its still kinda cool and has nice UI. Workportfolio.io
                   </a>
                 </div>
               )}
@@ -221,7 +250,7 @@ export function CockpitDashboard() {
                     rel="noopener noreferrer"
                     className="text-sm text-[#F54E00] hover:text-[#DC9300] font-mono underline transition-colors"
                   >
-                    NateHog just pitched the lovely people at Magnolia to make them an AI painter. TBD if they will buy. Magnolia AI Painter
+                    NateHog just pitched the lovely people at Magnolia to make them an AI painter. TBD if they will buy.
                   </a>
                 </div>
               )}
@@ -230,7 +259,7 @@ export function CockpitDashboard() {
               {commsSwitch && (
                 <div className="bg-[#1a1a1a] p-3 rounded border border-[#DC9300] animate-in fade-in duration-300">
                   <p className="text-xs text-[#DC9300] uppercase mb-1">Incoming Transmission:</p>
-                  <p className="text-sm text-[#EEEFE9] font-mono"> Even though he was captured by the PDfffff aliens, he still has his email: nate@cappawork.com don't ask why it works.</p>
+                  <p className="text-sm text-[#EEEFE9] font-mono"> Even though he was captured by the PDfffff aliens, he still has his email. Don't ask how it works: nate@cappawork.com </p>
                 </div>
               )}
             </div>

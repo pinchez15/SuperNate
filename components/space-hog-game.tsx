@@ -535,7 +535,7 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
         <DialogContent className="bg-[#EEEFE9] dark:bg-[#151515] border-[#F54E00] border-2 max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl text-[#F54E00] font-bold">
-              🎉 You're a hero! You unlocked a memory!
+              You unlocked a memory!
             </DialogTitle>
           </DialogHeader>
           {currentMemory !== null && (
@@ -564,7 +564,7 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
       <Dialog open={gameComplete} onOpenChange={setGameComplete}>
         <DialogContent className="bg-[#EEEFE9] dark:bg-[#151515] border-[#F54E00] border-2 max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl text-[#F54E00] font-bold">🎊 Mission Complete! 🎊</DialogTitle>
+            <DialogTitle className="text-2xl text-[#F54E00] font-bold text-center">Mission Complete!</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 text-center">
             <img
