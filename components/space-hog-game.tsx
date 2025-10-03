@@ -73,7 +73,7 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
 
     // Laser sound effect
     const laserSound = new Audio("/audio/pew.mp3")
-    laserSound.volume = 0.3
+    laserSound.volume = 0.15
     laserSoundRef.current = laserSound
 
     // Hit sound effect
@@ -375,10 +375,10 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
         })
         ctx.fillText(line, 0, y)
 
-        // Instruction text
-        ctx.font = "14px sans-serif"
+        // Instruction text - positioned below hedgehog
+        ctx.font = "bold 18px monospace"
         ctx.fillStyle = "#F54E00"
-        ctx.fillText("Press SPACE to continue", 0, bubbleY + bubbleHeight + 30)
+        ctx.fillText("Press SPACE to continue", 0, 150)
 
         ctx.restore()
       } else {
