@@ -8,63 +8,63 @@ export interface WorkExperience {
 
 export const workExperiences: WorkExperience[] = [
   {
-    title: "Senior Product Manager",
-    company: "TechCorp",
-    period: "2022 - Present",
+    title: "Solopreneur",
+    company: "CappaWork",
+    period: "2021 - Present",
     description:
-      "Led cross-functional teams to deliver innovative SaaS products, driving 150% user growth and $2M ARR increase.",
+      "Started as a D2C brand, pivoted to web development and consulting.",
     achievements: [
-      "Launched 3 major product features with 95% customer satisfaction",
-      "Reduced churn by 30% through data-driven insights",
-      "Managed $5M product budget",
+      "Designed, printed, sold a 90-day business planner for Christians. Sold 500 units.",
+      "Created Shopify store and fulfillment, marketing and funnels.",
+      "Pivoted to web dev agency. Projects include Workportfolio.io, cappawork.com, and more.",
     ],
   },
   {
-    title: "Product Manager",
-    company: "StartupXYZ",
-    period: "2020 - 2022",
+    title: "Director, Private Equity Partnerships",
+    company: "Entromy",
+    period: "2021 - 2021",
     description:
-      "Owned product roadmap for B2B analytics platform, collaborating with engineering and design to ship customer-centric features.",
+      "Led sales into Private Equity portfolio companies. PE firm was our sales partner.",
     achievements: [
-      "Increased user engagement by 200%",
-      "Shipped 15+ features in 18 months",
-      "Built product analytics framework",
+      "Sold $150k in B2B SaaS in 4 months ",
+      "Led 10+ sprint consulting engagements with CEOs of portcos.",
+      "Trained Talent partners and HRBPs on how to use the platform.",
     ],
   },
   {
-    title: "Associate Product Manager",
-    company: "BigTech Inc",
-    period: "2018 - 2020",
-    description:
-      "Supported product initiatives for enterprise software, conducting user research and defining requirements for development teams.",
-    achievements: [
-      "Conducted 50+ user interviews",
-      "Improved feature adoption by 40%",
-      "Created product documentation",
-    ],
-  },
-  {
-    title: "Business Analyst",
-    company: "Consulting Group",
+    title: "Consultant",
+    company: "Eagle Hill Consulting",
     period: "2016 - 2018",
     description:
-      "Analyzed business processes and delivered data-driven recommendations to Fortune 500 clients across multiple industries.",
+      "Federal Consultant on business process and strategy engagements.",
     achievements: [
-      "Delivered 10+ client projects",
-      "Saved clients $3M in operational costs",
-      "Built financial models and dashboards",
+      "Pitched and launched new office in Boston, expanding from DC.",
+      "Led data analytics for 1,200 person workforce capacity assessment.",
+      "Made an insane amount of process maps and ppts. ",
     ],
   },
   {
-    title: "Marketing Coordinator",
-    company: "Creative Agency",
-    period: "2015 - 2016",
+    title: "Senior Product Developer",
+    company: "CVS Health; Omnicare",
+    period: "2019 - 2020",
     description:
-      "Coordinated digital marketing campaigns and analyzed performance metrics to optimize customer acquisition strategies.",
+      "Part of a corporate strategy turnaround team. Acted as internal consultant and product developer to launch new products internally.",
     achievements: [
-      "Managed campaigns with $500K budget",
-      "Increased conversion rates by 25%",
-      "Developed marketing analytics reports",
+      "Owned product roadmap for MultiDose, a pharmacy automation and packaging product - served ~5,000 customers.",
+      "Designed and built a data analytics tool in Tableau to size new markets - used 2M data points.",
+      "Routinely presented to Omincare President and C-suite on roadmap and profitability analysis.",
+    ],
+  },
+  {
+    title: "Clinical Research Coordinator",
+    company: "Dana-Farber Harvard Cancer Center",
+    period: "2011 - 2014",
+    description:
+      "Ran the daily operations of Phase I, II, and III clinical trials in pediatric brain tumor center.",
+    achievements: [
+      "Co-authored a paper on personalized medicine.",
+      "Managed NDA with the FDA for new drug.",
+      "Spent a lot of time with sick kids and their families.",
     ],
   },
 ]

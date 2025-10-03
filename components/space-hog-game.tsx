@@ -73,7 +73,7 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
 
     // Laser sound effect
     const laserSound = new Audio("/audio/pew.mp3")
-    laserSound.volume = 0.5
+    laserSound.volume = 0.3
     laserSoundRef.current = laserSound
 
     // Hit sound effect
@@ -519,10 +519,9 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
 
   const STORY_PARTS = [
     "I'm SpaceHog Spiff. I've been traveling the universe in search of my hero friend NateHog.",
-    "But NateHog has been captured by the PDfffff aliens on planet ReSume and they've stolen his memory!",
-    "They put his memories in spaceships to send it to the four corners of the galaxy.",
-    "The PDfffff aliens are fiercely boring paper aliens and are full of jargon.",
-    "Help me blast the PDfffff aliens to free NateHog's memories and free him from their synergistic clutches!",
+    "NateHog is a brilliant, creative, hardworking guy and he's been captured by the boring PDfffff aliens from the evil planet ReSume! They've stolen his memory!",
+    "They put his memories in spaceships to send to the four corners of the galaxy.",
+    "Help me blast the PDfffff aliens to free NateHog and his memories from their synergistic clutches!",
   ]
 
   return (
@@ -569,14 +568,14 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
           </DialogHeader>
           <div className="space-y-4 text-center">
             <img
-              src="/natehooray.png"
+              src="/NateHooray.png"
               alt="Thank you!"
               className="w-full rounded-lg"
             />
             <h3 className="text-xl font-bold text-[#151515] dark:text-[#EEEFE9]">Thank you, PostHog team! 🦔</h3>
             <p className="text-[#151515]/70 dark:text-[#EEEFE9]/70">
-              You've successfully helped SpaceHog Spiff rescue all of NateHog's memories! I'd love to bring this kind of
-              creativity and technical skill to the PostHog team.
+              You've successfully helped SpaceHog Spiff rescue all of NateHog's memories! I'd love to join you to bring this kind of
+              creativity and technical skill to the wacky PostHog team! 🦔 
             </p>
           </div>
           <Button onClick={handlePlayAgain} className="bg-[#F54E00] hover:bg-[#F54E00]/90 text-white">

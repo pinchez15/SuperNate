@@ -38,7 +38,7 @@ export function CockpitDashboard() {
 
               <div className="text-center space-y-1">
                 <h3 className="text-[10px] font-bold text-[#F54E00] uppercase tracking-wide border-b border-[#F54E00] pb-0.5">
-                  Missing
+                  MISSING!
                 </h3>
 
                 <div className="flex justify-center">
@@ -52,7 +52,7 @@ export function CockpitDashboard() {
                 <p className="text-[7px] text-[#151515] leading-tight">
                   Last seen using <span className="font-bold">Cursor</span>, <span className="font-bold">Vercel</span>,{" "}
                   <span className="font-bold">Supabase</span>, <span className="font-bold">Tableau</span>. Has{" "}
-                  <span className="font-bold">MBA</span>. Missed by many children.
+                  <span className="font-bold">MBA</span>. Missed by a plethora of children.
                 </p>
               </div>
             </div>
@@ -191,7 +191,7 @@ export function CockpitDashboard() {
                     rel="noopener noreferrer"
                     className="text-sm text-[#F54E00] hover:text-[#DC9300] font-mono underline transition-colors"
                   >
-                    NateHog's Business - Cappawork.com
+                    NateHog gives power to his business @ Cappawork.com
                   </a>
                 </div>
               )}
@@ -206,7 +206,7 @@ export function CockpitDashboard() {
                     rel="noopener noreferrer"
                     className="text-sm text-[#F54E00] hover:text-[#DC9300] font-mono underline transition-colors"
                   >
-                    Work Portfolio - workportfolio.io
+                    He made a startup called that LinkedIn crushed with feature. But its still kind cool and has nice UI. Work Portfolio - workportfolio.io
                   </a>
                 </div>
               )}
@@ -221,7 +221,7 @@ export function CockpitDashboard() {
                     rel="noopener noreferrer"
                     className="text-sm text-[#F54E00] hover:text-[#DC9300] font-mono underline transition-colors"
                   >
-                    Magnolia AI Painter - magnolia-ai-painter.vercel.app
+                    NateHog just pitched the lovely people at Magnolia to make them an AI painter. TBD if they will buy. Magnolia AI Painter
                   </a>
                 </div>
               )}
@@ -230,7 +230,7 @@ export function CockpitDashboard() {
               {commsSwitch && (
                 <div className="bg-[#1a1a1a] p-3 rounded border border-[#DC9300] animate-in fade-in duration-300">
                   <p className="text-xs text-[#DC9300] uppercase mb-1">Incoming Transmission:</p>
-                  <p className="text-sm text-[#EEEFE9] font-mono">nate@cappawork.com</p>
+                  <p className="text-sm text-[#EEEFE9] font-mono"> Even though he was captured by the PDfffff aliens, he still has his email: nate@cappawork.com don't ask why it works.</p>
                 </div>
               )}
             </div>
