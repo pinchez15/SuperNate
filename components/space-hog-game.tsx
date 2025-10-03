@@ -66,18 +66,18 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
 
   useEffect(() => {
     // Background music (looping)
-    const bgMusic = new Audio("/audio/background-music.mp3")
+    const bgMusic = new Audio("/audio/SpacehogSpiff.mp3")
     bgMusic.loop = true
     bgMusic.volume = 0.3
     bgMusicRef.current = bgMusic
 
     // Laser sound effect
-    const laserSound = new Audio("/audio/laser-pew.mp3")
+    const laserSound = new Audio("/audio/pew.mp3")
     laserSound.volume = 0.5
     laserSoundRef.current = laserSound
 
     // Hit sound effect
-    const hitSound = new Audio("/audio/hit-zing.mp3")
+    const hitSound = new Audio("/audio/zing.mp3")
     hitSound.volume = 0.6
     hitSoundRef.current = hitSound
 
@@ -569,7 +569,7 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
           </DialogHeader>
           <div className="space-y-4 text-center">
             <img
-              src="/person-waving-enthusiastically-at-camera-with-post.jpg"
+              src="/natehooray.png"
               alt="Thank you!"
               className="w-full rounded-lg"
             />

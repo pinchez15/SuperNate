@@ -24,6 +24,41 @@ export function CockpitDashboard() {
 
       <div className="relative z-10">
         <div className="flex flex-wrap gap-6 items-start justify-between">
+          {/* Left side - Missing Poster */}
+          <div className="flex flex-col gap-4">
+            <div
+              className="bg-[#EEEFE9] p-2 shadow-lg border-2 border-[#D0D1C9] relative w-32"
+              style={{
+                transform: "rotate(-8deg)",
+                transformOrigin: "top center",
+              }}
+            >
+              {/* Tape piece */}
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-3 bg-yellow-100/60 opacity-70 rotate-6 shadow-sm" />
+
+              <div className="text-center space-y-1">
+                <h3 className="text-[10px] font-bold text-[#F54E00] uppercase tracking-wide border-b border-[#F54E00] pb-0.5">
+                  Missing
+                </h3>
+
+                <div className="flex justify-center">
+                  <div className="w-12 h-12 relative border border-[#151515] rounded overflow-hidden bg-white">
+                    <Image src="/natehog.png" alt="NateHog" fill className="object-contain" />
+                  </div>
+                </div>
+
+                <h4 className="text-[9px] font-bold text-[#151515]">NateHog</h4>
+
+                <p className="text-[7px] text-[#151515] leading-tight">
+                  Last seen using <span className="font-bold">Cursor</span>, <span className="font-bold">Vercel</span>,{" "}
+                  <span className="font-bold">Supabase</span>, <span className="font-bold">Tableau</span>. Has{" "}
+                  <span className="font-bold">MBA</span>. Missed by many children.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Center - Ship Systems */}
           <div className="flex-1 min-w-[400px]">
             <h3 className="text-[#DC9300] font-bold text-sm uppercase tracking-wide mb-4 text-center">Ship Systems</h3>
 
@@ -201,34 +236,93 @@ export function CockpitDashboard() {
             </div>
           </div>
 
-          <div
-            className="bg-[#EEEFE9] p-2 shadow-lg border-2 border-[#D0D1C9] relative w-32"
-            style={{
-              transform: "rotate(-8deg)",
-              transformOrigin: "top center",
-            }}
-          >
-            {/* Tape piece */}
-            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-3 bg-yellow-100/60 opacity-70 rotate-6 shadow-sm" />
-
-            <div className="text-center space-y-1">
-              <h3 className="text-[10px] font-bold text-[#F54E00] uppercase tracking-wide border-b border-[#F54E00] pb-0.5">
-                Missing
-              </h3>
-
-              <div className="flex justify-center">
-                <div className="w-12 h-12 relative border border-[#151515] rounded overflow-hidden bg-white">
-                  <Image src="/natehog.png" alt="NateHog" fill className="object-contain" />
+          {/* Right side - Dials and Gauges */}
+          <div className="flex flex-col gap-4">
+            <h3 className="text-[#DC9300] font-bold text-xs uppercase tracking-wide text-center">Diagnostics</h3>
+            
+            <div className="flex gap-4">
+              {/* Speed Gauge */}
+              <div className="flex flex-col items-center gap-2">
+                <div className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center">
+                  <svg className="w-20 h-20" viewBox="0 0 100 100">
+                    {/* Gauge background */}
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="#151515" strokeWidth="2" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#DC9300" strokeWidth="1" strokeDasharray="2,4" />
+                    
+                    {/* Gauge markers */}
+                    <line x1="50" y1="15" x2="50" y2="20" stroke="#EEEFE9" strokeWidth="2" />
+                    <line x1="80" y1="30" x2="75" y2="33" stroke="#EEEFE9" strokeWidth="1.5" />
+                    <line x1="85" y1="50" x2="80" y2="50" stroke="#EEEFE9" strokeWidth="2" />
+                    <line x1="80" y1="70" x2="75" y2="67" stroke="#EEEFE9" strokeWidth="1.5" />
+                    <line x1="50" y1="85" x2="50" y2="80" stroke="#EEEFE9" strokeWidth="2" />
+                    <line x1="20" y1="70" x2="25" y2="67" stroke="#EEEFE9" strokeWidth="1.5" />
+                    <line x1="15" y1="50" x2="20" y2="50" stroke="#EEEFE9" strokeWidth="2" />
+                    <line x1="20" y1="30" x2="25" y2="33" stroke="#EEEFE9" strokeWidth="1.5" />
+                    
+                    {/* Needle */}
+                    <line x1="50" y1="50" x2="50" y2="25" stroke="#F54E00" strokeWidth="2" strokeLinecap="round" transform="rotate(45 50 50)" />
+                    <circle cx="50" cy="50" r="4" fill="#F54E00" />
+                  </svg>
+                  <div className="absolute bottom-2 text-[8px] text-[#DC9300] font-bold">SPEED</div>
                 </div>
               </div>
 
-              <h4 className="text-[9px] font-bold text-[#151515]">NateHog</h4>
+              {/* Fuel Gauge */}
+              <div className="flex flex-col items-center gap-2">
+                <div className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center">
+                  <svg className="w-20 h-20" viewBox="0 0 100 100">
+                    {/* Gauge background */}
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="#151515" strokeWidth="2" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#1D4AFF" strokeWidth="1" strokeDasharray="2,4" />
+                    
+                    {/* Gauge markers */}
+                    <line x1="50" y1="15" x2="50" y2="20" stroke="#EEEFE9" strokeWidth="2" />
+                    <line x1="80" y1="30" x2="75" y2="33" stroke="#EEEFE9" strokeWidth="1.5" />
+                    <line x1="85" y1="50" x2="80" y2="50" stroke="#EEEFE9" strokeWidth="2" />
+                    <line x1="80" y1="70" x2="75" y2="67" stroke="#EEEFE9" strokeWidth="1.5" />
+                    <line x1="50" y1="85" x2="50" y2="80" stroke="#EEEFE9" strokeWidth="2" />
+                    <line x1="20" y1="70" x2="25" y2="67" stroke="#EEEFE9" strokeWidth="1.5" />
+                    <line x1="15" y1="50" x2="20" y2="50" stroke="#EEEFE9" strokeWidth="2" />
+                    <line x1="20" y1="30" x2="25" y2="33" stroke="#EEEFE9" strokeWidth="1.5" />
+                    
+                    {/* Needle */}
+                    <line x1="50" y1="50" x2="50" y2="25" stroke="#1D4AFF" strokeWidth="2" strokeLinecap="round" transform="rotate(-30 50 50)" />
+                    <circle cx="50" cy="50" r="4" fill="#1D4AFF" />
+                  </svg>
+                  <div className="absolute bottom-2 text-[8px] text-[#1D4AFF] font-bold">FUEL</div>
+                </div>
+              </div>
+            </div>
 
-              <p className="text-[7px] text-[#151515] leading-tight">
-                Last seen using <span className="font-bold">Cursor</span>, <span className="font-bold">Vercel</span>,{" "}
-                <span className="font-bold">Supabase</span>, <span className="font-bold">Tableau</span>. Has{" "}
-                <span className="font-bold">MBA</span>. Missed by many children.
-              </p>
+            {/* LED indicators and digital readouts */}
+            <div className="flex flex-col gap-2">
+              {/* Altitude readout */}
+              <div className="bg-[#1a1a1a] border border-[#4B4B4B] rounded px-3 py-2 flex items-center justify-between">
+                <span className="text-[9px] text-[#DC9300] uppercase font-bold">Alt</span>
+                <span className="text-xs text-[#EEEFE9] font-mono">12,847</span>
+              </div>
+
+              {/* Temperature readout */}
+              <div className="bg-[#1a1a1a] border border-[#4B4B4B] rounded px-3 py-2 flex items-center justify-between">
+                <span className="text-[9px] text-[#1D4AFF] uppercase font-bold">Temp</span>
+                <span className="text-xs text-[#EEEFE9] font-mono">-273°C</span>
+              </div>
+
+              {/* Status LEDs */}
+              <div className="flex gap-2 justify-center mt-2">
+                <div className="flex flex-col items-center gap-1">
+                  <div className="w-3 h-3 rounded-full bg-[#0F0] shadow-[0_0_8px_#0F0]" />
+                  <span className="text-[7px] text-[#EEEFE9]/60">SYS</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <div className="w-3 h-3 rounded-full bg-[#0F0] shadow-[0_0_8px_#0F0]" />
+                  <span className="text-[7px] text-[#EEEFE9]/60">PWR</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <div className="w-3 h-3 rounded-full bg-[#DC9300] shadow-[0_0_8px_#DC9300]" />
+                  <span className="text-[7px] text-[#EEEFE9]/60">WRN</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
