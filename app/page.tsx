@@ -1,0 +1,130 @@
+"use client"
+
+import { useState } from "react"
+import { SpaceHogGame } from "@/components/space-hog-game"
+import { MemoryCard } from "@/components/memory-card"
+import { CockpitDashboard } from "@/components/cockpit-dashboard"
+import { workExperiences } from "@/lib/work-experiences"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+
+export default function Home() {
+  const [unlockedMemories, setUnlockedMemories] = useState<number[]>([])
+  const [viewingMemory, setViewingMemory] = useState<number | null>(null)
+
+  const handleMemoryUnlocked = (memoryIndex: number) => {
+    if (!unlockedMemories.includes(memoryIndex)) {
+      setUnlockedMemories([...unlockedMemories, memoryIndex])
+    }
+  }
+
+  const handleCardClick = (memoryIndex: number) => {
+    setViewingMemory(memoryIndex)
+  }
+
+  const handleReset = () => {
+    setUnlockedMemories([])
+    setViewingMemory(null)
+  }
+
+  return (
+    <div className="min-h-screen bg-[#151515] flex flex-col">
+      <header className="py-6 text-center border-b-2 border-[#F54E00]">
+        <h1
+          className="text-5xl md:text-6xl font-bold tracking-wider"
+          style={{
+            fontFamily: "monospace",
+            textShadow: "3px 3px 0px #DC9300, 6px 6px 0px #F54E00",
+            background: "linear-gradient(180deg, #F54E00 0%, #DC9300 50%, #EEEFE9 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}
+        >
+          SPACEHOG SPIFF'S MISSION
+        </h1>
+      </header>
+
+      <div className="flex-1 flex">
+        {/* Main cockpit view - game window and controls */}
+        <div className="flex-1 flex flex-col">
+          {/* Game Window - The "windshield" */}
+          <div className="flex-1 bg-[#151515] p-4 lg:p-8 flex items-center justify-center relative">
+            {/* Windshield frame effect */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-[#2C2C2C] to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#2C2C2C] to-transparent" />
+              <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r from-[#2C2C2C] to-transparent" />
+              <div className="absolute top-0 bottom-0 right-0 w-8 bg-gradient-to-l from-[#2C2C2C] to-transparent" />
+            </div>
+
+            <div className="w-full max-w-4xl z-10">
+              <div className="mb-4 text-center">
+                <p className="text-[#EEEFE9]/70 text-sm">
+                  Help SpaceHog Spiff defeat the PDfff aliens and unlock NateHog's memories!
+                </p>
+                <p className="text-xs text-[#EEEFE9]/60 mt-2">Use ← → to rotate, SPACE to shoot</p>
+              </div>
+
+              <SpaceHogGame
+                onMemoryUnlocked={handleMemoryUnlocked}
+                unlockedMemories={unlockedMemories}
+                onCardClick={handleCardClick}
+                onReset={handleReset}
+              />
+            </div>
+          </div>
+
+          {/* Cockpit Dashboard - wraps underneath the window */}
+          <div className="border-t-2 border-[#4B4B4B]">
+            <CockpitDashboard />
+          </div>
+        </div>
+
+        {/* Right Panel - Unlocked Memories */}
+        <div className="w-80 border-l border-[#4B4B4B] bg-[#2C2C2C] p-4 lg:p-6 overflow-y-auto">
+          <h2 className="text-xl font-bold text-[#EEEFE9] mb-4">
+            Unlocked Memories ({unlockedMemories.length}/{workExperiences.length})
+          </h2>
+
+          {unlockedMemories.length === 0 ? (
+            <p className="text-[#EEEFE9]/60 text-sm">Shoot down spaceships to unlock NateHog's work experiences!</p>
+          ) : (
+            <div className="space-y-4">
+              {unlockedMemories.map((index) => (
+                <MemoryCard key={index} experience={workExperiences[index]} onClick={() => handleCardClick(index)} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <Dialog open={viewingMemory !== null} onOpenChange={() => setViewingMemory(null)}>
+        <DialogContent className="bg-[#EEEFE9] dark:bg-[#151515] border-[#F54E00] border-2 max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-[#F54E00] font-bold">Memory Details</DialogTitle>
+          </DialogHeader>
+          {viewingMemory !== null && (
+            <div className="space-y-4 text-[#151515] dark:text-[#EEEFE9]">
+              <h3 className="text-xl font-bold">{workExperiences[viewingMemory].title}</h3>
+              <p className="text-sm text-[#151515]/70 dark:text-[#EEEFE9]/70">
+                {workExperiences[viewingMemory].company} • {workExperiences[viewingMemory].period}
+              </p>
+              <p className="text-sm leading-relaxed">{workExperiences[viewingMemory].description}</p>
+              {workExperiences[viewingMemory].achievements && (
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  {workExperiences[viewingMemory].achievements.map((achievement, i) => (
+                    <li key={i}>{achievement}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+          <Button onClick={() => setViewingMemory(null)} className="bg-[#F54E00] hover:bg-[#F54E00]/90 text-white">
+            Close
+          </Button>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
