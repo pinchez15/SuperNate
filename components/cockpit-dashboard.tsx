@@ -8,14 +8,8 @@ export function CockpitDashboard() {
   const [shieldsSwitch, setShieldsSwitch] = useState(false)
   const [thrustersSwitch, setThrustersSwitch] = useState(false)
   const [commsSwitch, setCommsSwitch] = useState(false)
-
-  const showSpeedMessage = () => {
-    alert("🚀 Shipping speed set to ludacris mode")
-  }
-
-  const showFuelMessage = () => {
-    alert("⛽ Seems to be all gas no brakes.")
-  }
+  const [speedMessageVisible, setSpeedMessageVisible] = useState(false)
+  const [fuelMessageVisible, setFuelMessageVisible] = useState(false)
 
   return (
     <div className="bg-gradient-to-b from-[#2C2C2C] to-[#1a1a1a] p-4 lg:p-6 relative">
@@ -282,7 +276,7 @@ export function CockpitDashboard() {
               <div className="flex flex-col items-center gap-2">
                 <div 
                   className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
-                  onClick={showSpeedMessage}
+                  onClick={() => setSpeedMessageVisible(!speedMessageVisible)}
                 >
                   <svg className="w-20 h-20" viewBox="0 0 100 100">
                     {/* Gauge background */}
@@ -305,13 +299,18 @@ export function CockpitDashboard() {
                   </svg>
                   <div className="absolute bottom-2 text-[8px] text-[#DC9300] font-bold">SPEED</div>
                 </div>
+                {speedMessageVisible && (
+                  <div className="bg-[#1a1a1a] p-2 rounded border border-[#DC9300] animate-in fade-in duration-300 text-center max-w-[120px]">
+                    <p className="text-xs text-[#DC9300] font-mono">🚀 Shipping speed set to ludacris mode</p>
+                  </div>
+                )}
               </div>
 
               {/* Fuel Gauge */}
               <div className="flex flex-col items-center gap-2">
                 <div 
                   className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
-                  onClick={showFuelMessage}
+                  onClick={() => setFuelMessageVisible(!fuelMessageVisible)}
                 >
                   <svg className="w-20 h-20" viewBox="0 0 100 100">
                     {/* Gauge background */}
@@ -334,6 +333,11 @@ export function CockpitDashboard() {
                   </svg>
                   <div className="absolute bottom-2 text-[8px] text-[#1D4AFF] font-bold">FUEL</div>
                 </div>
+                {fuelMessageVisible && (
+                  <div className="bg-[#1a1a1a] p-2 rounded border border-[#1D4AFF] animate-in fade-in duration-300 text-center max-w-[120px]">
+                    <p className="text-xs text-[#1D4AFF] font-mono">⛽ Seems to be all gas no brakes.</p>
+                  </div>
+                )}
               </div>
             </div>
 
