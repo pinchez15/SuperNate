@@ -9,6 +9,14 @@ export function CockpitDashboard() {
   const [thrustersSwitch, setThrustersSwitch] = useState(false)
   const [commsSwitch, setCommsSwitch] = useState(false)
 
+  const showSpeedMessage = () => {
+    alert("🚀 Shipping speed set to ludacris mode")
+  }
+
+  const showFuelMessage = () => {
+    alert("⛽ Seems to be all gas no brakes.")
+  }
+
   return (
     <div className="bg-gradient-to-b from-[#2C2C2C] to-[#1a1a1a] p-4 lg:p-6 relative">
       {/* Cockpit panel background texture */}
@@ -273,8 +281,8 @@ export function CockpitDashboard() {
               {/* Speed Gauge */}
               <div className="flex flex-col items-center gap-2">
                 <div 
-                  className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center cursor-help"
-                  title="Shipping speed set to ludacris mode"
+                  className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
+                  onClick={showSpeedMessage}
                 >
                   <svg className="w-20 h-20" viewBox="0 0 100 100">
                     {/* Gauge background */}
@@ -302,8 +310,8 @@ export function CockpitDashboard() {
               {/* Fuel Gauge */}
               <div className="flex flex-col items-center gap-2">
                 <div 
-                  className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center cursor-help"
-                  title="Seems to be all gas no brakes."
+                  className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
+                  onClick={showFuelMessage}
                 >
                   <svg className="w-20 h-20" viewBox="0 0 100 100">
                     {/* Gauge background */}
