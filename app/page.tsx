@@ -12,6 +12,18 @@ export default function Home() {
   const [unlockedMemories, setUnlockedMemories] = useState<number[]>([])
   const [viewingMemory, setViewingMemory] = useState<number | null>(null)
 
+  // Get company logo path
+  const getCompanyLogo = (company: string): string => {
+    const logoMap: { [key: string]: string } = {
+      "CappaWork": "/Logos/CappaWork Logos.png",
+      "Entromy": "/Logos/entromy.png",
+      "Eagle Hill Consulting": "/Logos/EHC_Logo_Primary.svg",
+      "CVS Health; Omnicare": "/Logos/CVS.png",
+      "Dana-Farber Harvard Cancer Center": "/Logos/danaFarber logo.png",
+    }
+    return logoMap[company] || ""
+  }
+
   const handleMemoryUnlocked = (memoryIndex: number) => {
     if (!unlockedMemories.includes(memoryIndex)) {
       setUnlockedMemories([...unlockedMemories, memoryIndex])
@@ -102,22 +114,39 @@ export default function Home() {
       <Dialog open={viewingMemory !== null} onOpenChange={() => setViewingMemory(null)}>
         <DialogContent className="bg-[#EEEFE9] dark:bg-[#151515] border-[#F54E00] border-2 max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl text-[#F54E00] font-bold">Memory Details</DialogTitle>
+            <DialogTitle className="text-2xl text-[#F54E00] font-bold flex items-center gap-3 justify-center">
+              <img src="/natehog.png" alt="NateHog" className="w-10 h-10 rounded-full" />
+              Work Experience
+            </DialogTitle>
           </DialogHeader>
           {viewingMemory !== null && (
             <div className="space-y-4 text-[#151515] dark:text-[#EEEFE9]">
-              <h3 className="text-xl font-bold">{workExperiences[viewingMemory].title}</h3>
-              <p className="text-sm text-[#151515]/70 dark:text-[#EEEFE9]/70">
-                {workExperiences[viewingMemory].company} • {workExperiences[viewingMemory].period}
-              </p>
-              <p className="text-sm leading-relaxed">{workExperiences[viewingMemory].description}</p>
-              {workExperiences[viewingMemory].achievements && (
-                <ul className="list-disc list-inside space-y-1 text-sm">
-                  {workExperiences[viewingMemory].achievements.map((achievement, i) => (
-                    <li key={i}>{achievement}</li>
-                  ))}
-                </ul>
-              )}
+              {/* Company name with logo */}
+              <div className="flex items-center gap-4 justify-center">
+                <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center border-2 border-[#F54E00] p-2">
+                  <img 
+                    src={getCompanyLogo(workExperiences[viewingMemory].company)} 
+                    alt={`${workExperiences[viewingMemory].company} logo`}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <h3 className="text-3xl font-bold">{workExperiences[viewingMemory].company}</h3>
+              </div>
+              
+              <div className="border-t-2 border-[#F54E00] pt-4">
+                <p className="text-lg font-semibold">{workExperiences[viewingMemory].title}</p>
+                <p className="text-sm text-[#151515]/70 dark:text-[#EEEFE9]/70 mb-2">
+                  {workExperiences[viewingMemory].period}
+                </p>
+                <p className="text-sm leading-relaxed">{workExperiences[viewingMemory].description}</p>
+                {workExperiences[viewingMemory].achievements && (
+                  <ul className="list-disc list-inside space-y-1 text-sm mt-3">
+                    {workExperiences[viewingMemory].achievements.map((achievement, i) => (
+                      <li key={i}>{achievement}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           )}
           <Button onClick={() => setViewingMemory(null)} className="bg-[#F54E00] hover:bg-[#F54E00]/90 text-white">

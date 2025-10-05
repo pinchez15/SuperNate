@@ -84,12 +84,12 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
     bgMusicRef.current = bgMusic
 
     // Laser sound effect
-    const laserSound = new Audio("/audio/Pew pew.m4a")
+    const laserSound = new Audio("/audio/pew.mp3")
     laserSound.volume = 0.12
     laserSoundRef.current = laserSound
 
     // Hit sound effect
-    const hitSound = new Audio("/audio/Ack.m4a")
+    const hitSound = new Audio("/audio/zing.mp3")
     hitSound.volume = 0.48
     hitSoundRef.current = hitSound
 
@@ -525,11 +525,11 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
   // Get company logo path
   const getCompanyLogo = (company: string): string => {
     const logoMap: { [key: string]: string } = {
-      "CappaWork": "/logos/CappaWork Logos.png",
-      "Entromy": "/logos/entromy.png",
-      "Eagle Hill Consulting": "/logos/EHC_Logo_Primary.svg",
-      "CVS Health; Omnicare": "/logos/CVS.png",
-      "Dana-Farber Harvard Cancer Center": "/logos/danaFarber logo.png",
+      "CappaWork": "/Logos/CappaWork Logos.png",
+      "Entromy": "/Logos/entromy.png",
+      "Eagle Hill Consulting": "/Logos/EHC_Logo_Primary.svg",
+      "CVS Health; Omnicare": "/Logos/CVS.png",
+      "Dana-Farber Harvard Cancer Center": "/Logos/danaFarber logo.png",
     }
     return logoMap[company] || ""
   }
