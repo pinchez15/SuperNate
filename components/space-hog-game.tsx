@@ -56,6 +56,7 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
   const bgMusicRef = useRef<HTMLAudioElement | null>(null)
   const laserSoundRef = useRef<HTMLAudioElement | null>(null)
   const hitSoundRef = useRef<HTMLAudioElement | null>(null)
+  const congratsSoundRef = useRef<HTMLAudioElement | null>(null)
 
   const playerAngleRef = useRef(0)
   const lasersRef = useRef<Laser[]>([])
@@ -79,24 +80,30 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
     // Background music (looping)
     const bgMusic = new Audio("/audio/SpacehogSpiff.mp3")
     bgMusic.loop = true
-    bgMusic.volume = 0.3
+    bgMusic.volume = 0.24
     bgMusicRef.current = bgMusic
 
     // Laser sound effect
-    const laserSound = new Audio("/audio/pew.mp3")
-    laserSound.volume = 0.15
+    const laserSound = new Audio("/audio/Pew pew.m4a")
+    laserSound.volume = 0.12
     laserSoundRef.current = laserSound
 
     // Hit sound effect
-    const hitSound = new Audio("/audio/zing.mp3")
-    hitSound.volume = 0.6
+    const hitSound = new Audio("/audio/Ack.m4a")
+    hitSound.volume = 0.48
     hitSoundRef.current = hitSound
+
+    // Congratulations sound effect
+    const congratsSound = new Audio("/audio/Congratulations.m4a")
+    congratsSound.volume = 0.48
+    congratsSoundRef.current = congratsSound
 
     return () => {
       bgMusic.pause()
       bgMusic.src = ""
       laserSound.src = ""
       hitSound.src = ""
+      congratsSound.src = ""
     }
   }, [])
 
@@ -476,7 +483,14 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
   // Check if game is complete
   useEffect(() => {
     if (unlockedMemories.length === workExperiences.length && unlockedMemories.length > 0) {
-      setTimeout(() => setGameComplete(true), 500)
+      setTimeout(() => {
+        setGameComplete(true)
+        // Play congratulations sound
+        if (congratsSoundRef.current) {
+          congratsSoundRef.current.currentTime = 0
+          congratsSoundRef.current.play().catch(() => {})
+        }
+      }, 500)
     }
   }, [unlockedMemories])
 
@@ -506,6 +520,18 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
 
   const handleRotateRight = () => {
     playerAngleRef.current += 0.1
+  }
+
+  // Get company logo path
+  const getCompanyLogo = (company: string): string => {
+    const logoMap: { [key: string]: string } = {
+      "CappaWork": "/logos/CappaWork Logos.png",
+      "Entromy": "/logos/entromy.png",
+      "Eagle Hill Consulting": "/logos/EHC_Logo_Primary.svg",
+      "CVS Health; Omnicare": "/logos/CVS.png",
+      "Dana-Farber Harvard Cancer Center": "/logos/danaFarber logo.png",
+    }
+    return logoMap[company] || ""
   }
 
   const handlePlayAgain = () => {
@@ -544,7 +570,7 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
     "I'm SpaceHog Spiff. I've been traveling the universe in search of my hero friend NateHog.",
     "NateHog is a brilliant, creative, hardworking guy and he's been captured by the boring PDfffff aliens from the evil planet ReSume! They've stolen his memory!",
     "They put his memories in spaceships to send to the four corners of the galaxy.",
-    "Help me blast the PDfffff aliens to free NateHog and his memories from their synergistic clutches!",
+    "Help me blast the PDfffff aliens to free NateHog and his memories from their synergistic clutches (and find the easter eggs)!",
   ]
 
   // Handle mobile canvas tap to shoot
@@ -613,24 +639,39 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
       <Dialog open={currentMemory !== null} onOpenChange={() => handleCloseModal()}>
         <DialogContent className="bg-[#EEEFE9] dark:bg-[#151515] border-[#F54E00] border-2 max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl text-[#F54E00] font-bold">
-              You unlocked a memory!
+            <DialogTitle className="text-2xl text-[#F54E00] font-bold flex items-center gap-3 justify-center">
+              <img src="/natehog.png" alt="NateHog" className="w-10 h-10 rounded-full" />
+              You unlocked a work experience!
             </DialogTitle>
           </DialogHeader>
           {currentMemory !== null && (
             <div className="space-y-4 text-[#151515] dark:text-[#EEEFE9]">
-              <h3 className="text-xl font-bold">{workExperiences[currentMemory].title}</h3>
-              <p className="text-sm text-[#151515]/70 dark:text-[#EEEFE9]/70">
-                {workExperiences[currentMemory].company} • {workExperiences[currentMemory].period}
-              </p>
-              <p className="text-sm leading-relaxed">{workExperiences[currentMemory].description}</p>
-              {workExperiences[currentMemory].achievements && (
-                <ul className="list-disc list-inside space-y-1 text-sm">
-                  {workExperiences[currentMemory].achievements.map((achievement, i) => (
-                    <li key={i}>{achievement}</li>
-                  ))}
-                </ul>
-              )}
+              {/* Company name with logo */}
+              <div className="flex items-center gap-4 justify-center">
+                <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center border-2 border-[#F54E00] p-2">
+                  <img 
+                    src={getCompanyLogo(workExperiences[currentMemory].company)} 
+                    alt={`${workExperiences[currentMemory].company} logo`}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <h3 className="text-3xl font-bold">{workExperiences[currentMemory].company}</h3>
+              </div>
+              
+              <div className="border-t-2 border-[#F54E00] pt-4">
+                <p className="text-lg font-semibold">{workExperiences[currentMemory].title}</p>
+                <p className="text-sm text-[#151515]/70 dark:text-[#EEEFE9]/70 mb-2">
+                  {workExperiences[currentMemory].period}
+                </p>
+                <p className="text-sm leading-relaxed">{workExperiences[currentMemory].description}</p>
+                {workExperiences[currentMemory].achievements && (
+                  <ul className="list-disc list-inside space-y-1 text-sm mt-3">
+                    {workExperiences[currentMemory].achievements.map((achievement, i) => (
+                      <li key={i}>{achievement}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           )}
           <Button onClick={handleCloseModal} className="bg-[#F54E00] hover:bg-[#F54E00]/90 text-white">

@@ -272,7 +272,10 @@ export function CockpitDashboard() {
             <div className="flex gap-4">
               {/* Speed Gauge */}
               <div className="flex flex-col items-center gap-2">
-                <div className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center">
+                <div 
+                  className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center cursor-help"
+                  title="Shipping speed set to ludacris mode"
+                >
                   <svg className="w-20 h-20" viewBox="0 0 100 100">
                     {/* Gauge background */}
                     <circle cx="50" cy="50" r="45" fill="none" stroke="#151515" strokeWidth="2" />
@@ -298,7 +301,10 @@ export function CockpitDashboard() {
 
               {/* Fuel Gauge */}
               <div className="flex flex-col items-center gap-2">
-                <div className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center">
+                <div 
+                  className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center cursor-help"
+                  title="Seems to be all gas no brakes."
+                >
                   <svg className="w-20 h-20" viewBox="0 0 100 100">
                     {/* Gauge background */}
                     <circle cx="50" cy="50" r="45" fill="none" stroke="#151515" strokeWidth="2" />
