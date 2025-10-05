@@ -222,7 +222,7 @@ export function CockpitDashboard() {
                     rel="noopener noreferrer"
                     className="text-sm text-[#F54E00] hover:text-[#DC9300] font-mono underline transition-colors"
                   >
-                    NateHog spend most of his power on his business @ Cappawork.com
+                    NateHog spends most of his power on his business @ Cappawork.com
                   </a>
                 </div>
               )}
@@ -237,7 +237,7 @@ export function CockpitDashboard() {
                     rel="noopener noreferrer"
                     className="text-sm text-[#F54E00] hover:text-[#DC9300] font-mono underline transition-colors"
                   >
-                    He made a startup called that LinkedIn crushed with feature. But its still kinda cool and has nice UI. Workportfolio.io
+                    He made a startup that LinkedIn crushed with a similar feature. But it's still kinda cool and has nice UI: Workportfolio.io
                   </a>
                 </div>
               )}
