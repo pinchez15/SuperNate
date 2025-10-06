@@ -4,10 +4,14 @@ import { useState } from "react"
 import Image from "next/image"
 import { posthog } from "@/lib/posthog"
 
-export function CockpitDashboard() {
+interface CockpitDashboardProps {
+  thrustersActive: boolean
+  onThrustersToggle: (active: boolean) => void
+}
+
+export function CockpitDashboard({ thrustersActive, onThrustersToggle }: CockpitDashboardProps) {
   const [powerSwitch, setPowerSwitch] = useState(false)
   const [shieldsSwitch, setShieldsSwitch] = useState(false)
-  const [thrustersSwitch, setThrustersSwitch] = useState(false)
   const [commsSwitch, setCommsSwitch] = useState(false)
   const [speedMessageVisible, setSpeedMessageVisible] = useState(false)
   const [fuelMessageVisible, setFuelMessageVisible] = useState(false)
@@ -165,8 +169,8 @@ export function CockpitDashboard() {
               <div className="flex flex-col items-center gap-2">
                 <button
                   onClick={() => {
-                    setThrustersSwitch(!thrustersSwitch)
-                    posthog.capture('easter_egg_clicked', { type: 'thrusters_switch' })
+                    onThrustersToggle(!thrustersActive)
+                    posthog.capture('easter_egg_clicked', { type: 'thrusters_switch', active: !thrustersActive })
                   }}
                   className="relative w-20 h-20 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-lg border-2 border-[#1a1a1a] shadow-lg cursor-pointer flex items-center justify-center"
                   style={{
@@ -176,7 +180,7 @@ export function CockpitDashboard() {
                   <div className="absolute w-12 h-12 rounded-full bg-gradient-to-b from-[#F54E00] to-[#d04400] shadow-inner" />
                   <div
                     className={`relative w-8 h-10 bg-gradient-to-b from-[#e0e0e0] to-[#a0a0a0] rounded-sm shadow-md transition-transform duration-200 ${
-                      thrustersSwitch ? "translate-y-2" : "-translate-y-2"
+                      thrustersActive ? "translate-y-2" : "-translate-y-2"
                     }`}
                     style={{
                       boxShadow: "0 2px 4px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.3)",
@@ -256,7 +260,7 @@ export function CockpitDashboard() {
               )}
 
               {/* Thrusters info window */}
-              {thrustersSwitch && (
+              {thrustersActive && (
                 <div className="bg-[#1a1a1a] p-3 rounded border border-[#F54E00] animate-in fade-in duration-300">
                   <p className="text-xs text-[#F54E00] uppercase mb-1">Thrusters Engaged:</p>
                   <a
@@ -309,8 +313,15 @@ export function CockpitDashboard() {
                     <line x1="15" y1="50" x2="20" y2="50" stroke="#EEEFE9" strokeWidth="2" />
                     <line x1="20" y1="30" x2="25" y2="33" stroke="#EEEFE9" strokeWidth="1.5" />
                     
-                    {/* Needle */}
-                    <line x1="50" y1="50" x2="50" y2="25" stroke="#F54E00" strokeWidth="2" strokeLinecap="round" transform="rotate(45 50 50)" />
+                    {/* Needle - rotates more when thrusters active */}
+                    <line 
+                      x1="50" y1="50" x2="50" y2="25" 
+                      stroke="#F54E00" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      transform={`rotate(${thrustersActive ? 100 : 45} 50 50)`}
+                      style={{ transition: 'transform 0.5s ease-out' }}
+                    />
                     <circle cx="50" cy="50" r="4" fill="#F54E00" />
                   </svg>
                   <div className="absolute bottom-2 text-[8px] text-[#DC9300] font-bold">SPEED</div>

@@ -12,6 +12,7 @@ import { posthog } from "@/lib/posthog"
 export default function Home() {
   const [unlockedMemories, setUnlockedMemories] = useState<number[]>([])
   const [viewingMemory, setViewingMemory] = useState<number | null>(null)
+  const [thrustersActive, setThrustersActive] = useState(false)
 
   // Get company logo path
   const getCompanyLogo = (company: string): string => {
@@ -77,6 +78,9 @@ export default function Home() {
 
             <div className="w-full max-w-4xl z-10">
               <div className="mb-4 text-center">
+                <p className="text-[#F54E00] text-xs font-bold uppercase tracking-wider mb-2">
+                  🔊 SOUND ON 🔊
+                </p>
                 <p className="text-[#EEEFE9]/70 text-sm">
                   Help SpaceHog Spiff defeat the PDfff aliens and unlock NateHog's memories!
                 </p>
@@ -88,13 +92,17 @@ export default function Home() {
                 unlockedMemories={unlockedMemories}
                 onCardClick={handleCardClick}
                 onReset={handleReset}
+                thrustersActive={thrustersActive}
               />
             </div>
           </div>
 
           {/* Cockpit Dashboard - wraps underneath the window */}
           <div className="border-t-2 border-[#4B4B4B]">
-            <CockpitDashboard />
+            <CockpitDashboard 
+              thrustersActive={thrustersActive}
+              onThrustersToggle={setThrustersActive}
+            />
           </div>
         </div>
 

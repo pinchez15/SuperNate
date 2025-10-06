@@ -11,6 +11,7 @@ interface SpaceHogGameProps {
   unlockedMemories: number[]
   onCardClick: (memoryIndex: number) => void
   onReset: () => void
+  thrustersActive: boolean
 }
 
 interface Spaceship {
@@ -44,7 +45,14 @@ interface Star {
   speed: number
 }
 
-export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, onReset }: SpaceHogGameProps) {
+interface Flame {
+  x: number
+  y: number
+  vy: number
+  life: number
+}
+
+export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, onReset, thrustersActive }: SpaceHogGameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [currentMemory, setCurrentMemory] = useState<number | null>(null)
   const [gameComplete, setGameComplete] = useState(false)
@@ -64,6 +72,7 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
   const spaceshipsRef = useRef<Spaceship[]>([])
   const papersRef = useRef<Paper[]>([])
   const starsRef = useRef<Star[]>([])
+  const flamesRef = useRef<Flame[]>([])
   const keysPressed = useRef<Set<string>>(new Set())
   const animationFrameRef = useRef<number>()
 
@@ -208,8 +217,10 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
     if (!ctx) return
 
     const gameLoop = () => {
+      // Update stars with speed boost from thrusters
+      const starSpeedMultiplier = thrustersActive ? 3 : 1
       starsRef.current = starsRef.current.map((star) => {
-        let newY = star.y + star.speed
+        let newY = star.y + star.speed * starSpeedMultiplier
         if (newY > 600) {
           newY = 0
         }
@@ -217,6 +228,25 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
       })
 
       if (!storyMode) {
+        // Generate flames when thrusters are active
+        if (thrustersActive && Math.random() < 0.3) {
+          flamesRef.current.push({
+            x: 400 + (Math.random() - 0.5) * 30,
+            y: 550,
+            vy: Math.random() * 3 + 2,
+            life: 1.0
+          })
+        }
+
+        // Update flames
+        flamesRef.current = flamesRef.current
+          .map((flame) => ({
+            ...flame,
+            y: flame.y + flame.vy,
+            life: flame.life - 0.02
+          }))
+          .filter((flame) => flame.life > 0 && flame.y < 600)
+
         // Update player rotation
         if (keysPressed.current.has("ArrowLeft")) {
           playerAngleRef.current -= 0.05
@@ -457,6 +487,14 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
           ctx.stroke()
         })
 
+        // Draw flames (when thrusters active)
+        flamesRef.current.forEach((flame) => {
+          ctx.font = `${20 * flame.life}px sans-serif`
+          ctx.globalAlpha = flame.life
+          ctx.fillText("🔥", flame.x - 10, flame.y)
+        })
+        ctx.globalAlpha = 1
+
         // Draw player (SpaceHog Spiff)
         ctx.save()
         ctx.translate(400, 550)
@@ -488,7 +526,7 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [spaceHogImage, spaceshipImage, storyMode, storyIndex])
+  }, [spaceHogImage, spaceshipImage, storyMode, storyIndex, thrustersActive])
 
   // Check if game is complete
   useEffect(() => {
