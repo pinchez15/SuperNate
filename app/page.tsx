@@ -44,26 +44,9 @@ export default function Home() {
     setViewingMemory(null)
   }
 
-  const sendTestEvent = () => {
-    posthog.capture('test_event', { 
-      property: 'test_value',
-      timestamp: new Date().toISOString(),
-      message: 'Manual test from SpaceHog Spiff'
-    })
-    alert('Test event sent to PostHog! Check your PostHog dashboard.')
-  }
-
   return (
     <div className="min-h-screen bg-[#151515] flex flex-col">
-      <header className="py-6 text-center border-b-2 border-[#F54E00] relative">
-        {/* Test button - top right corner */}
-        <button
-          onClick={sendTestEvent}
-          className="absolute top-4 right-4 px-3 py-1 text-xs bg-[#F54E00] hover:bg-[#DC9300] text-white rounded border border-[#EEEFE9] transition-colors"
-          title="Send test event to PostHog"
-        >
-          📊 Test Analytics
-        </button>
+      <header className="py-6 text-center border-b-2 border-[#F54E00]">
         <h1
           className="text-5xl md:text-6xl font-bold tracking-wider"
           style={{
