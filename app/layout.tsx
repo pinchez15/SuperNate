@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: "SpaceHog Spiff - NateHog Resume Mission",
   description: "Help SpaceHog Spiff rescue NateHog memories from the PDfff aliens!",
   generator: "v0.app",
+  icons: {
+    icon: "/spacehog.png",
+  },
 }
 
 export default function RootLayout({

@@ -748,6 +748,37 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
               You've successfully helped SpaceHog Spiff rescue all of NateHog's memories! I'd love to join you to bring this kind of
               creativity and technical skill to the wacky PostHog team! 🦔 
             </p>
+            
+            {/* Resume Preview Card */}
+            <a
+              href="/NateHog-Resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block mx-auto max-w-sm group"
+              onClick={() => posthog.capture('resume_viewed')}
+            >
+              <div className="bg-white dark:bg-[#2C2C2C] p-4 rounded-lg border-2 border-[#F54E00] hover:border-[#DC9300] transition-all hover:shadow-lg hover:scale-105 cursor-pointer">
+                <div className="flex items-center gap-4">
+                  <div className="flex-shrink-0 w-24 h-32 bg-[#EEEFE9] rounded border border-[#D0D1C9] overflow-hidden">
+                    <img
+                      src="/resume-preview.png"
+                      alt="Resume Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-sm font-bold text-[#F54E00] mb-1">📄 View Full Resume</p>
+                    <p className="text-xs text-[#151515]/60 dark:text-[#EEEFE9]/60">
+                      Click to open PDF in new tab
+                    </p>
+                    <div className="mt-2 text-xs text-[#F54E00] group-hover:text-[#DC9300] flex items-center gap-1">
+                      <span>Open Resume</span>
+                      <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
           </div>
           <Button onClick={handlePlayAgain} className="bg-[#F54E00] hover:bg-[#F54E00]/90 text-white">
             Play Again
