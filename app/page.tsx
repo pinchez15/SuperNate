@@ -7,6 +7,7 @@ import { CockpitDashboard } from "@/components/cockpit-dashboard"
 import { workExperiences } from "@/lib/work-experiences"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { posthog } from "@/lib/posthog"
 
 export default function Home() {
   const [unlockedMemories, setUnlockedMemories] = useState<number[]>([])
@@ -32,6 +33,10 @@ export default function Home() {
 
   const handleCardClick = (memoryIndex: number) => {
     setViewingMemory(memoryIndex)
+    posthog.capture('memory_reopened', {
+      memory_index: memoryIndex,
+      company: workExperiences[memoryIndex]?.company
+    })
   }
 
   const handleReset = () => {

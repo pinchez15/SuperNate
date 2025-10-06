@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { workExperiences } from "@/lib/work-experiences"
+import { posthog } from "@/lib/posthog"
 
 interface SpaceHogGameProps {
   onMemoryUnlocked: (memoryIndex: number) => void
@@ -169,6 +170,9 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
           setStoryIndex(storyIndex + 1)
         } else {
           setStoryMode(false)
+          posthog.capture('game_started', {
+            story_completed: true
+          })
         }
         return
       }
@@ -300,7 +304,13 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
 
             if (newHits >= 2) {
               // Memory unlocked!
-              setTimeout(() => setCurrentMemory(ship.memoryIndex), 100)
+              setTimeout(() => {
+                setCurrentMemory(ship.memoryIndex)
+                posthog.capture('memory_unlocked', {
+                  memory_index: ship.memoryIndex,
+                  company: workExperiences[ship.memoryIndex]?.company
+                })
+              }, 100)
               return { ...ship, hits: newHits, x: -1000 } // Move off screen
             }
 
@@ -485,6 +495,9 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
     if (unlockedMemories.length === workExperiences.length && unlockedMemories.length > 0) {
       setTimeout(() => {
         setGameComplete(true)
+        posthog.capture('game_completed', {
+          total_memories: workExperiences.length
+        })
         // Play congratulations sound
         if (congratsSoundRef.current) {
           congratsSoundRef.current.currentTime = 0

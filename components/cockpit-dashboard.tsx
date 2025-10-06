@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import { posthog } from "@/lib/posthog"
 
 export function CockpitDashboard() {
   const [powerSwitch, setPowerSwitch] = useState(false)
@@ -98,7 +99,10 @@ export function CockpitDashboard() {
               {/* Power Switch */}
               <div className="flex flex-col items-center gap-2">
                 <button
-                  onClick={() => setPowerSwitch(!powerSwitch)}
+                  onClick={() => {
+                    setPowerSwitch(!powerSwitch)
+                    posthog.capture('easter_egg_clicked', { type: 'power_switch' })
+                  }}
                   className="relative w-20 h-20 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-lg border-2 border-[#1a1a1a] shadow-lg cursor-pointer flex items-center justify-center"
                   style={{
                     boxShadow: "inset 0 2px 4px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)",
@@ -129,7 +133,10 @@ export function CockpitDashboard() {
               {/* Shields Switch */}
               <div className="flex flex-col items-center gap-2">
                 <button
-                  onClick={() => setShieldsSwitch(!shieldsSwitch)}
+                  onClick={() => {
+                    setShieldsSwitch(!shieldsSwitch)
+                    posthog.capture('easter_egg_clicked', { type: 'shields_switch' })
+                  }}
                   className="relative w-20 h-20 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-lg border-2 border-[#1a1a1a] shadow-lg cursor-pointer flex items-center justify-center"
                   style={{
                     boxShadow: "inset 0 2px 4px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)",
@@ -157,7 +164,10 @@ export function CockpitDashboard() {
               {/* Thrusters Switch */}
               <div className="flex flex-col items-center gap-2">
                 <button
-                  onClick={() => setThrustersSwitch(!thrustersSwitch)}
+                  onClick={() => {
+                    setThrustersSwitch(!thrustersSwitch)
+                    posthog.capture('easter_egg_clicked', { type: 'thrusters_switch' })
+                  }}
                   className="relative w-20 h-20 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-lg border-2 border-[#1a1a1a] shadow-lg cursor-pointer flex items-center justify-center"
                   style={{
                     boxShadow: "inset 0 2px 4px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)",
@@ -185,7 +195,10 @@ export function CockpitDashboard() {
               {/* Comms Switch */}
               <div className="flex flex-col items-center gap-2">
                 <button
-                  onClick={() => setCommsSwitch(!commsSwitch)}
+                  onClick={() => {
+                    setCommsSwitch(!commsSwitch)
+                    posthog.capture('easter_egg_clicked', { type: 'comms_switch' })
+                  }}
                   className="relative w-20 h-20 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-lg border-2 border-[#1a1a1a] shadow-lg cursor-pointer flex items-center justify-center"
                   style={{
                     boxShadow: "inset 0 2px 4px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)",
@@ -276,7 +289,10 @@ export function CockpitDashboard() {
               <div className="flex flex-col items-center gap-2">
                 <div 
                   className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
-                  onClick={() => setSpeedMessageVisible(!speedMessageVisible)}
+                  onClick={() => {
+                    setSpeedMessageVisible(!speedMessageVisible)
+                    posthog.capture('easter_egg_clicked', { type: 'speed_gauge' })
+                  }}
                 >
                   <svg className="w-20 h-20" viewBox="0 0 100 100">
                     {/* Gauge background */}
@@ -310,7 +326,10 @@ export function CockpitDashboard() {
               <div className="flex flex-col items-center gap-2">
                 <div 
                   className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
-                  onClick={() => setFuelMessageVisible(!fuelMessageVisible)}
+                  onClick={() => {
+                    setFuelMessageVisible(!fuelMessageVisible)
+                    posthog.capture('easter_egg_clicked', { type: 'fuel_gauge' })
+                  }}
                 >
                   <svg className="w-20 h-20" viewBox="0 0 100 100">
                     {/* Gauge background */}
