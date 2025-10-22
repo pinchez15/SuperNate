@@ -139,12 +139,12 @@ export default function Home() {
           </DialogHeader>
           {viewingMemory !== null && (
             <div className="space-y-4 text-[#151515] dark:text-[#EEEFE9]">
-              {/* Company name with SuperNate logo */}
+              {/* Company name with logo */}
               <div className="flex items-center gap-4 justify-center">
                 <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center border-2 border-[#F54E00] p-2">
                   <img 
-                    src="/SuperNate.png" 
-                    alt="SuperNate"
+                    src={getCompanyLogo(workExperiences[viewingMemory].company)} 
+                    alt={`${workExperiences[viewingMemory].company} logo`}
                     className="w-full h-full object-contain"
                   />
                 </div>
