@@ -243,12 +243,11 @@ git push origin main
 2. **Deploy to Vercel**:
    - Go to [vercel.com](https://vercel.com)
    - Import your GitHub repository
-   - Set environment variables in Vercel dashboard
-   - Deploy!
+   - Deploy! (No environment variables required for basic functionality)
 
-3. **Set Environment Variables** in Vercel Dashboard:
+3. **Optional: Set Environment Variables** in Vercel Dashboard:
    - Go to your project settings → Environment Variables
-   - Add these variables:
+   - Add these variables for enhanced functionality:
      - `NEXT_PUBLIC_SITE_URL` - Your deployed URL (e.g., https://yourname.vercel.app)
      - `NEXT_PUBLIC_SITE_NAME` - Your site name
      - `NEXT_PUBLIC_SITE_DESCRIPTION` - Your site description

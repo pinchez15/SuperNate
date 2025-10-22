@@ -40,7 +40,7 @@ export function initAnalytics() {
       analyticsEnabled = false
     }
   } else {
-    console.log('PostHog key not found, analytics disabled')
+    // Analytics disabled by default - no console log to avoid noise
     analyticsEnabled = false
   }
 }
