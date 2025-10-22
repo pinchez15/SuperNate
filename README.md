@@ -246,11 +246,13 @@ git push origin main
    - Set environment variables in Vercel dashboard
    - Deploy!
 
-3. **Set Environment Variables** in Vercel:
-   - `NEXT_PUBLIC_SITE_URL` - Your deployed URL
-   - `NEXT_PUBLIC_SITE_NAME` - Your site name
-   - `NEXT_PUBLIC_SITE_DESCRIPTION` - Your site description
-   - Analytics variables (if using PostHog, GA4, etc.)
+3. **Set Environment Variables** in Vercel Dashboard:
+   - Go to your project settings → Environment Variables
+   - Add these variables:
+     - `NEXT_PUBLIC_SITE_URL` - Your deployed URL (e.g., https://yourname.vercel.app)
+     - `NEXT_PUBLIC_SITE_NAME` - Your site name
+     - `NEXT_PUBLIC_SITE_DESCRIPTION` - Your site description
+     - Analytics variables (if using PostHog, GA4, etc.)
 
 ### Other Platforms
 

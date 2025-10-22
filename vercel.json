@@ -8,10 +8,5 @@
     "app/api/**/*.ts": {
       "runtime": "nodejs18.x"
     }
-  },
-  "env": {
-    "NEXT_PUBLIC_SITE_URL": "@site_url",
-    "NEXT_PUBLIC_SITE_NAME": "@site_name",
-    "NEXT_PUBLIC_SITE_DESCRIPTION": "@site_description"
   }
 }
