@@ -1,6 +1,6 @@
 # 🚀 Quick Setup Guide
 
-Get your resume game up and running in 10 minutes!
+Customize this game with your resume to break through the noise and get eyes on your work!
 
 ## ⚡ Essential Steps (Required)
 

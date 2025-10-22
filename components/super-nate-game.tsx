@@ -653,10 +653,10 @@ export function SuperNateGame({ onMemoryUnlocked, unlockedMemories, onCardClick,
   }
 
   const STORY_PARTS = [
-    "I'm SuperMANager, and I'm on a critical mission to rescue SuperNate!",
-    "The evil PDfff aliens have captured SuperNate's work experience memories and locked them away in their spaceships!",
-    "They're trying to send these precious memories to the four corners of the galaxy to scatter them forever.",
-    "Help me blast the PDfff alien spaceships to recover SuperNate's memories and complete this rescue mission!",
+    "You're just in time! SuperNate has been captured by the boring PDffff aliens!",
+    "The aliens have taken SuperNate's work experience and locked them in their spaceships!",
+    "They want to send them to the four corners of the galaxy to scatter them forever.",
+    "Blast the PDfff alien spaceships to recover SuperNate's memories and rescue him from their synergistic clutches!",
   ]
 
   // Handle mobile canvas tap to shoot
