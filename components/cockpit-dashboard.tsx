@@ -7,9 +7,11 @@ import { analytics } from "@/lib/analytics"
 interface CockpitDashboardProps {
   thrustersActive: boolean
   onThrustersToggle: (active: boolean) => void
+  musicEnabled: boolean
+  onMusicToggle: (enabled: boolean) => void
 }
 
-export function CockpitDashboard({ thrustersActive, onThrustersToggle }: CockpitDashboardProps) {
+export function CockpitDashboard({ thrustersActive, onThrustersToggle, musicEnabled, onMusicToggle }: CockpitDashboardProps) {
   const [powerSwitch, setPowerSwitch] = useState(false)
   const [shieldsSwitch, setShieldsSwitch] = useState(false)
   const [commsSwitch, setCommsSwitch] = useState(false)
@@ -31,7 +33,7 @@ export function CockpitDashboard({ thrustersActive, onThrustersToggle }: Cockpit
 
       <div className="relative z-10">
         <div className="flex flex-wrap gap-6 items-start justify-between">
-          {/* Left side - Missing Poster */}
+          {/* Left side - Mission Brief */}
           <div className="flex flex-col gap-4">
             <div
               className="bg-[#EEEFE9] shadow-lg border-2 border-[#D0D1C9] relative"
@@ -60,7 +62,7 @@ export function CockpitDashboard({ thrustersActive, onThrustersToggle }: Cockpit
                     paddingBottom: "2.4px",
                   }}
                 >
-                  MISSING!
+                  MISSION BRIEF
                 </h3>
 
                 <div className="flex justify-center">
@@ -71,7 +73,7 @@ export function CockpitDashboard({ thrustersActive, onThrustersToggle }: Cockpit
                       height: "57.6px",
                     }}
                   >
-                    <Image src="/natehog.png" alt="NateHog" fill className="object-contain" />
+                    <Image src="/SuperNate.png" alt="SuperNate" fill className="object-contain" />
                   </div>
                 </div>
 
@@ -79,16 +81,18 @@ export function CockpitDashboard({ thrustersActive, onThrustersToggle }: Cockpit
                   className="font-bold text-[#151515]"
                   style={{ fontSize: "10.8px" }}
                 >
-                  NateHog
+                  SuperNate
                 </h4>
 
                 <p 
                   className="text-[#151515] leading-tight"
                   style={{ fontSize: "8.4px" }}
                 >
-                  Last seen using <span className="font-bold">Cursor</span>, <span className="font-bold">Vercel</span>,{" "}
-                  <span className="font-bold">Supabase</span>, <span className="font-bold">Tableau</span>. Has{" "}
-                  <span className="font-bold">MBA</span>. Missed by a plethora of children.
+                  <span className="font-bold">MISSION:</span> Rescue SuperNate's<br />
+                  work memories from the<br />
+                  <span className="font-bold">PDfff aliens!</span><br />
+                  <br />
+                  <span className="font-bold">STATUS:</span> In Progress
                 </p>
               </div>
             </div>
@@ -226,6 +230,38 @@ export function CockpitDashboard({ thrustersActive, onThrustersToggle }: Cockpit
                 </button>
                 <span className="text-xs text-[#EEEFE9] uppercase font-bold">Comms</span>
               </div>
+
+              {/* Music Toggle */}
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  onClick={() => {
+                    onMusicToggle(!musicEnabled)
+                    analytics.capture('easter_egg_clicked', { type: 'music_toggle', enabled: !musicEnabled })
+                  }}
+                  className="relative w-20 h-20 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-lg border-2 border-[#1a1a1a] shadow-lg cursor-pointer flex items-center justify-center"
+                  style={{
+                    boxShadow: "inset 0 2px 4px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)",
+                  }}
+                >
+                  <div className={`absolute w-12 h-12 rounded-full shadow-inner ${
+                    musicEnabled 
+                      ? "bg-gradient-to-b from-[#00FF00] to-[#00cc00]" 
+                      : "bg-gradient-to-b from-[#666] to-[#444]"
+                  }`} />
+                  <div className="relative w-8 h-8 flex items-center justify-center">
+                    {musicEnabled ? (
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                      </svg>
+                    ) : (
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                      </svg>
+                    )}
+                  </div>
+                </button>
+                <span className="text-xs text-[#EEEFE9] uppercase font-bold">Music</span>
+              </div>
             </div>
 
             <div className="space-y-3">
@@ -239,7 +275,7 @@ export function CockpitDashboard({ thrustersActive, onThrustersToggle }: Cockpit
                     rel="noopener noreferrer"
                     className="text-sm text-[#F54E00] hover:text-[#DC9300] font-mono underline transition-colors"
                   >
-                    NateHog spends most of his power on his business @ Cappawork.com
+                    SuperNate's business @ Cappawork.com powers the mission
                   </a>
                 </div>
               )}
@@ -269,7 +305,7 @@ export function CockpitDashboard({ thrustersActive, onThrustersToggle }: Cockpit
                     rel="noopener noreferrer"
                     className="text-sm text-[#F54E00] hover:text-[#DC9300] font-mono underline transition-colors"
                   >
-                    NateHog just pitched the lovely people at Magnolia to make them an AI painter. TBD if they will buy.
+                    SuperNate pitched the lovely people at Magnolia to make them an AI painter. TBD if they will buy.
                   </a>
                 </div>
               )}

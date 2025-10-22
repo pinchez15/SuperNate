@@ -12,6 +12,8 @@ interface SuperNateGameProps {
   onCardClick: (memoryIndex: number) => void
   onReset: () => void
   thrustersActive: boolean
+  musicEnabled: boolean
+  onMusicToggle: (enabled: boolean) => void
 }
 
 interface Spaceship {
@@ -52,12 +54,13 @@ interface Flame {
   life: number
 }
 
-export function SuperNateGame({ onMemoryUnlocked, unlockedMemories, onCardClick, onReset, thrustersActive }: SuperNateGameProps) {
+export function SuperNateGame({ onMemoryUnlocked, unlockedMemories, onCardClick, onReset, thrustersActive, musicEnabled, onMusicToggle }: SuperNateGameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [currentMemory, setCurrentMemory] = useState<number | null>(null)
   const [gameComplete, setGameComplete] = useState(false)
   const [superNateImage, setSuperNateImage] = useState<HTMLImageElement | null>(null)
   const [spaceshipImage, setSpaceshipImage] = useState<HTMLImageElement | null>(null)
+  const [alienShipImage, setAlienShipImage] = useState<HTMLImageElement | null>(null)
   const [storyMode, setStoryMode] = useState(true)
   const [storyIndex, setStoryIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
@@ -108,24 +111,47 @@ export function SuperNateGame({ onMemoryUnlocked, unlockedMemories, onCardClick,
     congratsSound.volume = 0.48
     congratsSoundRef.current = congratsSound
 
+    // Cleanup function for component unmount
+    const cleanup = () => {
+      if (bgMusicRef.current) {
+        bgMusicRef.current.pause()
+        bgMusicRef.current.src = ""
+      }
+      if (laserSoundRef.current) {
+        laserSoundRef.current.src = ""
+      }
+      if (hitSoundRef.current) {
+        hitSoundRef.current.src = ""
+      }
+      if (congratsSoundRef.current) {
+        congratsSoundRef.current.src = ""
+      }
+    }
+
+    // Cleanup on page unload
+    const handleBeforeUnload = () => {
+      cleanup()
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
     return () => {
-      bgMusic.pause()
-      bgMusic.src = ""
-      laserSound.src = ""
-      hitSound.src = ""
-      congratsSound.src = ""
+      cleanup()
+      window.removeEventListener('beforeunload', handleBeforeUnload)
     }
   }, [])
 
   useEffect(() => {
-    if (!storyMode && bgMusicRef.current) {
+    if (!storyMode && bgMusicRef.current && musicEnabled) {
       bgMusicRef.current.play().catch(() => {
         // Autoplay might be blocked, user will need to interact first
       })
+    } else if (bgMusicRef.current && !musicEnabled) {
+      bgMusicRef.current.pause()
     }
-  }, [storyMode])
+  }, [storyMode, musicEnabled])
 
-  // Load SuperNate image
+  // Load SuperNate image (for UI elements)
   useEffect(() => {
     const img = new Image()
     img.crossOrigin = "anonymous"
@@ -133,11 +159,20 @@ export function SuperNateGame({ onMemoryUnlocked, unlockedMemories, onCardClick,
     img.onload = () => setSuperNateImage(img)
   }, [])
 
+  // Load Starfighter image (for player ship)
+  useEffect(() => {
+    const img = new Image()
+    img.crossOrigin = "anonymous"
+    img.src = "/Starfighter.png"
+    img.onload = () => setSpaceshipImage(img)
+  }, [])
+
+  // Load alien ship image
   useEffect(() => {
     const img = new Image()
     img.crossOrigin = "anonymous"
     img.src = "/spaceship.png"
-    img.onload = () => setSpaceshipImage(img)
+    img.onload = () => setAlienShipImage(img)
   }, [])
 
   useEffect(() => {
@@ -434,11 +469,11 @@ export function SuperNateGame({ onMemoryUnlocked, unlockedMemories, onCardClick,
         spaceshipsRef.current.forEach((ship) => {
           if (ship.x < -100) return
 
-          // Draw spaceship image
-          if (spaceshipImage) {
+          // Draw alien spaceship image
+          if (alienShipImage) {
             ctx.save()
             ctx.translate(ship.x, ship.y)
-            ctx.drawImage(spaceshipImage, -40, -30, 80, 60)
+            ctx.drawImage(alienShipImage, -40, -30, 80, 60)
             ctx.restore()
           }
 
@@ -495,13 +530,13 @@ export function SuperNateGame({ onMemoryUnlocked, unlockedMemories, onCardClick,
         })
         ctx.globalAlpha = 1
 
-        // Draw player (SuperNate)
+        // Draw player (Starfighter)
         ctx.save()
         ctx.translate(400, 550)
         ctx.rotate(playerAngleRef.current)
 
-        if (superNateImage) {
-          ctx.drawImage(superNateImage, -30, -30, 60, 60)
+        if (spaceshipImage) {
+          ctx.drawImage(spaceshipImage, -30, -30, 60, 60)
         } else {
           // Fallback if image not loaded
           ctx.fillStyle = "#1D4AFF"
@@ -526,7 +561,7 @@ export function SuperNateGame({ onMemoryUnlocked, unlockedMemories, onCardClick,
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [superNateImage, spaceshipImage, storyMode, storyIndex, thrustersActive])
+  }, [superNateImage, spaceshipImage, alienShipImage, storyMode, storyIndex, thrustersActive])
 
   // Check if game is complete
   useEffect(() => {
@@ -618,10 +653,10 @@ export function SuperNateGame({ onMemoryUnlocked, unlockedMemories, onCardClick,
   }
 
   const STORY_PARTS = [
-    "I'm SuperNate. I've been traveling the universe collecting work experiences and skills.",
-    "But the boring PDfffff aliens from the evil planet ReSume have captured my memories! They've stolen them and locked them away!",
-    "They put my memories in spaceships to send to the four corners of the galaxy.",
-    "Help me blast the PDfffff aliens to free my work experience memories from their synergistic clutches (and find the easter eggs)!",
+    "I'm SuperMANager, and I'm on a critical mission to rescue SuperNate!",
+    "The evil PDfff aliens have captured SuperNate's work experience memories and locked them away in their spaceships!",
+    "They're trying to send these precious memories to the four corners of the galaxy to scatter them forever.",
+    "Help me blast the PDfff alien spaceships to recover SuperNate's memories and complete this rescue mission!",
   ]
 
   // Handle mobile canvas tap to shoot
@@ -691,18 +726,18 @@ export function SuperNateGame({ onMemoryUnlocked, unlockedMemories, onCardClick,
         <DialogContent className="bg-[#EEEFE9] dark:bg-[#151515] border-[#F54E00] border-2 max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl text-[#F54E00] font-bold flex items-center gap-3 justify-center">
-              <img src="/natehog.png" alt="NateHog" className="w-10 h-10 rounded-full" />
-              You unlocked a work experience!
+              <img src="/SuperNate.png" alt="SuperNate" className="w-10 h-10 rounded-full" />
+              Memory recovered from PDfff aliens!
             </DialogTitle>
           </DialogHeader>
           {currentMemory !== null && (
             <div className="space-y-4 text-[#151515] dark:text-[#EEEFE9]">
-              {/* Company name with logo */}
+              {/* Company name with SuperNate logo */}
               <div className="flex items-center gap-4 justify-center">
                 <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center border-2 border-[#F54E00] p-2">
                   <img 
-                    src={getCompanyLogo(workExperiences[currentMemory].company)} 
-                    alt={`${workExperiences[currentMemory].company} logo`}
+                    src="/SuperNate.png" 
+                    alt="SuperNate"
                     className="w-full h-full object-contain"
                   />
                 </div>

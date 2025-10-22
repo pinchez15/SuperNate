@@ -13,6 +13,7 @@ export default function Home() {
   const [unlockedMemories, setUnlockedMemories] = useState<number[]>([])
   const [viewingMemory, setViewingMemory] = useState<number | null>(null)
   const [thrustersActive, setThrustersActive] = useState(false)
+  const [musicEnabled, setMusicEnabled] = useState(true)
 
   // Get company logo path
   const getCompanyLogo = (company: string): string => {
@@ -93,6 +94,8 @@ export default function Home() {
                 onCardClick={handleCardClick}
                 onReset={handleReset}
                 thrustersActive={thrustersActive}
+                musicEnabled={musicEnabled}
+                onMusicToggle={setMusicEnabled}
               />
             </div>
           </div>
@@ -102,6 +105,8 @@ export default function Home() {
             <CockpitDashboard 
               thrustersActive={thrustersActive}
               onThrustersToggle={setThrustersActive}
+              musicEnabled={musicEnabled}
+              onMusicToggle={setMusicEnabled}
             />
           </div>
         </div>
@@ -128,18 +133,18 @@ export default function Home() {
         <DialogContent className="bg-[#EEEFE9] dark:bg-[#151515] border-[#F54E00] border-2 max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl text-[#F54E00] font-bold flex items-center gap-3 justify-center">
-              <img src="/natehog.png" alt="NateHog" className="w-10 h-10 rounded-full" />
+              <img src="/SuperNate.png" alt="SuperNate" className="w-10 h-10 rounded-full" />
               Work Experience
             </DialogTitle>
           </DialogHeader>
           {viewingMemory !== null && (
             <div className="space-y-4 text-[#151515] dark:text-[#EEEFE9]">
-              {/* Company name with logo */}
+              {/* Company name with SuperNate logo */}
               <div className="flex items-center gap-4 justify-center">
                 <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center border-2 border-[#F54E00] p-2">
                   <img 
-                    src={getCompanyLogo(workExperiences[viewingMemory].company)} 
-                    alt={`${workExperiences[viewingMemory].company} logo`}
+                    src="/SuperNate.png" 
+                    alt="SuperNate"
                     className="w-full h-full object-contain"
                   />
                 </div>

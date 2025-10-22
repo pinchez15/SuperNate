@@ -143,7 +143,8 @@ Replace these key images in the `public/` folder:
 | `SuperNate.png` | Main character sprite | 64x64px |
 | `Nate.png` | Profile/avatar image | 200x200px |
 | `NateHooray.png` | Victory celebration image | 300x300px |
-| `spaceship.png` | Player spaceship | 64x64px |
+| `Starfighter.png` | Player spaceship | 64x64px |
+| `spaceship.png` | Alien spaceships | 64x64px |
 | `resume-preview.png` | Resume preview thumbnail | 400x500px |
 
 **Company Logos:**
