@@ -4,15 +4,15 @@ import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
-import { PostHogProvider } from "@/components/posthog-provider"
+import { AnalyticsProvider } from "@/components/analytics-provider"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "SpaceHog Spiff - NateHog Resume Mission",
-  description: "Help SpaceHog Spiff rescue NateHog memories from the PDfff aliens!",
+  title: "SuperNate - Resume Game Mission",
+  description: "Help SuperNate defeat the PDfff aliens and recover work experience memories!",
   generator: "v0.app",
   icons: {
-    icon: "/spacehog.png",
+    icon: "/SuperNate.png",
   },
 }
 
@@ -24,9 +24,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
-        <PostHogProvider>
+        <AnalyticsProvider>
           <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
-        </PostHogProvider>
+        </AnalyticsProvider>
         <Analytics />
       </body>
     </html>

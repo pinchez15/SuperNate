@@ -2,10 +2,10 @@
 
 import { useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { initPostHog, posthog } from '@/lib/posthog'
+import { initAnalytics, analytics } from '@/lib/analytics'
 import { Suspense } from 'react'
 
-function PostHogPageView() {
+function AnalyticsPageView() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -16,7 +16,7 @@ function PostHogPageView() {
       if (searchParams && searchParams.toString()) {
         url = url + `?${searchParams.toString()}`
       }
-      posthog.capture('$pageview', {
+      analytics.capture('$pageview', {
         $current_url: url,
       })
     }
@@ -25,16 +25,16 @@ function PostHogPageView() {
   return null
 }
 
-export function PostHogProvider({ children }: { children: React.ReactNode }) {
+export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Initialize PostHog
-    initPostHog()
+    // Initialize PostHog analytics
+    initAnalytics()
   }, [])
 
   return (
     <>
       <Suspense fallback={null}>
-        <PostHogPageView />
+        <AnalyticsPageView />
       </Suspense>
       {children}
     </>

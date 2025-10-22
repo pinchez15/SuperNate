@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { workExperiences } from "@/lib/work-experiences"
-import { posthog } from "@/lib/posthog"
+import { analytics } from "@/lib/analytics"
 
-interface SpaceHogGameProps {
+interface SuperNateGameProps {
   onMemoryUnlocked: (memoryIndex: number) => void
   unlockedMemories: number[]
   onCardClick: (memoryIndex: number) => void
@@ -52,11 +52,11 @@ interface Flame {
   life: number
 }
 
-export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, onReset, thrustersActive }: SpaceHogGameProps) {
+export function SuperNateGame({ onMemoryUnlocked, unlockedMemories, onCardClick, onReset, thrustersActive }: SuperNateGameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [currentMemory, setCurrentMemory] = useState<number | null>(null)
   const [gameComplete, setGameComplete] = useState(false)
-  const [spaceHogImage, setSpaceHogImage] = useState<HTMLImageElement | null>(null)
+  const [superNateImage, setSuperNateImage] = useState<HTMLImageElement | null>(null)
   const [spaceshipImage, setSpaceshipImage] = useState<HTMLImageElement | null>(null)
   const [storyMode, setStoryMode] = useState(true)
   const [storyIndex, setStoryIndex] = useState(0)
@@ -88,7 +88,7 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
 
   useEffect(() => {
     // Background music (looping)
-    const bgMusic = new Audio("/audio/SpacehogSpiff.mp3")
+    const bgMusic = new Audio("/audio/SuperNate.mp3")
     bgMusic.loop = true
     bgMusic.volume = 0.24
     bgMusicRef.current = bgMusic
@@ -125,12 +125,12 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
     }
   }, [storyMode])
 
-  // Load SpaceHog image
+  // Load SuperNate image
   useEffect(() => {
     const img = new Image()
     img.crossOrigin = "anonymous"
-    img.src = "/spacehog.png"
-    img.onload = () => setSpaceHogImage(img)
+    img.src = "/SuperNate.png"
+    img.onload = () => setSuperNateImage(img)
   }, [])
 
   useEffect(() => {
@@ -179,7 +179,7 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
           setStoryIndex(storyIndex + 1)
         } else {
           setStoryMode(false)
-          posthog.capture('game_started', {
+          analytics.capture('game_started', {
             story_completed: true
           })
         }
@@ -336,7 +336,7 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
               // Memory unlocked!
               setTimeout(() => {
                 setCurrentMemory(ship.memoryIndex)
-                posthog.capture('memory_unlocked', {
+                analytics.capture('memory_unlocked', {
                   memory_index: ship.memoryIndex,
                   company: workExperiences[ship.memoryIndex]?.company
                 })
@@ -366,12 +366,12 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
       ctx.globalAlpha = 1
 
       if (storyMode) {
-        // Draw zoomed in SpaceHog Spiff
+        // Draw zoomed in SuperNate
         ctx.save()
         ctx.translate(400, 300)
 
-        if (spaceHogImage) {
-          ctx.drawImage(spaceHogImage, -100, -100, 200, 200)
+        if (superNateImage) {
+          ctx.drawImage(superNateImage, -100, -100, 200, 200)
         }
 
         // Draw speech bubble
@@ -495,13 +495,13 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
         })
         ctx.globalAlpha = 1
 
-        // Draw player (SpaceHog Spiff)
+        // Draw player (SuperNate)
         ctx.save()
         ctx.translate(400, 550)
         ctx.rotate(playerAngleRef.current)
 
-        if (spaceHogImage) {
-          ctx.drawImage(spaceHogImage, -30, -30, 60, 60)
+        if (superNateImage) {
+          ctx.drawImage(superNateImage, -30, -30, 60, 60)
         } else {
           // Fallback if image not loaded
           ctx.fillStyle = "#1D4AFF"
@@ -526,14 +526,14 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [spaceHogImage, spaceshipImage, storyMode, storyIndex, thrustersActive])
+  }, [superNateImage, spaceshipImage, storyMode, storyIndex, thrustersActive])
 
   // Check if game is complete
   useEffect(() => {
     if (unlockedMemories.length === workExperiences.length && unlockedMemories.length > 0) {
       setTimeout(() => {
         setGameComplete(true)
-        posthog.capture('game_completed', {
+        analytics.capture('game_completed', {
           total_memories: workExperiences.length
         })
         // Play congratulations sound
@@ -618,10 +618,10 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
   }
 
   const STORY_PARTS = [
-    "I'm SpaceHog Spiff. I've been traveling the universe in search of my hero friend NateHog.",
-    "NateHog is a brilliant, creative, hardworking guy and he's been captured by the boring PDfffff aliens from the evil planet ReSume! They've stolen his memory!",
-    "They put his memories in spaceships to send to the four corners of the galaxy.",
-    "Help me blast the PDfffff aliens to free NateHog and his memories from their synergistic clutches (and find the easter eggs)!",
+    "I'm SuperNate. I've been traveling the universe collecting work experiences and skills.",
+    "But the boring PDfffff aliens from the evil planet ReSume have captured my memories! They've stolen them and locked them away!",
+    "They put my memories in spaceships to send to the four corners of the galaxy.",
+    "Help me blast the PDfffff aliens to free my work experience memories from their synergistic clutches (and find the easter eggs)!",
   ]
 
   // Handle mobile canvas tap to shoot
@@ -743,19 +743,18 @@ export function SpaceHogGame({ onMemoryUnlocked, unlockedMemories, onCardClick, 
               alt="Thank you!"
               className="w-full rounded-lg"
             />
-            <h3 className="text-xl font-bold text-[#151515] dark:text-[#EEEFE9]">Thank you, PostHog team! 🦔</h3>
+            <h3 className="text-xl font-bold text-[#151515] dark:text-[#EEEFE9]">Mission Complete! 🎉</h3>
             <p className="text-[#151515]/70 dark:text-[#EEEFE9]/70">
-              You've successfully helped SpaceHog Spiff rescue all of NateHog's memories! I'd love to join you to bring this kind of
-              creativity and technical skill to the wacky PostHog team! 🦔 
+              You've successfully helped SuperNate recover all the work experience memories! Thanks for playing!
             </p>
             
             {/* Resume Preview Card */}
             <a
-              href="/NateHog-Resume.pdf"
+              href="/N Pinches Resume 10.22.25.docx.pdf"
               target="_blank"
               rel="noopener noreferrer"
               className="block mx-auto max-w-sm group"
-              onClick={() => posthog.capture('resume_viewed')}
+              onClick={() => analytics.capture('resume_viewed')}
             >
               <div className="bg-white dark:bg-[#2C2C2C] p-4 rounded-lg border-2 border-[#F54E00] hover:border-[#DC9300] transition-all hover:shadow-lg hover:scale-105 cursor-pointer">
                 <div className="flex items-center gap-4">

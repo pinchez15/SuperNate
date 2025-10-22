@@ -1,13 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { SpaceHogGame } from "@/components/space-hog-game"
+import { SuperNateGame } from "@/components/super-nate-game"
 import { MemoryCard } from "@/components/memory-card"
 import { CockpitDashboard } from "@/components/cockpit-dashboard"
 import { workExperiences } from "@/lib/work-experiences"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { posthog } from "@/lib/posthog"
+import { analytics } from "@/lib/analytics"
 
 export default function Home() {
   const [unlockedMemories, setUnlockedMemories] = useState<number[]>([])
@@ -34,7 +34,7 @@ export default function Home() {
 
   const handleCardClick = (memoryIndex: number) => {
     setViewingMemory(memoryIndex)
-    posthog.capture('memory_reopened', {
+    analytics.capture('memory_reopened', {
       memory_index: memoryIndex,
       company: workExperiences[memoryIndex]?.company
     })
@@ -59,7 +59,7 @@ export default function Home() {
             backgroundClip: "text",
           }}
         >
-          SPACEHOG SPIFF'S MISSION
+          SUPERNATE'S MISSION
         </h1>
       </header>
 
@@ -82,12 +82,12 @@ export default function Home() {
                   🔊 SOUND ON 🔊
                 </p>
                 <p className="text-[#EEEFE9]/70 text-sm">
-                  Help SpaceHog Spiff defeat the PDfff aliens and unlock NateHog's memories!
+                  Help SuperNate defeat the PDfff aliens and unlock work experience memories!
                 </p>
                 <p className="text-xs text-[#EEEFE9]/60 mt-2">Use ← → to rotate, SPACE to shoot</p>
               </div>
 
-              <SpaceHogGame
+              <SuperNateGame
                 onMemoryUnlocked={handleMemoryUnlocked}
                 unlockedMemories={unlockedMemories}
                 onCardClick={handleCardClick}
@@ -113,7 +113,7 @@ export default function Home() {
           </h2>
 
           {unlockedMemories.length === 0 ? (
-            <p className="text-[#EEEFE9]/60 text-sm">Shoot down spaceships to unlock NateHog's work experiences!</p>
+            <p className="text-[#EEEFE9]/60 text-sm">Shoot down spaceships to unlock work experiences!</p>
           ) : (
             <div className="space-y-4">
               {unlockedMemories.map((index) => (

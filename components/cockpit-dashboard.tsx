@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { posthog } from "@/lib/posthog"
+import { analytics } from "@/lib/analytics"
 
 interface CockpitDashboardProps {
   thrustersActive: boolean
@@ -105,7 +105,7 @@ export function CockpitDashboard({ thrustersActive, onThrustersToggle }: Cockpit
                 <button
                   onClick={() => {
                     setPowerSwitch(!powerSwitch)
-                    posthog.capture('easter_egg_clicked', { type: 'power_switch' })
+                    analytics.capture('easter_egg_clicked', { type: 'power_switch' })
                   }}
                   className="relative w-20 h-20 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-lg border-2 border-[#1a1a1a] shadow-lg cursor-pointer flex items-center justify-center"
                   style={{
@@ -139,7 +139,7 @@ export function CockpitDashboard({ thrustersActive, onThrustersToggle }: Cockpit
                 <button
                   onClick={() => {
                     setShieldsSwitch(!shieldsSwitch)
-                    posthog.capture('easter_egg_clicked', { type: 'shields_switch' })
+                    analytics.capture('easter_egg_clicked', { type: 'shields_switch' })
                   }}
                   className="relative w-20 h-20 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-lg border-2 border-[#1a1a1a] shadow-lg cursor-pointer flex items-center justify-center"
                   style={{
@@ -170,7 +170,7 @@ export function CockpitDashboard({ thrustersActive, onThrustersToggle }: Cockpit
                 <button
                   onClick={() => {
                     onThrustersToggle(!thrustersActive)
-                    posthog.capture('easter_egg_clicked', { type: 'thrusters_switch', active: !thrustersActive })
+                    analytics.capture('easter_egg_clicked', { type: 'thrusters_switch', active: !thrustersActive })
                   }}
                   className="relative w-20 h-20 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-lg border-2 border-[#1a1a1a] shadow-lg cursor-pointer flex items-center justify-center"
                   style={{
@@ -201,7 +201,7 @@ export function CockpitDashboard({ thrustersActive, onThrustersToggle }: Cockpit
                 <button
                   onClick={() => {
                     setCommsSwitch(!commsSwitch)
-                    posthog.capture('easter_egg_clicked', { type: 'comms_switch' })
+                    analytics.capture('easter_egg_clicked', { type: 'comms_switch' })
                   }}
                   className="relative w-20 h-20 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-lg border-2 border-[#1a1a1a] shadow-lg cursor-pointer flex items-center justify-center"
                   style={{
@@ -295,7 +295,7 @@ export function CockpitDashboard({ thrustersActive, onThrustersToggle }: Cockpit
                   className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
                   onClick={() => {
                     setSpeedMessageVisible(!speedMessageVisible)
-                    posthog.capture('easter_egg_clicked', { type: 'speed_gauge' })
+                    analytics.capture('easter_egg_clicked', { type: 'speed_gauge' })
                   }}
                 >
                   <svg className="w-20 h-20" viewBox="0 0 100 100">
@@ -339,7 +339,7 @@ export function CockpitDashboard({ thrustersActive, onThrustersToggle }: Cockpit
                   className="relative w-24 h-24 bg-gradient-to-b from-[#4a4a4a] to-[#2a2a2a] rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
                   onClick={() => {
                     setFuelMessageVisible(!fuelMessageVisible)
-                    posthog.capture('easter_egg_clicked', { type: 'fuel_gauge' })
+                    analytics.capture('easter_egg_clicked', { type: 'fuel_gauge' })
                   }}
                 >
                   <svg className="w-20 h-20" viewBox="0 0 100 100">
