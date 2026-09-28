@@ -453,25 +453,48 @@ export function makeVest(seg: number): Rig {
   return rig
 }
 
+/** The Guide is a consultant: navy blazer over a shirt and tie, slick hair, thin glasses, one-slide deck in hand. */
 export function makeGuide(seg: number): Rig {
   const rig = makePerson(seg, {
     skin: "#e8b88f",
-    hair: "#1c2233",
-    hairStyle: "hood",
-    top: "#f1e8d6",
-    bottom: "#1c2233",
-    shoes: "#3b2a1c",
-    coat: "#1c2233",
+    hair: "#5a3a22",
+    hairStyle: "slick",
+    top: "#dce9f5",
+    bottom: "#3c4453",
+    shoes: "#4a2e1a",
+    coat: "#26364f",
     brows: "friendly",
     smile: true,
   })
-  const clasp = sphere(0.09, seg, plastic("#d4a94e", 140))
-  at(clasp, 0, 1.56, 0.34)
-  rig.body.add(clasp)
-  const trim = new THREE.Mesh(new THREE.TorusGeometry(0.44, 0.03, 6, seg * 2), plastic("#d4a94e", 140))
-  trim.rotation.x = Math.PI / 2
-  at(trim, 0, 0.54, 0)
-  rig.body.add(trim)
+  const tieMat = plastic("#b3392f", 60)
+  const knot = box(0.11, 0.09, 0.04, tieMat)
+  at(knot, 0, 1.5, 0.34)
+  rig.body.add(knot)
+  const tie = box(0.09, 0.42, 0.03, tieMat)
+  at(tie, 0, 1.26, 0.36)
+  tie.rotation.x = 0.1
+  rig.body.add(tie)
+  if (rig.head) {
+    for (const side of [-1, 1]) {
+      const lens = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.018, 6, 12), plastic("#22262e", 90))
+      at(lens, side * 0.17, 0.06, 0.44)
+      rig.head.add(lens)
+    }
+    const bridge = box(0.14, 0.02, 0.02, plastic("#22262e", 90))
+    at(bridge, 0, 0.08, 0.45)
+    rig.head.add(bridge)
+  }
+  // The one-slide pitch deck: a tablet with the slide up.
+  const deck = new THREE.Group()
+  deck.add(box(0.4, 0.3, 0.03, plastic("#1a1a1f", 90)))
+  const slide = box(0.34, 0.24, 0.01, new THREE.MeshBasicMaterial({ color: "#f7f4ec" }))
+  slide.position.z = 0.02
+  deck.add(slide)
+  deck.position.set(0, -0.6, 0.2)
+  deck.rotation.x = -1.0
+  rig.armR?.add(deck)
+  if (rig.armR) rig.armR.rotation.x = -0.9
+  rig.prop = deck
   return rig
 }
 

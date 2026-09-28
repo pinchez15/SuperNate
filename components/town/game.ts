@@ -5,7 +5,7 @@ import { animateRig, makeCharacter, makeDogUber, makePhoneProjectile, makePing, 
 import { disposeObject, N64Renderer } from "@/components/town/n64-renderer"
 import { ARENA_Z, applyShadows, arena, buildArena, buildTown, makeScene, setArea, type TownBuild } from "@/components/town/stage"
 import { AIR_Y, createBoss, stepBoss, type BossEvent, type BossState } from "@/lib/town/boss"
-import { fryRadius, groundAt, nearestNpc, npcSpots, peopleIds, redSpaces, resolve, spawn, throughGate, type NpcId } from "@/lib/town/world"
+import { fryRadius, groundAt, nearestNpc, npcSpots, peopleIds, resolve, spawn, throughGate, type NpcId } from "@/lib/town/world"
 
 export type GameMode = "town" | "paused" | "boss" | "win"
 
@@ -25,7 +25,6 @@ export interface GameCallbacks {
   onWinShot: () => void
   onFry: (count: number) => void
   onEmote: (near: NpcId | null) => void
-  onPound: (revealed: boolean) => void
 }
 
 type Action = "up" | "down" | "left" | "right" | "talk" | "jump" | "fire" | "hop" | "pound" | "emote"
@@ -203,8 +202,6 @@ export class TownGame {
     this.gateT = 0
     this.friesGot = 0
     for (const f of this.town.fries) f.visible = true
-    for (const f of this.town.redFries) f.visible = false
-    this.town.redFries.forEach((f) => (f.userData.revealed = false))
     this.town.roofFry.visible = true
     this.setMogged(false)
     this.placeNateInTown()
@@ -415,7 +412,7 @@ export class TownGame {
     }
     this.nate.root.position.set(next.x, this.y, next.z)
 
-    const pickups = [...this.town.fries, ...this.town.redFries, this.town.roofFry]
+    const pickups = [...this.town.fries, this.town.roofFry]
     for (const f of pickups) {
       if (!f.visible) continue
       const dy = Math.abs(f.position.y - (this.y + 0.9))
@@ -449,24 +446,11 @@ export class TownGame {
     this.camera.lookAt(next.x * 0.95, 1.4 + this.y * 0.7, next.z - 2.6)
   }
 
-  /** Ground pound: shakes the camera, and cracks open a red space if you hit one. */
+  /** Ground pound: a fast landing with a camera shake. */
   private landPound() {
     this.pounding = false
     this.camShake = 0.35
     this.blips.hurt()
-    let revealed = false
-    redSpaces.forEach((sp, i) => {
-      const fry = this.town.redFries[i]
-      if (!fry || fry.userData.revealed) return
-      if (Math.hypot(sp.x - this.pos.x, sp.z - this.pos.z) < 1.1 && this.y < 0.1) {
-        fry.userData.revealed = true
-        fry.visible = true
-        fry.position.y = 2.4
-        fry.userData.popT = 0
-        revealed = true
-      }
-    })
-    this.cb.onPound(revealed)
   }
 
   private updateBoss(dt: number) {
@@ -641,11 +625,6 @@ export class TownGame {
     } else {
       this.nate.body.rotation.x = 0
     }
-    this.town.redFries.forEach((f) => {
-      if (!f.visible || f.userData.popT === undefined) return
-      f.userData.popT = (f.userData.popT as number) + dt
-      f.position.y = Math.max(0.9, 2.4 - (f.userData.popT as number) * 3)
-    })
     const pole = this.town.group.getObjectByName("pole")
     if (pole) pole.rotation.y = t * 2
     this.town.sensor.rotation.y = t * 5
@@ -685,11 +664,16 @@ export class TownGame {
     })
     for (const f of this.town.fries) f.rotation.y = t * 2.4
     this.town.pigeons.forEach((bird) => {
-      const d = bird.userData as { radius: number; height: number; speed: number; phase: number }
-      const a = t * d.speed + d.phase
-      bird.position.set(Math.cos(a) * d.radius, d.height + Math.sin(t * 2 + d.phase) * 0.4, 2.6 + Math.sin(a) * d.radius)
-      bird.rotation.y = -a - Math.PI
-      const flap = Math.sin(t * 14 + d.phase) * 0.7
+      const d = bird.userData as { cx: number; cz: number; ax: number; az: number; fx: number; fz: number; ph: number; h: number }
+      // A Lissajous loop per bird: different center, size, and frequencies.
+      const px = d.cx + Math.cos(t * d.fx + d.ph) * d.ax
+      const pz = d.cz + Math.sin(t * d.fz + d.ph * 1.7) * d.az
+      const vx = -Math.sin(t * d.fx + d.ph) * d.ax * d.fx
+      const vz = Math.cos(t * d.fz + d.ph * 1.7) * d.az * d.fz
+      bird.position.set(px, d.h + Math.sin(t * 1.8 + d.ph) * 0.5, pz)
+      bird.rotation.y = Math.atan2(-vz, vx)
+      bird.rotation.z = THREE.MathUtils.clamp(Math.sin(t * d.fx * 2 + d.ph) * 0.3, -0.35, 0.35)
+      const flap = Math.sin(t * 14 + d.ph) * 0.7
       const wl = bird.getObjectByName("wingL")
       const wr = bird.getObjectByName("wingR")
       if (wl) wl.rotation.x = flap

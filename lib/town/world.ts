@@ -88,49 +88,7 @@ export const propBoxes: Box[] = [
   { ...layout.academy },
 ]
 
-export type SpaceKind = "blue" | "red" | "happening" | "star"
-
-export interface BoardSpace extends Vec2 {
-  kind: SpaceKind
-}
-
-const hub: Vec2 = { x: 0, z: 2.6 }
-
-/** Mario Party style board spaces laid along the walking routes. */
-const routes: [Vec2, Vec2][] = [
-  [{ x: 0, z: 11.4 }, hub],
-  [hub, { x: -5.2, z: -0.2 }],
-  [hub, { x: 5.2, z: -0.2 }],
-  [hub, { x: 0, z: -4.9 }],
-  [{ x: 2.7, z: -6.2 }, { x: 2.7, z: -10.6 }],
-  [{ x: 2.7, z: -10.6 }, { x: 0, z: -11.9 }],
-  [{ x: -5.2, z: 2.4 }, { x: -12, z: 2.4 }],
-  [{ x: 5.2, z: 2 }, { x: 12, z: 2 }],
-]
-
-function lay(): BoardSpace[] {
-  const out: BoardSpace[] = []
-  let n = 0
-  for (const [a, b] of routes) {
-    const len = Math.hypot(b.x - a.x, b.z - a.z)
-    const steps = Math.max(1, Math.round(len / 1.75))
-    for (let i = 0; i <= steps; i += 1) {
-      const t = i / steps
-      const p = { x: a.x + (b.x - a.x) * t, z: a.z + (b.z - a.z) * t }
-      if (out.some((q) => Math.hypot(q.x - p.x, q.z - p.z) < 1.1)) continue
-      n += 1
-      const kind: SpaceKind = i === steps && a !== hub ? "star" : n % 7 === 0 ? "red" : n % 5 === 0 ? "happening" : "blue"
-      out.push({ ...p, kind })
-    }
-  }
-  return out
-}
-
-export const boardSpaces: BoardSpace[] = lay()
-
-export const redSpaces = boardSpaces.filter((s) => s.kind === "red")
-
-/** Hidden fries: one under each red space (ground pound it), plus fries you earn. */
+/** Fries you earn from townspeople, plus one on the Waymo roof. */
 export const earnedFries = ["gerald", "barber", "sommelier"] as const
 
 export const roofFry = { x: layout.waymo.x, z: layout.waymo.z, y: layout.waymo.h + 0.9 }
@@ -153,13 +111,12 @@ const visibleSpots: Vec2[] = [
   { x: 24, z: 8 },
   { x: -10.5, z: -9.5 },
   { x: 10.5, z: -9.5 },
+  { x: -16.5, z: 8.6 },
+  { x: 16.5, z: 8.2 },
 ]
 
 /** Fries lying around in plain sight, trimmed so the grand total is exactly 20. */
-export const frySpots: Vec2[] = visibleSpots.slice(
-  0,
-  FRY_TOTAL - redSpaces.length - earnedFries.length - 1,
-)
+export const frySpots: Vec2[] = visibleSpots.slice(0, FRY_TOTAL - earnedFries.length - 1)
 
 export const fryRadius = 0.95
 export const talkRadius = 2.3

@@ -158,9 +158,6 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
         onEmote: (nearId) => {
           say(nearId ? (emoteLines[nearId] ?? emoteAlone) : emoteAlone, 1800)
         },
-        onPound: (revealed) => {
-          if (revealed) say("A fry! It was under the board the whole time.", 1500)
-        },
         onWinShot: () => {
           setStamp(true)
           analytics.capture("hopped_on_a_quick_call", { with: "hedgehawkins" })

@@ -2,7 +2,7 @@ import * as THREE from "three"
 import { palette, texMat, type Look, type Textures } from "@/components/town/look"
 import { platforms } from "@/lib/town/boss"
 import { makeFry, makePigeon, makeStarfighter } from "@/components/town/models"
-import { boardSpaces, crashSite, frySpots, gate, layout, propBoxes, redSpaces, roofFry, type SpaceKind } from "@/lib/town/world"
+import { crashSite, frySpots, gate, layout, propBoxes, roofFry } from "@/lib/town/world"
 
 export const ARENA_Z = -220
 
@@ -162,7 +162,6 @@ export interface TownBuild {
   gateR: THREE.Object3D
   bossTower: THREE.Group
   fries: THREE.Object3D[]
-  redFries: THREE.Object3D[]
   roofFry: THREE.Object3D
   pigeons: THREE.Object3D[]
   ship: THREE.Object3D
@@ -371,43 +370,6 @@ function buildDistricts(tex: Textures) {
 }
 
 
-const spaceStyle: Record<SpaceKind, { color: string; symbol: string }> = {
-  blue: { color: "#2f6fe4", symbol: "+" },
-  red: { color: "#e2372e", symbol: "−" },
-  happening: { color: "#38b24a", symbol: "?" },
-  star: { color: "#f6c21c", symbol: "★" },
-}
-
-function spaceTexture(kind: SpaceKind): THREE.CanvasTexture {
-  const c = document.createElement("canvas")
-  c.width = 64
-  c.height = 64
-  const ctx = c.getContext("2d")
-  const style = spaceStyle[kind]
-  if (ctx) {
-    ctx.fillStyle = "#ffffff"
-    ctx.beginPath()
-    ctx.arc(32, 32, 31, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.fillStyle = style.color
-    ctx.beginPath()
-    ctx.arc(32, 32, 26, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.fillStyle = "rgba(255,255,255,0.25)"
-    ctx.beginPath()
-    ctx.ellipse(26, 22, 16, 8, -0.4, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.fillStyle = "#ffffff"
-    ctx.font = "900 34px 'Arial Rounded MT Bold', Arial, sans-serif"
-    ctx.textAlign = "center"
-    ctx.textBaseline = "middle"
-    ctx.fillText(style.symbol, 32, 34)
-  }
-  const t = new THREE.CanvasTexture(c)
-  t.colorSpace = THREE.SRGBColorSpace
-  return t
-}
-
 function hedge(len: number, h: number): THREE.Group {
   const g = new THREE.Group()
   const mat = new THREE.MeshPhongMaterial({ color: "#2e9a3a", shininess: 10 })
@@ -465,21 +427,6 @@ export function buildTown(tex: Textures): TownBuild {
   plaza.rotation.x = -Math.PI / 2
   plaza.position.set(0, 0.004, 2.6)
   g.add(plaza)
-
-  const spaceGeo = new THREE.CylinderGeometry(0.62, 0.66, 0.14, 20)
-  const spaceTex = new Map<SpaceKind, THREE.CanvasTexture>()
-  for (const sp of boardSpaces) {
-    let t = spaceTex.get(sp.kind)
-    if (!t) {
-      t = spaceTexture(sp.kind)
-      spaceTex.set(sp.kind, t)
-    }
-    const side = new THREE.MeshPhongMaterial({ color: spaceStyle[sp.kind].color, shininess: 60 })
-    const top = new THREE.MeshPhongMaterial({ map: t, shininess: 80 })
-    const disc = new THREE.Mesh(spaceGeo, [side, top, side])
-    disc.position.set(sp.x, 0.07, sp.z)
-    g.add(disc)
-  }
 
   const size = 27
   const south = hedge(64, 0.7)
@@ -579,31 +526,9 @@ export function buildTown(tex: Textures): TownBuild {
     t.scale.setScalar(1.1 + (i % 3) * 0.3)
     g.add(t)
   }
-  const petal = ["#ff5a6e", "#ffd23b", "#ffffff", "#ff9ad5"]
-  for (let i = 0; i < 40; i += 1) {
-    const side = i % 4
-    const along = ((i * 37) % 23) - 11.5
-    const x = side === 0 ? -12.2 : side === 1 ? 12.2 : along
-    const z = side === 2 ? 12.4 : side === 3 ? 7 + (i % 5) : along
-    const flower = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 6), new THREE.MeshPhongMaterial({ color: petal[i % petal.length] ?? "#ffffff", shininess: 30 }))
-    flower.position.set(x + ((i * 13) % 7) * 0.08, 0.28, z)
-    g.add(flower)
-    const center = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 4), new THREE.MeshBasicMaterial({ color: "#ffb000" }))
-    center.position.set(flower.position.x, 0.4, z)
-    g.add(center)
-  }
-
   const districts = buildDistricts(tex)
   g.add(districts.group)
 
-  const redFries = redSpaces.map((spot) => {
-    const f = makeFry()
-    f.position.set(spot.x, 0.9, spot.z)
-    f.scale.setScalar(1.4)
-    f.visible = false
-    g.add(f)
-    return f
-  })
   const roof = makeFry()
   roof.position.set(roofFry.x, roofFry.y, roofFry.z)
   roof.scale.setScalar(1.6)
@@ -617,10 +542,28 @@ export function buildTown(tex: Textures): TownBuild {
     return f
   })
 
+  // Each pigeon wanders its own looping route over a different part of town.
+  const roosts = [
+    { cx: -14, cz: 5 },
+    { cx: 8, cz: 8 },
+    { cx: 18, cz: -2 },
+    { cx: -4, cz: -6 },
+    { cx: 24, cz: 5 },
+    { cx: -24, cz: 4 },
+  ]
   const pigeons: THREE.Object3D[] = []
-  for (let i = 0; i < 6; i += 1) {
+  for (let i = 0; i < roosts.length; i += 1) {
     const bird = makePigeon(10)
-    bird.userData = { radius: 5 + i * 1.6, height: 5 + (i % 3) * 1.4, speed: 0.35 + (i % 3) * 0.12, phase: i * 1.1 }
+    const roost = roosts[i] ?? { cx: 0, cz: 0 }
+    bird.userData = {
+      ...roost,
+      ax: 6.5 + (i % 3) * 2.5,
+      az: 4 + ((i + 1) % 3) * 2.4,
+      fx: 0.14 + (i % 4) * 0.05,
+      fz: 0.1 + ((i * 2) % 5) * 0.04,
+      ph: i * 1.7,
+      h: 4.5 + (i % 3) * 1.7,
+    }
     g.add(bird)
     pigeons.push(bird)
   }
@@ -756,7 +699,7 @@ export function buildTown(tex: Textures): TownBuild {
     g.add(well)
   }
 
-  return { group: g, gateL, gateR, bossTower, fries, redFries, roofFry: roof, pigeons, ship, door: districts.door, sensor: districts.sensor }
+  return { group: g, gateL, gateR, bossTower, fries, roofFry: roof, pigeons, ship, door: districts.door, sensor: districts.sensor }
 }
 
 export interface ArenaBuild {
