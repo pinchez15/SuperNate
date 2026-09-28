@@ -43,8 +43,8 @@ export const npcSpots: Record<NpcId, Spot> = {
   barber: { x: -19.5, z: 1.3, y: 0, facing: 0.3 },
   gerald: { x: -27, z: 9.5, y: 4.2, facing: 1.2 },
   engineer: { x: 19.5, z: -5.4, y: 0, facing: -0.2 },
-  cya: { x: 25.5, z: -4.4, y: 0, facing: 0 },
-  sommelier: { x: -24, z: -4.4, y: 0, facing: 0.3 },
+  cya: { x: -24, z: -4.6, y: 0, facing: 0 },
+  sommelier: { x: 24, z: -4.4, y: 0, facing: -0.3 },
 }
 
 /** Townspeople with a rigged body. The ship and the academy door are props. */
@@ -57,7 +57,8 @@ export const layout = {
   loft: { x: -27, z: 9.5, w: 3, d: 3, h: 4.2 },
   barbershop: { x: -19.5, z: -1.3, w: 4.4, d: 2.6, h: 3.2 },
   waymo: { x: 19.5, z: -7.8, w: 3.8, d: 1.9, h: 1.7 },
-  academy: { x: 25.5, z: -7.6, w: 6, d: 4, h: 3.6 },
+  academy: { x: -24, z: -7.6, w: 6, d: 4, h: 3.6 },
+  vineX: 26,
   vineRows: [-10.2, -8.2, -6.2],
 }
 
@@ -76,17 +77,17 @@ export const propBoxes: Box[] = [
   { x: -13.8, z: 8.95, w: 1.1, d: 9.1, h: hedgeH },
   { x: 13.8, z: -6.35, w: 1.1, d: 14.3, h: hedgeH },
   { x: 13.8, z: 8.35, w: 1.1, d: 10.3, h: hedgeH },
-  // West: pigeon loft with a crate staircase, the barbershop, vineyard rows.
+  // West: pigeon loft with a crate staircase, the barbershop, Combinator Y Academy.
   { ...layout.loft },
   { x: -22.7, z: 9.5, w: 1.2, d: 1.2, h: 1.1 },
   { x: -23.9, z: 9.5, w: 1.2, d: 1.2, h: 2.2 },
   { x: -25.1, z: 9.5, w: 1.2, d: 1.2, h: 3.2 },
   { ...layout.barbershop },
-  ...layout.vineRows.map((z) => ({ x: -22.5, z, w: 11, d: 0.6, h: 0.9 })),
-  // East: the Waymo (with a step-up crate for the roof fry) and Combinator Y Academy.
+  { ...layout.academy },
+  // East: the Waymo (with a step-up crate for the roof fry) and the vineyard.
   { ...layout.waymo },
   { x: 17, z: -7.8, w: 1.4, d: 1.4, h: 0.85 },
-  { ...layout.academy },
+  ...layout.vineRows.map((z) => ({ x: layout.vineX, z, w: 7, d: 0.6, h: 0.9 })),
 ]
 
 /** Fries you earn from townspeople, plus one on the Waymo roof. */

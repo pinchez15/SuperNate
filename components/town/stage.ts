@@ -90,7 +90,14 @@ function labelTexture(text: string, bg: string, fg: string, w = 128, h = 48): TH
     ctx.lineWidth = 4
     ctx.strokeRect(2, 2, w - 4, h - 4)
     ctx.fillStyle = fg
-    ctx.font = `italic 900 ${Math.round(h * 0.46)}px "Arial Black", Impact, sans-serif`
+    // Shrink the font until the whole label fits on the board.
+    let size = Math.round(h * 0.46)
+    const font = (s: number) => `italic 900 ${s}px "Arial Black", Impact, sans-serif`
+    ctx.font = font(size)
+    while (size > 8 && ctx.measureText(text).width > w - 14) {
+      size -= 1
+      ctx.font = font(size)
+    }
     ctx.textAlign = "center"
     ctx.textBaseline = "middle"
     ctx.fillText(text, w / 2, h / 2 + 1)
@@ -215,13 +222,13 @@ function buildDistricts(tex: Textures) {
   const westSign = signPost("PIGEON LOFT", "#8e96a6", "#ffffff", tex)
   westSign.position.set(-16, 0, 4.9)
   g.add(westSign)
-  const westSign2 = signPost("VINEYARD", "#7a1f2b", "#ffffff", tex)
+  const westSign2 = signPost("ACADEMY", "#f26522", "#ffffff", tex)
   westSign2.position.set(-16, 0, -0.2)
   g.add(westSign2)
   const eastSign = signPost("WAYMO LOT", "#1d1d24", "#7fd3ff", tex)
-  eastSign.position.set(16, 0, -0.4)
+  eastSign.position.set(16, 0, 0.8)
   g.add(eastSign)
-  const eastSign2 = signPost("ACADEMY", "#f26522", "#ffffff", tex)
+  const eastSign2 = signPost("VINEYARD", "#7a1f2b", "#ffffff", tex)
   eastSign2.position.set(16.4, 0, 4.4)
   g.add(eastSign2)
 
@@ -283,19 +290,19 @@ function buildDistricts(tex: Textures) {
 
   for (const z of layout.vineRows) {
     const row = new THREE.Group()
-    const hedgeRow = new THREE.Mesh(new THREE.BoxGeometry(11, 0.9, 0.6), new THREE.MeshPhongMaterial({ color: "#3f8f3a", shininess: 8 }))
+    const hedgeRow = new THREE.Mesh(new THREE.BoxGeometry(7, 0.9, 0.6), new THREE.MeshPhongMaterial({ color: "#3f8f3a", shininess: 8 }))
     hedgeRow.position.y = 0.45
     row.add(hedgeRow)
-    for (let i = 0; i < 12; i += 1) {
+    for (let i = 0; i < 9; i += 1) {
       const grape = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 6), new THREE.MeshPhongMaterial({ color: "#6b2a7a", shininess: 60 }))
-      grape.position.set(-5.2 + i * 0.95, 0.55, 0.33)
+      grape.position.set(-3.2 + i * 0.8, 0.55, 0.33)
       row.add(grape)
     }
-    row.position.set(-22.5, 0, z)
+    row.position.set(layout.vineX, 0, z)
     g.add(row)
   }
   const aoc = facade("AOC · INTELLIGENCE ARTIFICIELLE GÉNÉRALE", "#7a1f2b", "#f3e6d0", 5, 0.6)
-  aoc.position.set(-22.5, 1.5, -11.6)
+  aoc.position.set(layout.vineX, 1.5, -11.6)
   g.add(aoc)
 
   const W = layout.waymo

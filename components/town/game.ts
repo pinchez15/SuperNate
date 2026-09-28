@@ -478,11 +478,21 @@ export class TownGame {
     this.fireTap = false
     const events = stepBoss(
       this.sim,
-      { left: this.isDown("left"), right: this.isDown("right"), jump: this.isDown("jump") || this.isDown("up"), fire },
+      {
+        left: this.isDown("left"),
+        right: this.isDown("right"),
+        jump: this.isDown("jump") || this.isDown("up"),
+        fire,
+        pound: this.isDown("pound") || this.isDown("down"),
+      },
       dt,
     )
     for (const e of events) {
       if (e.type === "placed") this.blips.ring()
+      if (e.type === "pound" && e.squashed > 0) {
+        this.blips.bark()
+        this.bossShake = 0.3
+      }
       if (e.type === "landed") {
         this.blips.landed()
         this.bossShake = 0.35
@@ -620,8 +630,8 @@ export class TownGame {
     const t = this.clock
     animateRig(this.nate, t, this.speed)
     if (this.mode === "boss" && !this.sim.onGround && this.nate.legL && this.nate.legR) {
-      this.nate.legL.rotation.x = -0.6
-      this.nate.legR.rotation.x = 0.3
+      this.nate.legL.rotation.x = this.sim.pounding ? -1.2 : -0.6
+      this.nate.legR.rotation.x = this.sim.pounding ? -1.2 : 0.3
     }
     if (this.mode === "town") {
       if (this.flip > 0) this.nate.body.rotation.x = -((1 - Math.max(0, this.vy) / (JUMPS[2] ?? 13)) * Math.PI * 2)

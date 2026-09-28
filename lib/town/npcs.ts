@@ -179,7 +179,7 @@ export const emoteLines: Partial<Record<NpcId, string>> = {
 
 export const emoteAlone = "Nobody picked up. Classic."
 
-export const moggedLine = "Whoa. You've been heightmogged. Is that the king of CRMs?"
+export const moggedLine = "Whoa. You're tall now. You can heightmog and get a direct intro — Hawkins takes calls from people this tall."
 
 /** When the player brings all 20 fries into the fight. */
 export const allFriesWin = "Are those fries? All twenty? Fine. Quick call. Bring the fries."

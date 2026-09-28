@@ -14,8 +14,11 @@ export const B = {
   callSpeed: 11,
   callCooldown: 0.5,
   maxCallsInFlight: 1,
-  missDamage: 4,
+  /** Patience lost per landed ping: 10 landed pings win the call. */
+  missDamage: 10,
   batteries: 3,
+  poundV: -24,
+  poundRadius: 2.6,
   invuln: 1.2,
   uberHalfLen: 1.15,
   uberHeight: 1.45,
@@ -52,6 +55,7 @@ export interface BossInput {
   right: boolean
   jump: boolean
   fire: boolean
+  pound: boolean
 }
 
 export interface Uber {
@@ -99,6 +103,9 @@ export interface BossState {
   respawns: number
   won: boolean
   jumpHeld: boolean
+  pounding: boolean
+  poundHeld: boolean
+  squashed: number
 }
 
 export type BossEvent =
@@ -110,6 +117,7 @@ export type BossEvent =
   | { type: "phase"; phase: number }
   | { type: "uber" }
   | { type: "uberAir" }
+  | { type: "pound"; squashed: number }
   | { type: "won" }
 
 export function createBoss(): BossState {
@@ -139,6 +147,9 @@ export function createBoss(): BossState {
     respawns: 0,
     won: false,
     jumpHeld: false,
+    pounding: false,
+    poundHeld: false,
+    squashed: 0,
   }
 }
 
@@ -172,6 +183,11 @@ export function stepBoss(s: BossState, input: BossInput, dt: number): BossEvent[
     s.onGround = false
   }
   s.jumpHeld = input.jump
+  if (input.pound && !s.poundHeld && !s.onGround && !s.pounding) {
+    s.pounding = true
+    s.vy = Math.min(s.vy, B.poundV)
+  }
+  s.poundHeld = input.pound
   if (s.onGround && s.y > 0) {
     const still = platforms.some((p) => Math.abs(s.x - p.x) < p.half && Math.abs(s.y - p.y) < 0.01)
     if (!still) s.onGround = false
@@ -191,6 +207,15 @@ export function stepBoss(s: BossState, input: BossInput, dt: number): BossEvent[
         s.vy = 0
         s.onGround = true
       }
+    }
+    // Ground pound lands: the shockwave totals every street-level Uber nearby.
+    if (s.onGround && s.pounding) {
+      s.pounding = false
+      const before = s.ubers.length
+      if (s.y === 0) s.ubers = s.ubers.filter((u) => u.air || Math.abs(u.x - s.x) > B.poundRadius)
+      const squashed = before - s.ubers.length
+      s.squashed += squashed
+      events.push({ type: "pound", squashed })
     }
   }
 
@@ -258,8 +283,23 @@ export function stepBoss(s: BossState, input: BossInput, dt: number): BossEvent[
   for (const u of s.ubers) u.x -= u.speed * dt
   s.ubers = s.ubers.filter((u) => u.x > B.uberDespawnX)
 
+  // While pounding, SuperNate is a falling anvil: Ubers he lands through get squashed.
+  if (s.pounding) {
+    const before = s.ubers.length
+    s.ubers = s.ubers.filter((u) => {
+      if (Math.abs(u.x - s.x) >= B.uberHalfLen + B.playerHalfW) return true
+      const overlaps = u.air ? s.y < AIR_Y + B.uberHeight && s.y + 1.6 > AIR_Y : s.y < B.uberHeight
+      return !overlaps
+    })
+    const squashed = before - s.ubers.length
+    if (squashed > 0) {
+      s.squashed += squashed
+      events.push({ type: "pound", squashed })
+    }
+  }
+
   s.inv = Math.max(0, s.inv - dt)
-  if (s.inv === 0) {
+  if (s.inv === 0 && !s.pounding) {
     const hit = s.ubers.find((u) => {
       if (Math.abs(u.x - s.x) >= B.uberHalfLen + B.playerHalfW) return false
       return u.air ? s.y + 1.6 > AIR_Y + 0.2 && s.y < AIR_Y + B.uberHeight : s.y < B.uberHeight

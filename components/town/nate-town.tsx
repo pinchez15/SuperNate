@@ -9,7 +9,6 @@ import {
   declines,
   emoteAlone,
   emoteLines,
-  feltLine,
   gateLine,
   intro,
   itemOrder,
@@ -33,7 +32,7 @@ import { renderPortraits } from "@/components/town/portraits"
 import { SiteBrowser } from "@/components/town/site-browser"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-type Screen = "title" | "story" | "town" | "dialog" | "site" | "bossIntro" | "boss" | "won" | "end"
+type Screen = "title" | "story" | "town" | "dialog" | "site" | "bossIntro" | "boss" | "won" | "direct" | "end"
 
 const npcPortrait: Partial<Record<NpcId, CharacterId>> = {
   guide: "guide",
@@ -46,13 +45,6 @@ const npcPortrait: Partial<Record<NpcId, CharacterId>> = {
 }
 
 const itemFrom: Record<ItemId, NpcId> = { meds: "doctor", call: "vest", agent: "guide" }
-
-interface Stats {
-  placed: number
-  declined: number
-  hitsTaken: number
-  seconds: number
-}
 
 export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -72,7 +64,6 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
   const [hud, setHud] = useState<BossHud>({ patience: 100, batteries: 3, declining: false, phase: 0 })
   const [quip, setQuip] = useState<string | null>(null)
   const [stamp, setStamp] = useState(false)
-  const [stats, setStats] = useState<Stats>({ placed: 0, declined: 0, hitsTaken: 0, seconds: 0 })
   const [fries, setFries] = useState(0)
   const [storyPage, setStoryPage] = useState(0)
   const [banner, setBanner] = useState(false)
@@ -86,6 +77,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
   const talkRef = useRef<(id: NpcId) => void>(() => undefined)
   const gateAnnounced = useRef(false)
   const airAnnounced = useRef(false)
+  const poundAnnounced = useRef(false)
   const knockCount = useRef(0)
   const friesRef = useRef(0)
 
@@ -135,10 +127,12 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
           } else if (e.type === "uberAir" && !airAnnounced.current) {
             airAnnounced.current = true
             say("Uber Air. Yes, the dogs can fly now.", 1800)
+          } else if (e.type === "pound" && e.squashed > 0 && !poundAnnounced.current) {
+            poundAnnounced.current = true
+            say("Dog fine. Uber totaled.", 1500)
           } else if (e.type === "respawn") {
             say("Battery dead. Plug in and try again. I'll wait. I won't.", 2000)
           } else if (e.type === "won") {
-            setStats({ placed: s.placed, declined: s.declined, hitsTaken: s.hitsTaken, seconds: Math.round(s.t) })
             analytics.capture("boss_patience_depleted", {
               calls_placed: s.placed,
               calls_declined: s.declined,
@@ -227,6 +221,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
     friesRef.current = 0
     knockCount.current = 0
     airAnnounced.current = false
+    poundAnnounced.current = false
     setQuip(null)
     setHud({ patience: 100, batteries: 3, declining: false, phase: 0 })
     gameRef.current?.restartTown()
@@ -328,13 +323,32 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
         setClaimed((prev) => [...prev, "cya"])
         gameRef.current?.setMogged(true)
         analytics.capture("easter_egg_found", { egg: "heightmogged" })
-        flash(moggedLine, 3600)
-        setScript((prev) => (prev ? { ...prev, pages: [line], choices: [{ id: "bye", label: "Walk tall" }] } : prev))
+        setScript((prev) =>
+          prev ? { ...prev, pages: [line, moggedLine], choices: [{ id: "mogwin", label: "Take the direct intro" }] } : prev,
+        )
       } else {
         setScript((prev) =>
           prev ? { ...prev, pages: [line], choices: [{ id: "knock", label: "Knock again" }, { id: "bye", label: "Leave" }] } : prev,
         )
       }
+      return
+    }
+    if (id === "mogwin") {
+      // Heightmogged: investors wave you through, Hawkins takes the direct intro. Skips the fight.
+      analytics.capture("hopped_on_a_quick_call", { with: "hawkins", via: "heightmog_direct_intro" })
+      setTalking(null)
+      setScript(null)
+      blips.win()
+      setScreen("direct")
+      setBig("DIRECT INTRO!")
+      window.setTimeout(() => setBig(null), 1400)
+      window.setTimeout(() => {
+        setStamp(true)
+        window.setTimeout(() => {
+          setStamp(false)
+          setScreen("end")
+        }, 1900)
+      }, 1200)
       return
     }
     setTalking(null)
@@ -467,7 +481,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
           {inBoss && (
             <>
               <div className="pointer-events-none absolute inset-x-0 top-2 text-center font-mono text-[10px] text-white/75 sm:text-xs">
-                ← → move · SPACE jump the dog-Ubers · J or click to ping · pings bounce off Do Not Disturb
+                ← → move · SPACE jump · ↓ or SHIFT in the air ground-pounds the dog-Ubers · J or click to ping · 10 pings land the call
               </div>
               <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between p-3 sm:p-4">
                 <div className="flex items-end gap-2">
@@ -598,15 +612,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
           )}
 
           {screen === "end" && (
-            <EndCard
-              fries={fries}
-              stats={stats}
-              invites={got.length}
-              portraits={portraits}
-              onOpen={(s) => openSite(s, "end")}
-              onAgain={restart}
-              onEnter1987={onEnter1987}
-            />
+            <EndCard portraits={portraits} onOpen={(s) => openSite(s, "end")} onAgain={restart} onEnter1987={onEnter1987} />
           )}
         </div>
 
@@ -814,31 +820,16 @@ function FryIcon() {
 }
 
 function EndCard({
-  fries,
-  stats,
-  invites,
   portraits,
   onOpen,
   onAgain,
   onEnter1987,
 }: {
-  fries: number
-  stats: Stats
-  invites: number
   portraits: Partial<Record<CharacterId, string>>
   onOpen: (s: Site) => void
   onAgain: () => void
   onEnter1987: () => void
 }) {
-  const rows: [string, string][] = [
-    ["Pings sent to Hawkins", String(stats.placed)],
-    ["Pings he snoozed", String(stats.declined)],
-    ["Dog-Ubers that got you", String(stats.hitsTaken)],
-    ["Time to get him on the phone", `${stats.seconds}s`],
-    ["Quick call kit", `${invites} of 3`],
-    ["Fries recovered", `${fries} of ${FRY_TOTAL} (FlyFry shipped ${FRY_TOTAL}, the order was ${fryOrder})`],
-    ["How the interview went", feltLine(stats.hitsTaken)],
-  ]
   return (
     <div className="smash-backdrop absolute inset-0 overflow-y-auto p-3 sm:p-6">
       <div className="mx-auto max-w-2xl">
@@ -874,18 +865,10 @@ function EndCard({
           <p className="mt-2 break-all font-mono text-xs text-[#1a0f08]/70">{calendly.replace("https://", "")}</p>
         </div>
 
-        <p className="mt-3 text-sm text-white/85">
-          On the agenda: what Nate has shipped, and what he&apos;d build next. Fries optional.
+        <p className="mt-3 text-sm text-white/85 sm:text-base">
+          Nate actually wants a job at PostHog. And it&apos;s not to pitch his startup FlyFry, which delivers fries by pigeon.
         </p>
 
-        <dl className="mt-3 divide-y divide-white/10 rounded-lg bg-black/35 px-3 text-sm sm:text-base">
-          {rows.map(([k, v]) => (
-            <div key={k} className="flex justify-between gap-4 py-1.5">
-              <dt className="text-white/80">{k}</dt>
-              <dd className="text-right font-bold">{v}</dd>
-            </div>
-          ))}
-        </dl>
         <p className="smash-type mt-4 text-lg sm:text-xl">NATE ACTUALLY BUILT THESE</p>
         <p className="mt-1 text-xs text-white/70">Everything else in HogPatch is a joke. These three are real.</p>
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
