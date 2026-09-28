@@ -10,9 +10,9 @@ export interface Item {
 }
 
 export const items: Record<ItemId, Item> = {
-  meds: { id: "meds", name: "Pitch-nerve pills", blurb: "Non-drowsy. For founders about to say 'pigeons' out loud." },
-  call: { id: "call", name: "Booked call time", blurb: "15 minutes, booked on HedgeHawkins's own website. He forgot it had a booking page." },
-  agent: { id: "agent", name: "CappaWork agent", blurb: "It does the Computer Work. You do the Human Work." },
+  meds: { id: "meds", name: "Interview-nerve pills", blurb: "Non-drowsy. For candidates about to say 'culture fit' out loud." },
+  call: { id: "call", name: "Booked call time", blurb: "The last 15 minutes on Hawkins's calendar, booked from his own website." },
+  agent: { id: "agent", name: "CappaWork agent", blurb: "Nate built the studio. The agent does the Computer Work." },
 }
 
 export const itemOrder: ItemId[] = ["meds", "call", "agent"]
@@ -26,6 +26,8 @@ export interface Npc {
   siteId?: SiteId
   item?: ItemId
   reward?: Reward
+  /** True for the townspeople showcasing things Nate actually built. */
+  real?: boolean
   pages: string[]
   ask: string
   take: string
@@ -37,16 +39,17 @@ export const npcs: Record<NpcId, Npc> = {
   guide: {
     id: "guide",
     name: "The Guide",
-    title: "CappaWork · Agent Builder",
+    title: "CappaWork",
     siteId: "cappawork",
     item: "agent",
+    real: true,
     pages: [
-      "The mansion door wants three things: meds, a booked call, and an agent. I build the agents — CappaWork.",
+      "You're Nate, right? You built CappaWork — the agent studio. Computers do the Computer Work, people do the Human Work.",
     ],
-    ask: "Take this one. It does the Computer Work so you can do the Human Work.",
+    ask: "Bring one of your own agents to the interview. Show Hawkins something that ships.",
     take: "Take the agent",
-    yes: "It already drafted three follow-ups. Sorry.",
-    after: "Meds are at the clinic. The call time? Ask the vest.",
+    yes: "It already drafted your thank-you email.",
+    after: "Meds are at the clinic. Call time from the guy in the vest.",
   },
   doctor: {
     id: "doctor",
@@ -54,13 +57,14 @@ export const npcs: Record<NpcId, Npc> = {
     title: "Karibu Health",
     siteId: "karibu",
     item: "meds",
+    real: true,
     pages: [
-      "Say ahh. Karibu is my medical record — offline-first, runs on a budget Android, built for clinics in rural Uganda.",
+      "Say ahh. You built Karibu — the offline-first medical record my clinic in rural Uganda runs on a cheap Android.",
     ],
-    ask: "Pitch-nerve pills. Take one before you say 'pigeons' out loud.",
+    ask: "Interview-nerve pills. Take one before you say 'culture fit' out loud.",
     take: "Take the meds",
-    yes: "Side effects include confidence and a sudden urge to say 'TAM'.",
-    after: "One pill per pigeon. You'll be fine.",
+    yes: "Side effects include confidence and a sudden urge to say 'ship it'.",
+    after: "You built the thing. Just tell him that.",
   },
   vest: {
     id: "vest",
@@ -68,10 +72,11 @@ export const npcs: Record<NpcId, Npc> = {
     title: "Healthcare AIO",
     siteId: "healthcareaio",
     item: "call",
+    real: true,
     pages: [
-      "Bro. Patients don't Google anymore, they ask an AI — Healthcare AIO measures how you show up in the answer.",
+      "Bro, you built Healthcare AIO — it measures how doctors show up when patients ask an AI instead of Google.",
     ],
-    ask: "I asked the AIs how to reach HedgeHawkins. His own website has a booking page — I grabbed you the last 15 minutes.",
+    ask: "I asked the AIs how to reach Hawkins. His own website has a booking page — I grabbed you the last 15 minutes.",
     take: "Take the call time",
     yes: "Confirmed. He'll decline it. That's normal.",
     after: "Did you get my follow-up? I sent it during this sentence.",
@@ -92,7 +97,7 @@ export const npcs: Record<NpcId, Npc> = {
     title: "Chief of Staff (part-time)",
     reward: "fry",
     pages: [
-      "I cut HedgeHawkins's hair blindfolded, to keep the secrets safe. Terrible cuts, great intel.",
+      "I cut Hawkins's hair blindfolded, to keep the secrets safe. Terrible cuts, great intel.",
     ],
     ask: "Found this fry in a customer's hood. Want it?",
     take: "Take the fry",
@@ -105,7 +110,7 @@ export const npcs: Record<NpcId, Npc> = {
     title: "Lead Pigeon, FlyFry",
     reward: "fry",
     pages: [
-      "Coo. Deliveries completed: 3. Fries eaten: 4,000. I'm the 70% overage.",
+      "Coo. FlyFry delivers fries by pigeon. Deliveries completed: 3. Fries eaten: 4,000. I'm the 70% overage.",
     ],
     ask: "I saved you one. Don't tell the customer.",
     take: "Take Gerald's fry",
@@ -177,25 +182,25 @@ export const emoteAlone = "Nobody picked up. Classic."
 export const moggedLine = "Whoa. You've been heightmogged. Is that the king of CRMs?"
 
 /** When the player brings all 20 fries into the fight. */
-export const allFriesWin = "Are those fries? All twenty? Fine. Quick call. And a term sheet."
+export const allFriesWin = "Are those fries? All twenty? Fine. Quick call. Bring the fries."
 
 export const intro = [
-  "SuperNate's starfighter has crash-landed on HogPatch.",
-  "He has an idea: FlyFry. Fries, delivered by carrier pigeon, each one individually wrapped.",
-  "Only one hedgehog can fund it: HedgeHawkins, CEO of the B2B Mansion. He won't take a quick call.",
+  "SuperNate's starfighter has crash-landed on HogPatch — right outside PostHog HQ.",
+  "His dream job is inside. James Hawkins, the CEO, does not take cold calls.",
+  "The front door wants three things: meds, a call time, and an agent. Go show him you ship.",
 ]
 
-export const gateLine = "Fine. The mansion's open. I'm not picking up, though. — HedgeHawkins"
+export const gateLine = "Fine. The door's open. I'm not picking up, though. — Hawkins"
 
 export const bossIntro = [
-  "You want a quick call? To pitch… fries? By pigeon?",
-  "I'm running a B2B SaaS company. Take it up with my dogs.",
+  "You want a quick call? About a job?",
+  "I'm running PostHog. Take it up with my dogs.",
 ]
 
 export const declines = [
   "Do Not Disturb. Sent from my Vision Pro.",
   "Can this be an email?",
-  "I only take calls from 175-year-olds.",
+  "Apply through the careers page. It loops.",
   "Talk to my chief of staff. He's a barber.",
   "I'm in a shared Waymo. It's not shared.",
   "Muted. You're in the mute pile.",
@@ -217,7 +222,7 @@ export const phone = { display: "570-575-0421", href: "tel:+15705750421" }
 export const calendly = "https://calendly.com/cappawork/quick-call"
 
 export function feltLine(hitsTaken: number): string {
-  if (hitsTaken === 0) return "Honestly? Intrigued. He asked about unit economics."
-  if (hitsTaken <= 3) return "Mildly respected. He said 'huh, pigeons.'"
-  return "Exhausted, but he picked up. That's a call."
+  if (hitsTaken === 0) return "Honestly? Impressed. He asked when you can start."
+  if (hitsTaken <= 3) return "Mildly respected. He said 'huh, you actually ship.'"
+  return "Exhausted, but he picked up. That's an interview."
 }

@@ -333,6 +333,11 @@ function buildDistricts(tex: Textures) {
   }
   car.position.set(W.x, 0, W.z)
   g.add(car)
+  // Delivery crate beside the car: hop the crate, then the roof, to reach the fry.
+  const step = crate(tex, 1.4, 0.85)
+  step.position.x = 17
+  step.position.z = W.z
+  g.add(step)
   for (let i = 0; i < 4; i += 1) {
     const lap = new THREE.Group()
     lap.add(new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.03, 0.34), new THREE.MeshPhongMaterial({ color: "#b8bcc6", shininess: 120 })))
@@ -581,11 +586,11 @@ export function buildTown(tex: Textures): TownBuild {
   welcome.position.set(3.4, 0, 11.6)
   welcome.rotation.y = -0.3
   g.add(welcome)
-  const hq = signPost("B2B MANSION", "#1a2a5a", "#ffffff", tex)
+  const hq = signPost("POSTHOG HQ", "#f54e00", "#ffffff", tex)
   hq.position.set(-4.8, 0, gate.z + 1.9)
   hq.rotation.y = 0.2
   g.add(hq)
-  const solicit = signPost("NO PITCHES", "#e2372e", "#ffffff", tex)
+  const solicit = signPost("NO COLD CALLS", "#e2372e", "#ffffff", tex)
   solicit.position.set(4.9, 0, gate.z + 1.9)
   solicit.rotation.y = -0.2
   g.add(solicit)

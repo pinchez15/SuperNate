@@ -12,6 +12,8 @@ export interface Script {
   speaker: string
   title: string
   portrait?: string
+  /** Marks townspeople showcasing things Nate actually built, unlike the jokes. */
+  real?: boolean
   pages: string[]
   choices: Choice[]
 }
@@ -109,9 +111,14 @@ export function DialogBox({
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-baseline gap-2">
+          <div className="mb-1 flex flex-wrap items-baseline gap-2">
             <span className="party-type text-base sm:text-lg">{script.speaker}</span>
             <span className="font-mono text-[10px] tracking-[0.18em] text-[#ffcc55] sm:text-xs">{script.title}</span>
+            {script.real && (
+              <span className="rounded bg-[#38b24a] px-1.5 py-0.5 font-mono text-[9px] font-bold tracking-[0.14em] text-white sm:text-[10px]">
+                ✓ REAL — NATE BUILT THIS
+              </span>
+            )}
           </div>
           <p className="min-h-[3.6em] text-[15px] leading-snug text-white sm:text-lg" aria-live="polite">
             {text.slice(0, shown)}
@@ -144,7 +151,7 @@ export function DialogBox({
               aria-label="Next"
             >
               <span className="grid h-6 w-6 place-items-center rounded-full bg-[#2f73c9] text-xs font-bold text-white shadow-[0_2px_0_#000] animate-bounce motion-reduce:animate-none">
-                A
+                E
               </span>
             </button>
           )}

@@ -799,10 +799,10 @@ export function makePing(): THREE.Sprite {
     ctx.fillText("SuperNate", 76, 30)
     ctx.fillStyle = "#1264a3"
     ctx.font = "bold 22px sans-serif"
-    ctx.fillText("@HedgeHawkins", 76, 60)
+    ctx.fillText("@Hawkins", 76, 60)
     ctx.fillStyle = "#616061"
     ctx.font = "18px sans-serif"
-    ctx.fillText("quick call? re: fries", 76, 88)
+    ctx.fillText("quick call? re: the job", 76, 88)
   }
   const tex = new THREE.CanvasTexture(c)
   tex.colorSpace = THREE.SRGBColorSpace

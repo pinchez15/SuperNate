@@ -166,6 +166,19 @@ export class TownGame {
     applyShadows(this.scene)
 
     this.placeNateInTown()
+    if (process.env.NODE_ENV !== "production") {
+      // Dev-only hook so automated playthroughs can read and set the player position.
+      ;(window as unknown as { __town?: object }).__town = {
+        pos: () => ({ x: this.pos.x, z: this.pos.z, y: this.y }),
+        warp: (x: number, z: number) => {
+          this.pos = { x, z }
+          this.y = groundAt(x, z, 99)
+          this.vy = 0
+          this.grounded = true
+          this.nate.root.position.set(x, this.y, z)
+        },
+      }
+    }
     window.addEventListener("keydown", this.onKeyDown)
     window.addEventListener("keyup", this.onKeyUp)
     window.addEventListener("blur", this.onBlur)

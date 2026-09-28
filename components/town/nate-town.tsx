@@ -248,7 +248,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
     const npc = npcs[id]
     const face = npcPortrait[id]
     const portrait = face ? portraits[face] : undefined
-    const base = { speaker: npc.name, title: npc.title, portrait }
+    const base = { speaker: npc.name, title: npc.title, portrait, real: npc.real }
     const seeSite = { id: "site", label: npc.id === "guide" ? "See CappaWork" : "See the site" }
     let next: Script
     if (npc.id === "ship") {
@@ -388,10 +388,10 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
 
   const objective =
     got.length === 0
-      ? "The mansion door wants three things: meds, a call time, an agent."
+      ? "Hawkins won't take a cold call. The PostHog door wants: meds, a call time, an agent."
       : got.length < 3
-        ? `Unlock the mansion door. ${got.length} of 3.`
-        : "The mansion is open. Go get your quick call."
+        ? `Unlock the PostHog door. ${got.length} of 3.`
+        : "The door's open. Go land your quick call with Hawkins."
 
   const pad = (action: Parameters<TownGame["setVirtual"]>[0]) => ({
     onPointerDown: (e: React.PointerEvent) => {
@@ -415,7 +415,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
           <canvas
             ref={canvasRef}
             className="n64-canvas block aspect-[4/3] w-full"
-            aria-label="SuperNate 64. Walk the town, talk to people, then hop on a quick call with HedgeHawkins."
+            aria-label="SuperNate 64. Walk the town, talk to people, then land a quick call with Hawkins, CEO of PostHog."
           />
 
           {inTown && (
@@ -446,7 +446,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
           {screen === "town" && near && (
             <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center">
               <span className="party-type party-panel flex items-center gap-2 px-4 py-1.5 text-sm sm:text-base">
-                <span className="grid h-6 w-6 place-items-center rounded-full bg-[#2f73c9] text-xs">A</span>
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-[#2f73c9] text-xs">E</span>
                 TALK TO {npcs[near].name.toUpperCase()}
               </span>
             </div>
@@ -483,7 +483,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
                 </div>
                 <div className="flex items-end gap-2 text-right">
                   <div>
-                    <p className="smash-type text-xs sm:text-sm">HEDGEHAWKINS</p>
+                    <p className="smash-type text-xs sm:text-sm">HAWKINS</p>
                     <p className="smash-type text-3xl leading-none sm:text-5xl" style={{ color: patienceColor }}>
                       {hud.patience}%
                     </p>
@@ -574,9 +574,9 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
             <div className="smash-backdrop absolute inset-0 grid place-items-center p-4 text-center">
               <div>
                 <div className="flex items-center justify-center gap-3 sm:gap-8">
-                  <VsCard src={portraits.nate} name="SUPERNATE" color="#d8352a" />
+                  <VsCard src={portraits.nate} name="SUPERNATE" role="APPLICANT" color="#d8352a" />
                   <span className="smash-type text-4xl text-[#ffcc33] sm:text-7xl">VS</span>
-                  <VsCard src={portraits.hedgehawkins} name="HEDGEHAWKINS" color="#3553c9" />
+                  <VsCard src={portraits.hedgehawkins} name="HAWKINS" role="CEO, POSTHOG" color="#3553c9" />
                 </div>
                 <div className="mx-auto mt-2 max-w-lg space-y-1 text-xs sm:mt-4 sm:text-lg">
                   {bossIntro.map((line) => (
@@ -693,7 +693,7 @@ function HudPortrait({ src, color }: { src?: string; color: string }) {
   )
 }
 
-function VsCard({ src, name, color }: { src?: string; name: string; color: string }) {
+function VsCard({ src, name, role, color }: { src?: string; name: string; role?: string; color: string }) {
   return (
     <div className="w-20 sm:w-44">
       <div
@@ -703,6 +703,7 @@ function VsCard({ src, name, color }: { src?: string; name: string; color: strin
         {src && <img src={src} alt="" className="h-full w-full object-cover" />}
       </div>
       <p className="smash-type mt-1 text-xs sm:text-lg">{name}</p>
+      {role && <p className="font-mono text-[9px] tracking-[0.2em] text-white/70 sm:text-[11px]">{role}</p>}
     </div>
   )
 }
@@ -750,7 +751,8 @@ function TitleCard({ portraits, onStart }: { portraits: Partial<Record<Character
         ))}
       </div>
       <p className="mt-4 hidden max-w-md text-sm text-white/85 sm:block sm:text-base">
-        SuperNate crash-landed on HogPatch with a startup idea. HedgeHawkins is too busy for a quick call. Make him pick up.
+        SuperNate crash-landed outside PostHog HQ. His dream job is inside, and Hawkins won&apos;t take a cold call. Make him
+        pick up.
       </p>
       <button
         type="button"
@@ -829,13 +831,13 @@ function EndCard({
   onEnter1987: () => void
 }) {
   const rows: [string, string][] = [
-    ["Pings sent to HedgeHawkins", String(stats.placed)],
+    ["Pings sent to Hawkins", String(stats.placed)],
     ["Pings he snoozed", String(stats.declined)],
     ["Dog-Ubers that got you", String(stats.hitsTaken)],
     ["Time to get him on the phone", `${stats.seconds}s`],
     ["Quick call kit", `${invites} of 3`],
-    ["Fries recovered", `${fries} of ${FRY_TOTAL} (order was ${fryOrder})`],
-    ["How you made him feel", feltLine(stats.hitsTaken)],
+    ["Fries recovered", `${fries} of ${FRY_TOTAL} (FlyFry shipped ${FRY_TOTAL}, the order was ${fryOrder})`],
+    ["How the interview went", feltLine(stats.hitsTaken)],
   ]
   return (
     <div className="smash-backdrop absolute inset-0 overflow-y-auto p-3 sm:p-6">
@@ -845,8 +847,9 @@ function EndCard({
             {portraits.hedgehawkins && <img src={portraits.hedgehawkins} alt="" className="h-full w-full object-cover" />}
           </div>
           <div>
-            <p className="font-mono text-[11px] tracking-[0.3em] text-[#ffcc33]">HEDGEHAWKINS SAYS</p>
+            <p className="font-mono text-[11px] tracking-[0.3em] text-[#ffcc33]">HAWKINS, CEO OF POSTHOG, SAYS</p>
             <h2 className="smash-type text-3xl sm:text-5xl">&ldquo;FINE. QUICK CALL.&rdquo;</h2>
+            <p className="mt-1 text-sm text-white/85 sm:text-base">SuperNate got the quick call. Now it&apos;s your turn.</p>
           </div>
         </div>
 
@@ -872,8 +875,7 @@ function EndCard({
         </div>
 
         <p className="mt-3 text-sm text-white/85">
-          On the agenda: FlyFry. Carrier pigeons, fries only, each one individually wrapped. We ship 70% extra because the
-          pigeons get lost or eat them.
+          On the agenda: what Nate has shipped, and what he&apos;d build next. Fries optional.
         </p>
 
         <dl className="mt-3 divide-y divide-white/10 rounded-lg bg-black/35 px-3 text-sm sm:text-base">
@@ -884,11 +886,14 @@ function EndCard({
             </div>
           ))}
         </dl>
-        <p className="smash-type mt-4 text-lg sm:text-xl">WHO YOU MET IN HOGPATCH</p>
+        <p className="smash-type mt-4 text-lg sm:text-xl">NATE ACTUALLY BUILT THESE</p>
+        <p className="mt-1 text-xs text-white/70">Everything else in HogPatch is a joke. These three are real.</p>
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {siteList.map((s) => (
             <div key={s.id} className="rounded-lg border-2 border-[#1a0f08] bg-black/40 p-2.5">
-              <p className="font-bold">{s.name}</p>
+              <p className="font-bold">
+                {s.name} <span className="rounded bg-[#38b24a] px-1 py-0.5 align-middle font-mono text-[9px] font-bold">✓ REAL</span>
+              </p>
               <p className="text-xs text-white/75">{s.line}</p>
               <div className="mt-1.5 flex gap-3 font-mono text-xs">
                 <button type="button" onClick={() => onOpen(s)} className="text-[#ffcc33] underline">
@@ -913,7 +918,7 @@ function EndCard({
             Insert the 1987 cartridge
           </button>
         </div>
-        <p className="mt-2 font-mono text-[10px] text-white/50">Headcount is not on this list.</p>
+        <p className="mt-2 font-mono text-[10px] text-white/50">FlyFry is not on this list. FlyFry is not real.</p>
       </div>
     </div>
   )

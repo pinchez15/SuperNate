@@ -15,21 +15,21 @@ export const sites: Record<SiteId, Site> = {
     name: "CappaWork",
     url: "https://www.cappawork.com/",
     peek: true,
-    line: "The studio. Let computers do the Computer Work so people can do the Human Work.",
+    line: "Nate's agent studio. Computers do the Computer Work so people can do the Human Work.",
   },
   karibu: {
     id: "karibu",
     name: "Karibu Health",
     url: "https://www.karibu.health/",
     peek: false,
-    line: "An offline-first EHR for rural clinics in Uganda. In pilot.",
+    line: "Nate's offline-first EHR for rural clinics in Uganda. In pilot.",
   },
   healthcareaio: {
     id: "healthcareaio",
     name: "Healthcare AIO",
     url: "https://www.healthcareaio.com/",
     peek: true,
-    line: "Why AI search won't cite your hospital, and what to fix.",
+    line: "Nate's AI-search visibility service for healthcare: why AI won't cite your hospital, and what to fix.",
   },
 }
 

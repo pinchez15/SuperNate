@@ -83,8 +83,9 @@ export const propBoxes: Box[] = [
   { x: -25.1, z: 9.5, w: 1.2, d: 1.2, h: 3.2 },
   { ...layout.barbershop },
   ...layout.vineRows.map((z) => ({ x: -22.5, z, w: 11, d: 0.6, h: 0.9 })),
-  // East: the Waymo and Combinator Y Academy.
+  // East: the Waymo (with a step-up crate for the roof fry) and Combinator Y Academy.
   { ...layout.waymo },
+  { x: 17, z: -7.8, w: 1.4, d: 1.4, h: 0.85 },
   { ...layout.academy },
 ]
 
