@@ -5,7 +5,7 @@ import { animateRig, makeCharacter, makeDogUber, makePhoneProjectile, makePing, 
 import { disposeObject, N64Renderer } from "@/components/town/n64-renderer"
 import { ARENA_Z, applyShadows, arena, buildArena, buildTown, makeScene, setArea, type TownBuild } from "@/components/town/stage"
 import { AIR_Y, createBoss, stepBoss, type BossEvent, type BossState } from "@/lib/town/boss"
-import { fryRadius, groundAt, nearestNpc, npcSpots, peopleIds, resolve, spawn, throughGate, type NpcId } from "@/lib/town/world"
+import { FRY_TOTAL, fryRadius, groundAt, nearestNpc, npcSpots, peopleIds, resolve, spawn, throughGate, type NpcId } from "@/lib/town/world"
 
 export type GameMode = "town" | "paused" | "boss" | "win"
 
@@ -150,7 +150,8 @@ export class TownGame {
     this.boss.root.scale.setScalar(1.35)
     this.scene.add(this.boss.root)
 
-    for (let i = 0; i < 4; i += 1) {
+    // Enough cars for the all-fries run, where fed dogs pile up on the stage.
+    for (let i = 0; i < 10; i += 1) {
       const car = makeDogUber(look.segments)
       car.visible = false
       this.scene.add(car)
@@ -176,6 +177,10 @@ export class TownGame {
           this.vy = 0
           this.grounded = true
           this.nate.root.position.set(x, this.y, z)
+        },
+        fries: (n: number) => {
+          this.friesGot = n
+          this.cb.onFry(n)
         },
       }
     }
@@ -226,7 +231,7 @@ export class TownGame {
   startBoss(countdown = 2.4) {
     setArea(this.scene, this.tex, "arena")
     this.freeze = countdown
-    this.sim = createBoss()
+    this.sim = createBoss(this.friesGot >= FRY_TOTAL)
     this.camera.position.set(0.4, 3.6, ARENA_Z + 20)
     this.lookAt.set(0.4, 2.4, ARENA_Z)
     this.winT = 0
@@ -493,6 +498,7 @@ export class TownGame {
         this.blips.bark()
         this.bossShake = 0.3
       }
+      if (e.type === "fed") this.blips.bark()
       if (e.type === "landed") {
         this.blips.landed()
         this.bossShake = 0.35
@@ -573,8 +579,9 @@ export class TownGame {
       mesh.position.set(u.x, u.air ? AIR_Y + Math.sin(this.clock * 6 + u.id) * 0.12 : 0, ARENA_Z + 0.6)
       mesh.rotation.z = u.air ? Math.sin(this.clock * 3 + u.id) * 0.08 : 0
       mesh.traverse((o) => {
-        if (o.name === "wheel") o.rotation.y = this.clock * 14
-        if (o.name === "dog") o.rotation.z = Math.sin(this.clock * 10 + u.id) * 0.15
+        if (o.name === "wheel") o.rotation.y = u.fed && u.speed === 0 ? o.rotation.y : this.clock * 14
+        if (o.name === "dog") o.rotation.z = u.fed ? Math.sin(this.clock * 16 + u.id) * 0.3 : Math.sin(this.clock * 10 + u.id) * 0.15
+        if (o.name === "treat") o.visible = u.fed
       })
     }
 

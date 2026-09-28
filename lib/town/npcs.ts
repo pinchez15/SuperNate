@@ -97,12 +97,12 @@ export const npcs: Record<NpcId, Npc> = {
     title: "Chief of Staff (part-time)",
     reward: "fry",
     pages: [
-      "I cut Hawkins's hair blindfolded, to keep the secrets safe. Terrible cuts, great intel.",
+      "I cut Hawkins's hair blindfolded — terrible cuts, great intel.",
     ],
-    ask: "Found this fry in a customer's hood. Want it?",
+    ask: "Free fry, free intel: keep knocking at Combinator Y Academy. Don't stop until they answer.",
     take: "Take the fry",
-    yes: "No charge. You don't want the haircut.",
-    after: "You're looking at a terrible haircut right now. It's mine.",
+    yes: "No charge. Now go knock. Keep knocking.",
+    after: "Still here? The Academy door. Knock until something changes.",
   },
   gerald: {
     id: "gerald",

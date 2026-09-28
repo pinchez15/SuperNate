@@ -663,6 +663,14 @@ export function makeDogUber(seg: number): THREE.Group {
   dog.scale.setScalar(1.35)
   dog.name = "dog"
   car.add(dog)
+  // The fry a fed dog is eating. Hidden until the all-fries run feeds him.
+  const treat = makeFry()
+  treat.scale.setScalar(0.8)
+  treat.position.set(-1.15, 1.05, 0.72)
+  treat.rotation.z = 0.35
+  treat.name = "treat"
+  treat.visible = false
+  car.add(treat)
   return car
 }
 

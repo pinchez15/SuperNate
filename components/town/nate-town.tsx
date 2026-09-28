@@ -78,6 +78,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
   const gateAnnounced = useRef(false)
   const airAnnounced = useRef(false)
   const poundAnnounced = useRef(false)
+  const fedAnnounced = useRef(false)
   const knockCount = useRef(0)
   const friesRef = useRef(0)
 
@@ -130,6 +131,9 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
           } else if (e.type === "pound" && e.squashed > 0 && !poundAnnounced.current) {
             poundAnnounced.current = true
             say("Dog fine. Uber totaled.", 1500)
+          } else if (e.type === "fed" && !fedAnnounced.current) {
+            fedAnnounced.current = true
+            say("Fed him a fry. He's off track. Five stars.", 1800)
           } else if (e.type === "respawn") {
             say("Battery dead. Plug in and try again. I'll wait. I won't.", 2000)
           } else if (e.type === "won") {
@@ -222,6 +226,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
     knockCount.current = 0
     airAnnounced.current = false
     poundAnnounced.current = false
+    fedAnnounced.current = false
     setQuip(null)
     setHud({ patience: 100, batteries: 3, declining: false, phase: 0 })
     gameRef.current?.restartTown()
@@ -446,9 +451,12 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
                     ))}
                   </div>
                 </div>
-                <div className="flex items-center gap-1" title={`The order was for ${fryOrder}. FlyFry shipped ${FRY_TOTAL}.`}>
+                <div className="flex items-center gap-1" title={`The order was for ${fryOrder}. FlyFry shipped ${FRY_TOTAL}. Bring all ${FRY_TOTAL} to the fight.`}>
                   <FryIcon />
-                  <span className="party-type text-base sm:text-xl">×{fries}</span>
+                  <span className="party-type text-base sm:text-xl">
+                    ×{fries}
+                    <span className="text-xs text-white/70 sm:text-sm">/{FRY_TOTAL}</span>
+                  </span>
                 </div>
               </div>
               <p className="party-panel max-w-[48%] px-2.5 py-1 text-right text-[11px] font-bold leading-tight text-white sm:text-sm">
@@ -600,6 +608,11 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
                 <p className="mt-2 hidden font-mono text-xs text-white/70 sm:block">
                   Drain his patience. Jump the dogs. He only picks up when he&apos;s out of patience.
                 </p>
+                {fries >= FRY_TOTAL && (
+                  <p className="mt-1 font-mono text-xs text-[#ffd23b]">
+                    You brought all {FRY_TOTAL} fries. The dogs can smell them.
+                  </p>
+                )}
                 <button
                   type="button"
                   onClick={goBoss}

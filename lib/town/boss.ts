@@ -64,6 +64,8 @@ export interface Uber {
   speed: number
   /** Uber Air flies at platform height, so campers on ledges still have to dodge. */
   air: boolean
+  /** Fed a fry: the dog pulls over, goes off track, and never hits you. */
+  fed: boolean
 }
 
 export const AIR_Y = 2.7
@@ -106,6 +108,9 @@ export interface BossState {
   pounding: boolean
   poundHeld: boolean
   squashed: number
+  /** Entered the fight with all 20 fries: dogs get fed and pile up instead of hitting you. */
+  friesAll: boolean
+  fed: number
 }
 
 export type BossEvent =
@@ -118,9 +123,10 @@ export type BossEvent =
   | { type: "uber" }
   | { type: "uberAir" }
   | { type: "pound"; squashed: number }
+  | { type: "fed" }
   | { type: "won" }
 
-export function createBoss(): BossState {
+export function createBoss(friesAll = false): BossState {
   return {
     t: 0,
     x: B.startX,
@@ -150,6 +156,8 @@ export function createBoss(): BossState {
     pounding: false,
     poundHeld: false,
     squashed: 0,
+    friesAll,
+    fed: 0,
   }
 }
 
@@ -208,11 +216,11 @@ export function stepBoss(s: BossState, input: BossInput, dt: number): BossEvent[
         s.onGround = true
       }
     }
-    // Ground pound lands: the shockwave totals every street-level Uber nearby.
+    // Ground pound lands: the shockwave totals every street-level Uber nearby. Fed dogs are spared.
     if (s.onGround && s.pounding) {
       s.pounding = false
       const before = s.ubers.length
-      if (s.y === 0) s.ubers = s.ubers.filter((u) => u.air || Math.abs(u.x - s.x) > B.poundRadius)
+      if (s.y === 0) s.ubers = s.ubers.filter((u) => u.air || u.fed || Math.abs(u.x - s.x) > B.poundRadius)
       const squashed = before - s.ubers.length
       s.squashed += squashed
       events.push({ type: "pound", squashed })
@@ -276,17 +284,36 @@ export function stepBoss(s: BossState, input: BossInput, dt: number): BossEvent[
   while (s.queue.length && (s.queue[0]?.at ?? 1) <= 0) {
     const next = s.queue.shift()
     const p = phases[s.phase] ?? phases[0]
-    s.ubers.push({ id: s.nextId++, x: B.uberSpawnX, speed: p.speed, air: next?.air ?? false })
+    s.ubers.push({ id: s.nextId++, x: B.uberSpawnX, speed: p.speed, air: next?.air ?? false, fed: false })
     events.push({ type: next?.air ? "uberAir" : "uber" })
   }
 
-  for (const u of s.ubers) u.x -= u.speed * dt
+  // All 20 fries: every dog that gets close takes a fry, brakes, and pulls over for good.
+  if (s.friesAll) {
+    for (const u of s.ubers) {
+      if (!u.fed && Math.abs(u.x - s.x) < 3.5) {
+        u.fed = true
+        s.fed += 1
+        events.push({ type: "fed" })
+      }
+    }
+    const parked = s.ubers.filter((u) => u.fed && u.speed === 0)
+    if (parked.length > 6) {
+      const oldest = parked[0]
+      s.ubers = s.ubers.filter((u) => u !== oldest)
+    }
+  }
+  for (const u of s.ubers) {
+    if (u.fed) u.speed = Math.max(0, u.speed - 10 * dt)
+    u.x -= u.speed * dt
+  }
   s.ubers = s.ubers.filter((u) => u.x > B.uberDespawnX)
 
   // While pounding, SuperNate is a falling anvil: Ubers he lands through get squashed.
   if (s.pounding) {
     const before = s.ubers.length
     s.ubers = s.ubers.filter((u) => {
+      if (u.fed) return true
       if (Math.abs(u.x - s.x) >= B.uberHalfLen + B.playerHalfW) return true
       const overlaps = u.air ? s.y < AIR_Y + B.uberHeight && s.y + 1.6 > AIR_Y : s.y < B.uberHeight
       return !overlaps
@@ -301,6 +328,7 @@ export function stepBoss(s: BossState, input: BossInput, dt: number): BossEvent[
   s.inv = Math.max(0, s.inv - dt)
   if (s.inv === 0 && !s.pounding) {
     const hit = s.ubers.find((u) => {
+      if (u.fed) return false
       if (Math.abs(u.x - s.x) >= B.uberHalfLen + B.playerHalfW) return false
       return u.air ? s.y + 1.6 > AIR_Y + 0.2 && s.y < AIR_Y + B.uberHeight : s.y < B.uberHeight
     })
