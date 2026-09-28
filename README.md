@@ -1,4 +1,26 @@
-# 🎮 Resume Game Template
+# SuperNate 64: Hop On A Quick Call
+
+**Story:** SuperNate crash-lands on HogPatch with a startup idea: FlyFry. Carrier pigeons deliver fries, only fries, each one individually wrapped, and FlyFry ships 70% extra because the pigeons get lost or eat them. HedgeHawkins is too busy running his B2B SaaS company to take a quick call, so SuperNate collects a quick-call kit: pitch-nerve pills from the Doctor, the last 15-minute block from HR, and a Slack Connect invite from Chad the tech bro. Then he fights HedgeHawkins with Slack pings. HedgeHawkins's line at 0% is "Fine. Quick call." The end card shows Nate's phone number and the Calendly "Quick call" link. Talking to the crashed starfighter is a hidden way into the 1987 shooter.
+
+The homepage is a small 3D game built with Three.js and no asset files. The town plays like Mario Party or Mario 64, with a bright lawn, a board-space path, coins, and a cream castle with red turrets. The boss fight plays like Super Smash Bros. on a floating stage. SuperNate gets a phone from the CappaWork Guide, then earns three quick-call invites from townspeople who each explain a product:
+
+- The Doctor explains Karibu Health.
+- Harriet from HR explains ArborKey.
+- Chad, the vest guy, explains Healthcare AIO.
+
+Every dialogue has a "See the site" option that opens that product's homepage in a window on the page. Three invites open the gate. HedgeHawkins then fights from a Smash-style side stage. He sends Ubers driven by dogs, declines calls, and picks up when his patience hits 0%. The 1987 shooter is still on the end card.
+
+- **Controls:** WASD or arrows move. E or Space talks. In the boss fight, Space jumps and J or a click places a call. On phones, an on-screen D-pad and A/B buttons appear.
+- **Look tuning:** `/lookbook` shows the stage, a camera switch, the character select screen, and sliders for texture blur, roundness, fog, dither, and resolution.
+- **Boss timing test:** `pnpm test:boss` runs the fight headless with three bots. The dodging bot has to win in 25 to 50 seconds, and every bot has to win.
+- **Framed sites:** CappaWork and Healthcare AIO block iframes, so `/api/peek` serves those two exact homepages same-origin. Karibu and ArborKey embed directly.
+- **PostHog events:** `level_started`, `invite_received`, `product_card_opened`, `boss_patience_depleted`, `hopped_on_a_quick_call`.
+
+Code lives in `components/town/` (renderer, models, stage, game loop, UI) and `lib/town/` (world layout, dialogue, and the boss simulation).
+
+---
+
+# Resume Game Template
 
 An interactive resume game template built with Next.js! Create your own personalized resume game where players help you defeat aliens and recover work experience memories.
 

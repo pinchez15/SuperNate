@@ -8,8 +8,9 @@ import { AnalyticsProvider } from "@/components/analytics-provider"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "SuperNate - Resume Game Mission",
-  description: "Help SuperNate defeat the PDfff aliens and recover work experience memories!",
+  title: "SuperNate 64 — Hop on a Quick Call",
+  description:
+    "Walk the town, meet the people behind Nate's products, then get HedgeHawkins to hop on a quick call.",
   generator: "v0.app",
   icons: {
     icon: "/SuperNate.png",

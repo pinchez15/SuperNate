@@ -125,3 +125,49 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Chunky outlined italic display type, after the Smash 64 menus. */
+.smash-type {
+  font-family: "Arial Black", "Arial Bold", Impact, sans-serif;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  -webkit-text-stroke: 0.08em #1a0f08;
+  paint-order: stroke fill;
+  text-shadow: 0.06em 0.07em 0 #1a0f08;
+}
+
+/* Rounded, bubbly type after Mario Party and Mario 64 menus. */
+.party-type {
+  font-family: "Arial Rounded MT Bold", "Nunito", "Trebuchet MS", "Arial Black", sans-serif;
+  font-weight: 900;
+  color: #ffffff;
+  -webkit-text-stroke: 0.1em #1a2a5a;
+  paint-order: stroke fill;
+  text-shadow: 0 0.08em 0 #1a2a5a;
+}
+
+.party-panel {
+  border-radius: 1rem;
+  border: 3px solid #ffffff;
+  background: linear-gradient(180deg, #4aa8ff 0%, #2b6fe0 100%);
+  box-shadow: 0 4px 0 #1a2a5a;
+}
+
+.smash-backdrop {
+  background:
+    radial-gradient(ellipse at 50% 35%, rgba(255, 170, 90, 0.35), transparent 60%),
+    repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.12) 0 6px, transparent 6px 14px),
+    linear-gradient(180deg, #8f1d14 0%, #5a0f0b 100%);
+}
+
+.n64-canvas {
+  image-rendering: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typewriter-caret {
+    animation: none;
+  }
+}
