@@ -20,15 +20,17 @@ export const analytics = {
 }
 
 export function initAnalytics() {
-  if (typeof window === 'undefined') return
-  
+  if (typeof window === 'undefined' || analyticsEnabled) return
+
   const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY
-  const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://app.posthog.com'
-  
+  const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com'
+
   if (posthogKey) {
     try {
       posthog.init(posthogKey, {
         api_host: posthogHost,
+        ui_host: 'https://us.posthog.com',
+        defaults: '2026-05-30',
         person_profiles: 'identified_only',
         capture_pageview: false, // We handle this manually in analytics-provider.tsx
         capture_pageleave: true,
