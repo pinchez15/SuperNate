@@ -540,15 +540,41 @@ export function makeHedgeHawkins(seg: number): Rig {
   const nose = sphere(0.13, seg, plastic("#16110e", 120))
   at(nose, 0, -0.05, 0.86)
   head.add(nose)
-  const shades = new THREE.Group()
+  // Comically large gold-rimmed aviators.
+  const aviators = new THREE.Group()
+  const lensMat = plastic("#0e1118", 160)
+  const goldRim = plastic("#e8b64a", 140)
   for (const side of [-1, 1]) {
-    const lens = box(0.36, 0.2, 0.05, plastic("#0c0c10", 140))
-    at(lens, side * 0.24, 0.2, 0.5)
-    lens.rotation.y = side * -0.2
-    shades.add(lens)
+    const lens = sphere(0.3, seg, lensMat)
+    lens.scale.set(1, 1.2, 0.2)
+    at(lens, side * 0.31, 0.1, 0.52)
+    lens.rotation.y = side * -0.18
+    aviators.add(lens)
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.024, 8, 24), goldRim)
+    rim.scale.set(1, 1.2, 1)
+    at(rim, side * 0.31, 0.1, 0.58)
+    rim.rotation.y = side * -0.18
+    aviators.add(rim)
+    const temple = box(0.34, 0.03, 0.03, goldRim)
+    at(temple, side * 0.52, 0.32, 0.24)
+    temple.rotation.y = side * 0.9
+    aviators.add(temple)
   }
-  shades.add(at(box(0.16, 0.05, 0.05, plastic("#0c0c10", 140)), 0, 0.23, 0.55))
-  head.add(shades)
+  aviators.add(at(box(0.2, 0.035, 0.04, goldRim), 0, 0.28, 0.6))
+  aviators.add(at(box(0.14, 0.045, 0.05, goldRim), 0, 0.16, 0.64))
+  head.add(aviators)
+  // A small fu manchu: a bar under the nose with two drooping strands.
+  const stacheMat = plastic("#241209", 30)
+  const lip = box(0.24, 0.045, 0.05, stacheMat)
+  at(lip, 0, -0.17, 0.84)
+  head.add(lip)
+  for (const side of [-1, 1]) {
+    const strand = capsule(0.024, 0.24, seg, stacheMat)
+    at(strand, side * 0.15, -0.32, 0.8)
+    strand.rotation.z = side * -0.12
+    strand.rotation.x = 0.15
+    head.add(strand)
+  }
   const smirk = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.03, 6, 12, Math.PI * 0.7), matte("#3a2014"))
   smirk.rotation.z = Math.PI * 1.1
   at(smirk, 0.06, -0.3, 0.72)
@@ -1001,5 +1027,6 @@ export function animateRig(rig: Rig, t: number, speed: number) {
       flame.scale.set(1, flicker, 1)
     }
   }
-  if (rig.cape) rig.cape.rotation.x = moving ? -0.35 - Math.sin(phase) * 0.08 : -0.08
+  // Positive x-rotation swings the cape's hem backward, away from the body.
+  if (rig.cape) rig.cape.rotation.x = moving ? 0.42 + Math.sin(phase) * 0.08 : 0.08
 }

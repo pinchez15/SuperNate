@@ -94,10 +94,10 @@ export const npcs: Record<NpcId, Npc> = {
   barber: {
     id: "barber",
     name: "Sal, Blindfolded Barber",
-    title: "Chief of Staff (part-time)",
+    title: "Fade Labs · HedgeHawkins's Chief of Staff",
     reward: "fry",
     pages: [
-      "I cut Hawkins's hair blindfolded — terrible cuts, great intel.",
+      "I'm HedgeHawkins's chief of staff. I only cut his hair, and only blindfolded — terrible cuts, great intel.",
     ],
     ask: "Free fry, free intel: keep knocking at Combinator Y Academy. Don't stop until they answer.",
     take: "Take the fry",
@@ -107,10 +107,11 @@ export const npcs: Record<NpcId, Npc> = {
   gerald: {
     id: "gerald",
     name: "Gerald",
-    title: "Lead Pigeon, FlyFry",
+    title: "Founder, FlyFry",
     reward: "fry",
     pages: [
-      "Coo. FlyFry delivers fries by pigeon. Deliveries completed: 3. Fries eaten: 4,000. I'm the 70% overage.",
+      "Coo. I just launched from Combinator Y Academy. I founded FlyFry. Fries delivered by carrier pigeon.",
+      "Right, we can only carry one fry at a time. And yes, we eat a lot of them. But we think the TAM is bigger than GrubHub.",
     ],
     ask: "I saved you one. Don't tell the customer.",
     take: "Take Gerald's fry",
@@ -186,7 +187,7 @@ export const allFriesWin = "Are those fries? All twenty? Fine. Quick call. Bring
 
 export const intro = [
   "SuperNate's starfighter has crash-landed on HogPatch — right outside PostHog HQ.",
-  "His dream job is inside. James Hawkins, the CEO, does not take cold calls.",
+  "His dream job is inside. HedgeHawkins, the CEO, does not take cold calls.",
   "The front door wants three things: meds, a call time, and an agent. Go show him you ship.",
 ]
 

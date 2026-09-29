@@ -44,7 +44,7 @@ export const npcSpots: Record<NpcId, Spot> = {
   gerald: { x: -27, z: 9.5, y: 4.2, facing: 1.2 },
   engineer: { x: 19.5, z: -5.4, y: 0, facing: -0.2 },
   cya: { x: -24, z: -4.6, y: 0, facing: 0 },
-  sommelier: { x: 24, z: -4.4, y: 0, facing: -0.3 },
+  sommelier: { x: 20.5, z: 1.8, y: 0, facing: 0.4 },
 }
 
 /** Townspeople with a rigged body. The ship and the academy door are props. */
@@ -58,8 +58,9 @@ export const layout = {
   barbershop: { x: -19.5, z: -1.3, w: 4.4, d: 2.6, h: 3.2 },
   waymo: { x: 19.5, z: -7.8, w: 3.8, d: 1.9, h: 1.7 },
   academy: { x: -24, z: -7.6, w: 6, d: 4, h: 3.6 },
-  vineX: 26,
-  vineRows: [-10.2, -8.2, -6.2],
+  // The vineyard sits right behind its sign at the east courtyard entrance.
+  vineX: 23,
+  vineRows: [3.6, 5.6, 7.6],
 }
 
 const hedgeH = 1.3

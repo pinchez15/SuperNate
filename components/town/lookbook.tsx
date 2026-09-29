@@ -17,7 +17,7 @@ const roster: { id: CharacterId; name: string; role: string }[] = [
   { id: "barber", name: "BARBER", role: "Chief of Staff" },
   { id: "vest", name: "TECH BRO", role: "Healthcare AIO" },
   { id: "guide", name: "GUIDE", role: "CappaWork" },
-  { id: "hedgehawkins", name: "HAWKINS", role: "CEO, PostHog" },
+  { id: "hedgehawkins", name: "HEDGEHAWKINS", role: "CEO, PostHog" },
 ]
 
 export function Lookbook() {

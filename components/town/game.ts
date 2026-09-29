@@ -69,7 +69,6 @@ export class TownGame {
   private uberMesh = new Map<number, THREE.Group>()
   private callPool: THREE.Sprite[] = []
   private callMesh = new Map<number, THREE.Sprite>()
-  private clockHands: THREE.Object3D[] = []
   private flags: THREE.Object3D[] = []
   private friesGot = 0
   private freeze = 0
@@ -120,7 +119,6 @@ export class TownGame {
     const arenaBuild = buildArena(this.tex)
     this.scene.add(arenaBuild.group)
     this.town.group.traverse((o) => {
-      if (o.name === "clockhand") this.clockHands.push(o)
       if (o.name === "flag") this.flags.push(o)
     })
 
@@ -248,7 +246,7 @@ export class TownGame {
       if (action === "fire") this.fireTap = true
       if (action === "talk" && this.tryTalk()) return
       if (action === "hop") this.hop()
-      if (action === "pound") this.poundOrEmote()
+      if (action === "pound") this.pound()
     } else this.virtual.delete(action)
   }
 
@@ -306,7 +304,7 @@ export class TownGame {
     if (e.repeat) return
     if (actions.includes("talk") && this.tryTalk()) return
     if (actions.includes("hop")) this.hop()
-    if (actions.includes("pound")) this.poundOrEmote()
+    if (actions.includes("pound")) this.pound()
     if (actions.includes("emote")) this.emote()
   }
 
@@ -320,13 +318,9 @@ export class TownGame {
     this.blips.text()
   }
 
-  private poundOrEmote() {
-    if (this.mode !== "town") return
-    if (this.grounded) {
-      this.emote()
-      return
-    }
-    if (this.pounding) return
+  /** Ground pound only works in the air. On the ground it does nothing — Q is the emote. */
+  private pound() {
+    if (this.mode !== "town" || this.grounded || this.pounding) return
     this.pounding = true
     this.vy = -24
   }
@@ -647,7 +641,10 @@ export class TownGame {
         this.nate.legL.rotation.x = this.pounding ? -1.2 : -0.5
         this.nate.legR.rotation.x = this.pounding ? -1.2 : 0.4
       }
-      if (this.nate.cape) this.nate.cape.rotation.x = this.gliding ? -1.25 : this.nate.cape.rotation.x
+      if (this.nate.cape) {
+        if (this.gliding) this.nate.cape.rotation.x = 1.25
+        else if (!this.grounded) this.nate.cape.rotation.x = 0.7
+      }
       if (this.emoteT > 0 && this.nate.armR) {
         this.nate.armR.rotation.x = -2.5
         this.nate.armR.rotation.z = -0.5
@@ -689,9 +686,6 @@ export class TownGame {
     this.town.gateL.rotation.y = open * 1.9
     this.town.gateR.rotation.y = -open * 1.9
 
-    this.clockHands.forEach((hand, i) => {
-      hand.rotation.z -= dt * (i === 0 ? 1.2 : 0.1)
-    })
     for (const f of this.town.fries) f.rotation.y = t * 2.4
     this.town.pigeons.forEach((bird) => {
       const d = bird.userData as { cx: number; cz: number; ax: number; az: number; fx: number; fz: number; ph: number; h: number }

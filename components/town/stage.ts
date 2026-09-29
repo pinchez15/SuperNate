@@ -272,7 +272,7 @@ function buildDistricts(tex: Textures) {
   awning.position.set(0, 2.3, B.d / 2 + 0.45)
   awning.rotation.x = 0.25
   shop.add(awning)
-  const shopSign = facade("SAL'S · CUTS BLINDFOLDED", "#1d1d24", "#ffd23b", 4, 0.6)
+  const shopSign = facade("FADE LABS", "#1d1d24", "#ffd23b", 4, 0.6)
   shopSign.position.set(0, 2.8, B.d / 2 + 0.01)
   shop.add(shopSign)
   const window1 = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1), new THREE.MeshPhongMaterial({ color: "#7fd3ff", shininess: 120 }))
@@ -302,7 +302,8 @@ function buildDistricts(tex: Textures) {
     g.add(row)
   }
   const aoc = facade("AOC · INTELLIGENCE ARTIFICIELLE GÉNÉRALE", "#7a1f2b", "#f3e6d0", 5, 0.6)
-  aoc.position.set(layout.vineX, 1.5, -11.6)
+  aoc.position.set(layout.vineX, 1.5, 9.4)
+  aoc.rotation.y = Math.PI
   g.add(aoc)
 
   const W = layout.waymo
@@ -364,8 +365,10 @@ function buildDistricts(tex: Textures) {
   const acadBody = new THREE.Mesh(new THREE.BoxGeometry(A.w, A.h, A.d), texMat(tex.castle, 3, 2, "#ffe2c8"))
   acadBody.position.y = A.h / 2
   acad.add(acadBody)
-  const acadRoof = new THREE.Mesh(new THREE.ConeGeometry(A.w * 0.72, 1.6, 4), new THREE.MeshPhongMaterial({ color: "#f26522" }))
-  acadRoof.rotation.y = Math.PI / 4
+  // Rotate the geometry first so the footprint scale doesn't shear the pyramid.
+  const acadRoofGeo = new THREE.ConeGeometry(A.w * 0.72, 1.6, 4)
+  acadRoofGeo.rotateY(Math.PI / 4)
+  const acadRoof = new THREE.Mesh(acadRoofGeo, new THREE.MeshPhongMaterial({ color: "#f26522" }))
   acadRoof.scale.set(1, 1, A.d / A.w)
   acadRoof.position.y = A.h + 0.8
   acad.add(acadRoof)
@@ -635,26 +638,6 @@ export function buildTown(tex: Textures): TownBuild {
       leg.position.set((x * (deskBox.w - 0.2)) / 2, 0.45, 0)
       desk.add(leg)
     }
-    const clock = new THREE.Group()
-    const faceMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.12, 20), new THREE.MeshPhongMaterial({ color: "#ffffff" }))
-    faceMesh.rotation.x = Math.PI / 2
-    clock.add(faceMesh)
-    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.06, 6, 20), new THREE.MeshPhongMaterial({ color: "#7b4fa8" }))
-    clock.add(rim)
-    for (const [len, rot] of [
-      [0.36, 0.4],
-      [0.26, 2.2],
-    ] as const) {
-      const hand = new THREE.Mesh(new THREE.BoxGeometry(0.04, len, 0.02), new THREE.MeshBasicMaterial({ color: "#111" }))
-      hand.geometry.translate(0, len / 2, 0)
-      hand.rotation.z = rot
-      hand.position.z = 0.08
-      hand.name = "clockhand"
-      clock.add(hand)
-    }
-    clock.position.set(0.3, 1.75, 0)
-    clock.rotation.y = -Math.PI / 2
-    desk.add(clock)
     desk.position.set(deskBox.x, 0, deskBox.z)
     g.add(desk)
   }

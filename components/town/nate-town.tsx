@@ -154,7 +154,10 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
           setFries(count)
         },
         onEmote: (nearId) => {
-          say(nearId ? (emoteLines[nearId] ?? emoteAlone) : emoteAlone, 1800)
+          say("“Can I get a quick call?”", 1100)
+          window.setTimeout(() => {
+            say(nearId ? (emoteLines[nearId] ?? emoteAlone) : emoteAlone, 1800)
+          }, 1150)
         },
         onWinShot: () => {
           setStamp(true)
@@ -505,7 +508,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
                 </div>
                 <div className="flex items-end gap-2 text-right">
                   <div>
-                    <p className="smash-type text-xs sm:text-sm">HAWKINS</p>
+                    <p className="smash-type text-xs sm:text-sm">HEDGEHAWKINS</p>
                     <p className="smash-type text-3xl leading-none sm:text-5xl" style={{ color: patienceColor }}>
                       {hud.patience}%
                     </p>
@@ -598,7 +601,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
                 <div className="flex items-center justify-center gap-3 sm:gap-8">
                   <VsCard src={portraits.nate} name="SUPERNATE" role="APPLICANT" color="#d8352a" />
                   <span className="smash-type text-4xl text-[#ffcc33] sm:text-7xl">VS</span>
-                  <VsCard src={portraits.hedgehawkins} name="HAWKINS" role="CEO, POSTHOG" color="#3553c9" />
+                  <VsCard src={portraits.hedgehawkins} name="HEDGEHAWKINS" role="CEO, POSTHOG" color="#3553c9" />
                 </div>
                 <div className="mx-auto mt-2 max-w-lg space-y-1 text-xs sm:mt-4 sm:text-lg">
                   {bossIntro.map((line) => (
@@ -851,7 +854,7 @@ function EndCard({
             {portraits.hedgehawkins && <img src={portraits.hedgehawkins} alt="" className="h-full w-full object-cover" />}
           </div>
           <div>
-            <p className="font-mono text-[11px] tracking-[0.3em] text-[#ffcc33]">HAWKINS, CEO OF POSTHOG, SAYS</p>
+            <p className="font-mono text-[11px] tracking-[0.3em] text-[#ffcc33]">HEDGEHAWKINS, CEO OF POSTHOG, SAYS</p>
             <h2 className="smash-type text-3xl sm:text-5xl">&ldquo;FINE. QUICK CALL.&rdquo;</h2>
             <p className="mt-1 text-sm text-white/85 sm:text-base">SuperNate got the quick call. Now it&apos;s your turn.</p>
           </div>
@@ -873,7 +876,7 @@ function EndCard({
             onClick={() => analytics.capture("calendly_clicked", { from: "end_card" })}
             className="smash-type mt-3 inline-block rounded-xl bg-[#ffcc33] px-5 py-2 text-xl sm:text-2xl"
           >
-            BOOK THE QUICK CALL ▶
+            BOOK AN ACTUAL QUICK CALL WITH NATE ▶
           </a>
           <p className="mt-2 break-all font-mono text-xs text-[#1a0f08]/70">{calendly.replace("https://", "")}</p>
         </div>

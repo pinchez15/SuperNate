@@ -48,10 +48,14 @@ export function ResumeShooter({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="min-h-screen bg-[#151515] flex flex-col">
-      <div className="flex items-center justify-center gap-4 border-b border-[#F54E00] bg-[#151515] px-4 py-2 text-center font-mono text-xs text-[#EEEFE9]">
-        <span>1987. The aliens were not impressed.</span>
-        <button type="button" onClick={onBack} className="font-bold text-[#F54E00] underline">
-          Back to the calls
+      <div className="flex flex-wrap items-center justify-center gap-3 border-b-2 border-[#F54E00] bg-[#241205] px-4 py-2.5 text-center font-mono text-xs text-[#EEEFE9] sm:text-sm">
+        <span>You&apos;re playing the 1987 cartridge inside the starfighter.</span>
+        <button
+          type="button"
+          onClick={onBack}
+          className="rounded-md bg-[#F54E00] px-3 py-1.5 font-bold text-[#151515] shadow-[0_2px_0_#7a2700] hover:bg-[#ff6a1f]"
+        >
+          ⏏ EJECT · BACK TO HOGPATCH
         </button>
       </div>
       <header className="py-6 text-center border-b-2 border-[#F54E00]">
