@@ -74,6 +74,11 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
   const [storyPage, setStoryPage] = useState(0)
   const [banner, setBanner] = useState(false)
   const [big, setBig] = useState<string | null>(null)
+  const [touch, setTouch] = useState(false)
+
+  useEffect(() => {
+    setTouch(window.matchMedia("(pointer: coarse)").matches)
+  }, [])
 
   const screenRef = useRef(screen)
   screenRef.current = screen
@@ -430,6 +435,8 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
       : got.length < 3
         ? `Unlock the PostHog door. ${got.length} of 3.`
         : "The door's open. Go land your quick call with Hawkins."
+  const objectiveShort =
+    got.length === 0 ? "Get 3 things for the door" : got.length < 3 ? `Door items: ${got.length} of 3` : "Door's open. Go in."
 
   const pad = (action: Parameters<TownGame["setVirtual"]>[0]) => ({
     onPointerDown: (e: React.PointerEvent) => {
@@ -479,7 +486,8 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
                 </div>
               </div>
               <p className="party-panel max-w-[48%] px-2.5 py-1 text-right text-[11px] font-bold leading-tight text-white sm:text-sm">
-                {objective}
+                <span className="sm:hidden">{objectiveShort}</span>
+                <span className="hidden sm:inline">{objective}</span>
               </p>
             </div>
           )}
@@ -487,7 +495,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
           {screen === "town" && near && (
             <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center">
               <span className="party-type party-panel flex items-center gap-2 px-4 py-1.5 text-sm sm:text-base">
-                <span className="grid h-6 w-6 place-items-center rounded-full bg-[#2f73c9] text-xs">E</span>
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-[#2f73c9] text-xs">{touch ? "A" : "E"}</span>
                 TALK TO {npcs[near].name.toUpperCase()}
               </span>
             </div>
@@ -502,13 +510,15 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
           )}
 
           {(screen === "dialog" || (screen === "site" && siteReturn === "dialog")) && script && (
-            <DialogBox script={script} onChoice={onChoice} blips={blips} active={screen === "dialog"} />
+            <DialogBox script={script} onChoice={onChoice} blips={blips} active={screen === "dialog"} touch={touch} />
           )}
 
           {inBoss && (
             <>
-              <div className="pointer-events-none absolute inset-x-0 top-2 text-center font-mono text-[10px] text-white/75 sm:text-xs">
-                ← → move · SPACE jump · ↓ or SHIFT in the air ground-pounds the dog-Ubers · J or click to ping · 10 pings land the call
+              <div className="pointer-events-none absolute inset-x-0 top-2 px-2 text-center font-mono text-[10px] text-white/75 sm:text-xs">
+                {touch
+                  ? "◀ ▶ move · A jump · ▼ in the air pounds the dog-Ubers · B ping · 10 pings land the call"
+                  : "← → move · SPACE jump · ↓ or SHIFT in the air ground-pounds the dog-Ubers · J or click to ping · 10 pings land the call"}
               </div>
               <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between p-3 sm:p-4">
                 <div className="flex items-end gap-2">
@@ -649,7 +659,13 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
         </div>
 
         <div className="mt-2 flex items-center justify-between gap-2 font-mono text-[11px] text-white/45">
-          <span>WASD move · Space jump · E talk · Q quick-call emote · Shift ground pound · Esc closes a site</span>
+          <span>
+            {["won", "direct", "end"].includes(screen)
+              ? "supernate.dev · a Nate Pinches production"
+              : touch
+                ? "A talk & jump · B ping · ▼ in the air dives · tap the dialog to keep it moving"
+                : "WASD move · Space jump · E talk · Q quick-call emote · Shift ground pound · Esc closes a site"}
+          </span>
           <button
             type="button"
             onClick={() => {
@@ -662,39 +678,41 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
           </button>
         </div>
 
-        <div className="mt-3 flex items-center justify-between pb-6 sm:hidden">
-          <div className="grid grid-cols-3 gap-1">
-            <span />
-            <PadButton label="▲" {...pad("up")} />
-            <span />
-            <PadButton label="◀" {...pad("left")} />
-            <PadButton label="▼" {...pad("down")} />
-            <PadButton label="▶" {...pad("right")} />
+        {["title", "story", "town", "dialog", "bossIntro", "boss"].includes(screen) && (
+          <div className="mt-2 flex items-center justify-between pb-4 sm:hidden">
+            <div className="grid grid-cols-3 gap-1">
+              <span />
+              <PadButton label="▲" {...pad("up")} />
+              <span />
+              <PadButton label="◀" {...pad("left")} />
+              <PadButton label="▼" {...pad("down")} />
+              <PadButton label="▶" {...pad("right")} />
+            </div>
+            <div className="flex items-center gap-2.5">
+              <PadButton label="B" round color="#3c9a3a" {...pad("fire")} />
+              <PadButton
+                label="A"
+                round
+                color="#2f73c9"
+                onPointerDown={(e) => {
+                  e.preventDefault()
+                  blips.unlock()
+                  if (screenRef.current === "title") start()
+                  gameRef.current?.setVirtual("talk", true)
+                  gameRef.current?.setVirtual("jump", true)
+                }}
+                onPointerUp={() => {
+                  gameRef.current?.setVirtual("talk", false)
+                  gameRef.current?.setVirtual("jump", false)
+                }}
+                onPointerLeave={() => {
+                  gameRef.current?.setVirtual("talk", false)
+                  gameRef.current?.setVirtual("jump", false)
+                }}
+              />
+            </div>
           </div>
-          <div className="flex gap-3">
-            <PadButton label="B" round color="#3c9a3a" {...pad("fire")} />
-            <PadButton
-              label="A"
-              round
-              color="#2f73c9"
-              onPointerDown={(e) => {
-                e.preventDefault()
-                blips.unlock()
-                if (screenRef.current === "title") start()
-                gameRef.current?.setVirtual("talk", true)
-                gameRef.current?.setVirtual("jump", true)
-              }}
-              onPointerUp={() => {
-                gameRef.current?.setVirtual("talk", false)
-                gameRef.current?.setVirtual("jump", false)
-              }}
-              onPointerLeave={() => {
-                gameRef.current?.setVirtual("talk", false)
-                gameRef.current?.setVirtual("jump", false)
-              }}
-            />
-          </div>
-        </div>
+        )}
       </div>
 
       {screen === "site" && site && (
@@ -760,7 +778,7 @@ function PadButton({
     <button
       type="button"
       aria-label={label}
-      className={`smash-type touch-none select-none ${round ? "h-16 w-16 rounded-full text-2xl" : "h-12 w-12 rounded-md text-lg"}`}
+      className={`smash-type touch-none select-none ${round ? "h-14 w-14 rounded-full text-xl" : "h-11 w-11 rounded-md text-base"}`}
       style={{ background: color }}
       {...handlers}
     >

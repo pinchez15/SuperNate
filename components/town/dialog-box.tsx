@@ -25,11 +25,13 @@ export function DialogBox({
   onChoice,
   blips,
   active = true,
+  touch = false,
 }: {
   script: Script
   onChoice: (id: string) => void
   blips: Blips
   active?: boolean
+  touch?: boolean
 }) {
   const [page, setPage] = useState(0)
   const [shown, setShown] = useState(0)
@@ -104,7 +106,13 @@ export function DialogBox({
 
   return (
     <div className="absolute inset-x-0 bottom-0 z-20 p-2 sm:p-4" role="dialog" aria-label={`${script.speaker} is talking`}>
-      <div className="relative flex gap-3 rounded-xl border-[3px] border-[#f4e3b2]/80 bg-[#140c22]/88 p-3 shadow-[0_6px_0_#000] sm:gap-4 sm:p-4">
+      {/* The whole box is a tap target for advancing, so phones don't have to hit the tiny arrow. */}
+      <div
+        className="relative flex gap-3 rounded-xl border-[3px] border-[#f4e3b2]/80 bg-[#140c22]/88 p-3 shadow-[0_6px_0_#000] sm:gap-4 sm:p-4"
+        onClick={() => {
+          if (!stateRef.current.showChoices) advance()
+        }}
+      >
         {script.portrait && (
           <div className="smash-backdrop hidden h-24 w-24 shrink-0 overflow-hidden rounded-lg border-[3px] border-[#2a0c08] sm:block">
             <img src={script.portrait} alt="" className="h-full w-full object-cover" />
@@ -146,12 +154,15 @@ export function DialogBox({
           ) : (
             <button
               type="button"
-              onClick={advance}
+              onClick={(e) => {
+                e.stopPropagation()
+                advance()
+              }}
               className="absolute bottom-2 right-3 flex items-center gap-1 font-mono text-[11px] text-white/70"
               aria-label="Next"
             >
               <span className="grid h-6 w-6 place-items-center rounded-full bg-[#2f73c9] text-xs font-bold text-white shadow-[0_2px_0_#000] animate-bounce motion-reduce:animate-none">
-                E
+                {touch ? "▶" : "E"}
               </span>
             </button>
           )}
