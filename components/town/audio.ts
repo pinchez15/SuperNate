@@ -2,7 +2,24 @@ type Wave = OscillatorType
 
 export class Blips {
   private ctx: AudioContext | null = null
-  muted = false
+  private mutedFlag = false
+  private musicSrc: AudioBufferSourceNode | null = null
+  private musicGain: GainNode | null = null
+  private musicUrl: string | null = null
+  private musicVol = 0.25
+  private buffers = new Map<string, AudioBuffer>()
+
+  get muted() {
+    return this.mutedFlag
+  }
+
+  /** Muting also ducks the music instead of killing it, so unmuting resumes in place. */
+  set muted(m: boolean) {
+    this.mutedFlag = m
+    if (this.ctx && this.musicGain) {
+      this.musicGain.gain.setTargetAtTime(m ? 0.0001 : this.musicVol, this.ctx.currentTime, 0.05)
+    }
+  }
 
   unlock() {
     if (!this.ctx) {
@@ -12,6 +29,72 @@ export class Blips {
       this.ctx = new Ctx()
     }
     void this.ctx.resume()
+  }
+
+  private async buffer(url: string): Promise<AudioBuffer | null> {
+    if (!this.ctx) return null
+    const hit = this.buffers.get(url)
+    if (hit) return hit
+    try {
+      const res = await fetch(url)
+      const buf = await this.ctx.decodeAudioData(await res.arrayBuffer())
+      this.buffers.set(url, buf)
+      return buf
+    } catch {
+      return null
+    }
+  }
+
+  /** Loops a track gaplessly via an AudioBuffer, fading out whatever was playing. */
+  playMusic(url: string, vol = 0.25) {
+    this.unlock()
+    if (!this.ctx || this.musicUrl === url) return
+    this.musicUrl = url
+    void this.buffer(url).then((buf) => {
+      if (!buf || !this.ctx || this.musicUrl !== url) return
+      this.fadeOutSource(0.6)
+      const gain = this.ctx.createGain()
+      gain.gain.setValueAtTime(0.0001, this.ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(this.mutedFlag ? 0.0001 : vol, this.ctx.currentTime + 0.8)
+      const src = this.ctx.createBufferSource()
+      src.buffer = buf
+      src.loop = true
+      src.connect(gain).connect(this.ctx.destination)
+      src.start()
+      this.musicSrc = src
+      this.musicGain = gain
+      this.musicVol = vol
+    })
+  }
+
+  stopMusic(fade = 0.5) {
+    this.musicUrl = null
+    this.fadeOutSource(fade)
+  }
+
+  private fadeOutSource(fade: number) {
+    const ctx = this.ctx
+    if (!ctx || !this.musicSrc || !this.musicGain) return
+    const src = this.musicSrc
+    this.musicGain.gain.setTargetAtTime(0.0001, ctx.currentTime, Math.max(0.05, fade / 3))
+    src.stop(ctx.currentTime + fade)
+    this.musicSrc = null
+    this.musicGain = null
+  }
+
+  /** One-shot clip, like the Congratulations sting when the call gets booked. */
+  playClip(url: string, vol = 0.5) {
+    this.unlock()
+    if (!this.ctx || this.mutedFlag) return
+    void this.buffer(url).then((buf) => {
+      if (!buf || !this.ctx) return
+      const gain = this.ctx.createGain()
+      gain.gain.value = vol
+      const src = this.ctx.createBufferSource()
+      src.buffer = buf
+      src.connect(gain).connect(this.ctx.destination)
+      src.start()
+    })
   }
 
   private tone(freq: number, at: number, dur: number, wave: Wave = "square", vol = 0.05) {

@@ -46,6 +46,12 @@ const npcPortrait: Partial<Record<NpcId, CharacterId>> = {
 
 const itemFrom: Record<ItemId, NpcId> = { meds: "doctor", call: "vest", agent: "guide" }
 
+const music = {
+  town: "/audio/town-theme.mp3",
+  boss: "/audio/boss-theme.mp3",
+  congrats: "/audio/Congratulations.m4a",
+}
+
 export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const gameRef = useRef<TownGame | null>(null)
@@ -161,6 +167,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
         },
         onWinShot: () => {
           setStamp(true)
+          blips.playClip(music.congrats, 0.65)
           analytics.capture("hopped_on_a_quick_call", { with: "hedgehawkins" })
           window.setTimeout(() => {
             setStamp(false)
@@ -177,6 +184,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
     return () => {
       game.dispose()
       gameRef.current = null
+      blips.stopMusic(0.1)
     }
   }, [blips, say])
 
@@ -188,6 +196,13 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
       if (game.getMode() !== "boss") game.startBoss()
     } else if (screen !== "won") game.setMode("paused")
   }, [screen])
+
+  useEffect(() => {
+    if (screen === "story" || screen === "town" || screen === "dialog") blips.playMusic(music.town, 0.22)
+    else if (screen === "bossIntro" || screen === "boss") blips.playMusic(music.boss, 0.26)
+    else if (screen === "won" || screen === "direct") blips.stopMusic(0.7)
+    else if (screen === "end") blips.playMusic(music.town, 0.12)
+  }, [screen, blips])
 
   useEffect(() => {
     const game = gameRef.current
@@ -352,6 +367,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
       window.setTimeout(() => setBig(null), 1400)
       window.setTimeout(() => {
         setStamp(true)
+        blips.playClip(music.congrats, 0.65)
         window.setTimeout(() => {
           setStamp(false)
           setScreen("end")

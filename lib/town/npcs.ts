@@ -97,9 +97,10 @@ export const npcs: Record<NpcId, Npc> = {
     title: "Fade Labs · HedgeHawkins's Chief of Staff",
     reward: "fry",
     pages: [
-      "I'm HedgeHawkins's chief of staff. I only cut his hair, and only blindfolded — terrible cuts, great intel.",
+      "I'm Hawkins's chief of staff, I have intel on everyone in SF. But he makes me cut his hair blindfolded.",
+      "The insider SF scoop is to just keep knocking at Combinator Y Academy.",
     ],
-    ask: "Free fry, free intel: keep knocking at Combinator Y Academy. Don't stop until they answer.",
+    ask: "Found this fry in a customer's hood. Want it?",
     take: "Take the fry",
     yes: "No charge. Now go knock. Keep knocking.",
     after: "Still here? The Academy door. Knock until something changes.",
