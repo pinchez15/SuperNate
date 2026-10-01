@@ -1,6 +1,6 @@
 /**
- * HedgeHawkins fight on a Smash-style side stage. Pure data so it can run headless.
- * Units are meters and seconds. Ground is y = 0. The player faces +x toward the boss.
+ * SuperNate fight in a woods clearing, Smash-style side view. Pure data so it can run headless.
+ * Units are meters and seconds. Ground is y = 0. The player faces +x toward the cabin porch.
  */
 
 export const B = {
@@ -20,11 +20,11 @@ export const B = {
   poundV: -24,
   poundRadius: 2.6,
   invuln: 1.2,
-  uberHalfLen: 1.15,
-  uberHeight: 1.45,
+  turkeyHalfLen: 1.15,
+  turkeyHeight: 1.45,
   playerHalfW: 0.35,
-  uberSpawnX: 6.5,
-  uberDespawnX: -15,
+  turkeySpawnX: 6.5,
+  turkeyDespawnX: -15,
 } as const
 
 /** One-way Smash platforms: land from above, jump up through from below. */
@@ -58,13 +58,13 @@ export interface BossInput {
   pound: boolean
 }
 
-export interface Uber {
+export interface Turkey {
   id: number
   x: number
   speed: number
-  /** Uber Air flies at platform height, so campers on ledges still have to dodge. */
+  /** Wild turkeys can fly. This one crosses at platform height, so campers on ledges still have to dodge. */
   air: boolean
-  /** Fed a fry: the dog pulls over, goes off track, and never hits you. */
+  /** Fed a fry: the turkey stops to eat and never hits you. */
   fed: boolean
 }
 
@@ -94,7 +94,7 @@ export interface BossState {
   spawnIn: number
   queue: { at: number; air: boolean }[]
   waves: number
-  ubers: Uber[]
+  turkeys: Turkey[]
   calls: Call[]
   cooldown: number
   nextId: number
@@ -108,7 +108,7 @@ export interface BossState {
   pounding: boolean
   poundHeld: boolean
   squashed: number
-  /** Entered the fight with all 20 fries: dogs get fed and pile up instead of hitting you. */
+  /** Entered the fight with all 20 fries: turkeys get fed and pile up instead of hitting you. */
   friesAll: boolean
   fed: number
 }
@@ -120,8 +120,8 @@ export type BossEvent =
   | { type: "hurt"; batteries: number }
   | { type: "respawn" }
   | { type: "phase"; phase: number }
-  | { type: "uber" }
-  | { type: "uberAir" }
+  | { type: "turkey" }
+  | { type: "turkeyAir" }
   | { type: "pound"; squashed: number }
   | { type: "fed" }
   | { type: "won" }
@@ -142,7 +142,7 @@ export function createBoss(friesAll = false): BossState {
     spawnIn: 1.6,
     queue: [],
     waves: 0,
-    ubers: [],
+    turkeys: [],
     calls: [],
     cooldown: 0,
     nextId: 1,
@@ -216,12 +216,12 @@ export function stepBoss(s: BossState, input: BossInput, dt: number): BossEvent[
         s.onGround = true
       }
     }
-    // Ground pound lands: the shockwave totals every street-level Uber nearby. Fed dogs are spared.
+    // Ground pound lands: the shockwave scatters every ground turkey nearby. Fed turkeys are spared.
     if (s.onGround && s.pounding) {
       s.pounding = false
-      const before = s.ubers.length
-      if (s.y === 0) s.ubers = s.ubers.filter((u) => u.air || u.fed || Math.abs(u.x - s.x) > B.poundRadius)
-      const squashed = before - s.ubers.length
+      const before = s.turkeys.length
+      if (s.y === 0) s.turkeys = s.turkeys.filter((u) => u.air || u.fed || Math.abs(u.x - s.x) > B.poundRadius)
+      const squashed = before - s.turkeys.length
       s.squashed += squashed
       events.push({ type: "pound", squashed })
     }
@@ -261,7 +261,7 @@ export function stepBoss(s: BossState, input: BossInput, dt: number): BossEvent[
 
   if (s.patience <= 0) {
     s.won = true
-    s.ubers = []
+    s.turkeys = []
     events.push({ type: "won" })
     return events
   }
@@ -284,41 +284,41 @@ export function stepBoss(s: BossState, input: BossInput, dt: number): BossEvent[
   while (s.queue.length && (s.queue[0]?.at ?? 1) <= 0) {
     const next = s.queue.shift()
     const p = phases[s.phase] ?? phases[0]
-    s.ubers.push({ id: s.nextId++, x: B.uberSpawnX, speed: p.speed, air: next?.air ?? false, fed: false })
-    events.push({ type: next?.air ? "uberAir" : "uber" })
+    s.turkeys.push({ id: s.nextId++, x: B.turkeySpawnX, speed: p.speed, air: next?.air ?? false, fed: false })
+    events.push({ type: next?.air ? "turkeyAir" : "turkey" })
   }
 
-  // All 20 fries: every dog that gets close takes a fry, brakes, and pulls over for good.
+  // All 20 fries: every turkey that gets close takes a fry, slows, and stops for good.
   if (s.friesAll) {
-    for (const u of s.ubers) {
+    for (const u of s.turkeys) {
       if (!u.fed && Math.abs(u.x - s.x) < 3.5) {
         u.fed = true
         s.fed += 1
         events.push({ type: "fed" })
       }
     }
-    const parked = s.ubers.filter((u) => u.fed && u.speed === 0)
+    const parked = s.turkeys.filter((u) => u.fed && u.speed === 0)
     if (parked.length > 6) {
       const oldest = parked[0]
-      s.ubers = s.ubers.filter((u) => u !== oldest)
+      s.turkeys = s.turkeys.filter((u) => u !== oldest)
     }
   }
-  for (const u of s.ubers) {
+  for (const u of s.turkeys) {
     if (u.fed) u.speed = Math.max(0, u.speed - 10 * dt)
     u.x -= u.speed * dt
   }
-  s.ubers = s.ubers.filter((u) => u.x > B.uberDespawnX)
+  s.turkeys = s.turkeys.filter((u) => u.x > B.turkeyDespawnX)
 
-  // While pounding, SuperNate is a falling anvil: Ubers he lands through get squashed.
+  // While pounding, the player is a falling anvil: turkeys they land through get scattered.
   if (s.pounding) {
-    const before = s.ubers.length
-    s.ubers = s.ubers.filter((u) => {
+    const before = s.turkeys.length
+    s.turkeys = s.turkeys.filter((u) => {
       if (u.fed) return true
-      if (Math.abs(u.x - s.x) >= B.uberHalfLen + B.playerHalfW) return true
-      const overlaps = u.air ? s.y < AIR_Y + B.uberHeight && s.y + 1.6 > AIR_Y : s.y < B.uberHeight
+      if (Math.abs(u.x - s.x) >= B.turkeyHalfLen + B.playerHalfW) return true
+      const overlaps = u.air ? s.y < AIR_Y + B.turkeyHeight && s.y + 1.6 > AIR_Y : s.y < B.turkeyHeight
       return !overlaps
     })
-    const squashed = before - s.ubers.length
+    const squashed = before - s.turkeys.length
     if (squashed > 0) {
       s.squashed += squashed
       events.push({ type: "pound", squashed })
@@ -327,10 +327,10 @@ export function stepBoss(s: BossState, input: BossInput, dt: number): BossEvent[
 
   s.inv = Math.max(0, s.inv - dt)
   if (s.inv === 0 && !s.pounding) {
-    const hit = s.ubers.find((u) => {
+    const hit = s.turkeys.find((u) => {
       if (u.fed) return false
-      if (Math.abs(u.x - s.x) >= B.uberHalfLen + B.playerHalfW) return false
-      return u.air ? s.y + 1.6 > AIR_Y + 0.2 && s.y < AIR_Y + B.uberHeight : s.y < B.uberHeight
+      if (Math.abs(u.x - s.x) >= B.turkeyHalfLen + B.playerHalfW) return false
+      return u.air ? s.y + 1.6 > AIR_Y + 0.2 && s.y < AIR_Y + B.turkeyHeight : s.y < B.turkeyHeight
     })
     if (hit) {
       s.batteries -= 1
@@ -340,13 +340,16 @@ export function stepBoss(s: BossState, input: BossInput, dt: number): BossEvent[
       s.vy = 8
       s.onGround = false
       events.push({ type: "hurt", batteries: s.batteries })
+      // Three hits: he forgets you. Patience refills and the waves restart, but you stay in the fight.
       if (s.batteries <= 0) {
         s.batteries = B.batteries
+        s.patience = 100
+        s.phase = 0
         s.x = B.startX
         s.y = 0
         s.vy = 0
         s.onGround = true
-        s.ubers = []
+        s.turkeys = []
         s.queue = []
         s.spawnIn = 1.6
         s.respawns += 1

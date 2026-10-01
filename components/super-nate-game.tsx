@@ -785,7 +785,7 @@ export function SuperNateGame({ onMemoryUnlocked, unlockedMemories, onCardClick,
             
             {/* Resume Preview Card */}
             <a
-              href="/N Pinches Resume 10.22.25.docx.pdf"
+              href="/NP-resume-6.3.26.pdf"
               target="_blank"
               rel="noopener noreferrer"
               className="block mx-auto max-w-sm group"

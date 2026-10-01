@@ -10,7 +10,7 @@ import "./globals.css"
 export const metadata: Metadata = {
   title: "SuperNate 64 — Hop on a Quick Call",
   description:
-    "Walk the town, meet the people behind Nate's products, then get HedgeHawkins to hop on a quick call.",
+    "Walk the town of Missed Call, meet the people who know what Nate built, then get SuperNate to hop on a quick call at his cabin in the woods.",
   generator: "v0.app",
   icons: {
     icon: "/SuperNate.png",

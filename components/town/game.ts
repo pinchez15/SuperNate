@@ -1,7 +1,7 @@
 import * as THREE from "three"
 import type { Blips } from "@/components/town/audio"
 import { disposeTextures, makeTextures, type Look, type Textures } from "@/components/town/look"
-import { animateRig, makeCharacter, makeDogUber, makePhoneProjectile, makePing, type Rig } from "@/components/town/models"
+import { animateRig, makeCharacter, makePhoneProjectile, makePing, makeTurkey, setHeroName, type Rig } from "@/components/town/models"
 import { disposeObject, N64Renderer } from "@/components/town/n64-renderer"
 import { ARENA_Z, applyShadows, arena, buildArena, buildTown, makeScene, setArea, type TownBuild } from "@/components/town/stage"
 import { AIR_Y, createBoss, stepBoss, type BossEvent, type BossState } from "@/lib/town/boss"
@@ -61,15 +61,17 @@ export class TownGame {
   private scene: THREE.Scene
   private camera = new THREE.PerspectiveCamera(45, 4 / 3, 0.1, 400)
   private town: TownBuild
-  private nate: Rig
+  /** The player. */
+  private hero: Rig
   private npcs = new Map<NpcId, Rig>()
   private markers = new Map<NpcId, THREE.Object3D>()
+  /** SuperNate, on his porch. */
   private boss: Rig
-  private uberPool: THREE.Group[] = []
-  private uberMesh = new Map<number, THREE.Group>()
+  private turkeyPool: THREE.Group[] = []
+  private turkeyMesh = new Map<number, THREE.Group>()
   private callPool: THREE.Sprite[] = []
   private callMesh = new Map<number, THREE.Sprite>()
-  private flags: THREE.Object3D[] = []
+  private smoke: THREE.Object3D[] = []
   private friesGot = 0
   private freeze = 0
   private y = 0
@@ -118,12 +120,10 @@ export class TownGame {
     this.scene.add(this.town.group)
     const arenaBuild = buildArena(this.tex)
     this.scene.add(arenaBuild.group)
-    this.town.group.traverse((o) => {
-      if (o.name === "flag") this.flags.push(o)
-    })
+    this.smoke = [...this.town.smoke, ...arenaBuild.smoke]
 
-    this.nate = makeCharacter("nate", look.segments)
-    this.scene.add(this.nate.root)
+    this.hero = makeCharacter("you", look.segments)
+    this.scene.add(this.hero.root)
 
     for (const id of peopleIds) {
       const rig = makeCharacter(id, look.segments)
@@ -142,18 +142,18 @@ export class TownGame {
       this.markers.set(id, marker)
     }
 
-    this.boss = makeCharacter("hedgehawkins", look.segments)
-    this.boss.root.position.set(arena.bossX, 1.8, ARENA_Z - 0.6)
+    this.boss = makeCharacter("nate", look.segments)
+    this.boss.root.position.set(arena.bossX, arena.porchY, ARENA_Z - 0.6)
     this.boss.root.rotation.y = -Math.PI / 2 + 0.45
     this.boss.root.scale.setScalar(1.35)
     this.scene.add(this.boss.root)
 
-    // Enough cars for the all-fries run, where fed dogs pile up on the stage.
+    // Enough turkeys for the all-fries run, where fed birds pile up on the stage.
     for (let i = 0; i < 10; i += 1) {
-      const car = makeDogUber(look.segments)
-      car.visible = false
-      this.scene.add(car)
-      this.uberPool.push(car)
+      const bird = makeTurkey(look.segments)
+      bird.visible = false
+      this.scene.add(bird)
+      this.turkeyPool.push(bird)
     }
     for (let i = 0; i < 3; i += 1) {
       const ping = makePing()
@@ -164,7 +164,7 @@ export class TownGame {
 
     applyShadows(this.scene)
 
-    this.placeNateInTown()
+    this.placeHeroInTown()
     if (process.env.NODE_ENV !== "production") {
       // Dev-only hook so automated playthroughs can read and set the player position.
       ;(window as unknown as { __town?: object }).__town = {
@@ -174,12 +174,14 @@ export class TownGame {
           this.y = groundAt(x, z, 99)
           this.vy = 0
           this.grounded = true
-          this.nate.root.position.set(x, this.y, z)
+          this.hero.root.position.set(x, this.y, z)
         },
         fries: (n: number) => {
           this.friesGot = n
           this.cb.onFry(n)
         },
+        talk: () => this.tryTalk(),
+        hold: (action: Action, down: boolean) => this.setVirtual(action, down),
       }
     }
     window.addEventListener("keydown", this.onKeyDown)
@@ -188,6 +190,23 @@ export class TownGame {
     canvas.addEventListener("pointerdown", this.onPointer)
     this.last = performance.now()
     this.raf = requestAnimationFrame(this.loop)
+  }
+
+  /** The player typed a name: print it on the badge and on every ping. */
+  setPlayerName(name: string) {
+    setHeroName(this.hero, name)
+    for (const old of this.callPool) {
+      this.scene.remove(old)
+      old.material.map?.dispose()
+      old.material.dispose()
+    }
+    this.callPool = []
+    for (let i = 0; i < 3; i += 1) {
+      const ping = makePing(name)
+      ping.visible = false
+      this.scene.add(ping)
+      this.callPool.push(ping)
+    }
   }
 
   /** Ids of townspeople who still have something to give. */
@@ -220,7 +239,7 @@ export class TownGame {
     for (const f of this.town.fries) f.visible = true
     this.town.roofFry.visible = true
     this.setMogged(false)
-    this.placeNateInTown()
+    this.placeHeroInTown()
     setArea(this.scene, this.tex, "town")
     this.mode = "town"
   }
@@ -233,7 +252,7 @@ export class TownGame {
     this.camera.position.set(0.4, 3.6, ARENA_Z + 20)
     this.lookAt.set(0.4, 2.4, ARENA_Z)
     this.winT = 0
-    this.uberMesh.clear()
+    this.turkeyMesh.clear()
     this.callMesh.clear()
     this.boss.root.rotation.y = -Math.PI / 2 + 0.45
     this.mode = "boss"
@@ -260,7 +279,7 @@ export class TownGame {
   /** Combinator Y Academy perk. Investors fund tall founders. */
   setMogged(on: boolean) {
     this.mogged = on
-    this.nate.root.scale.set(1, on ? 1.38 : 1, 1)
+    this.hero.root.scale.set(1, on ? 1.38 : 1, 1)
   }
 
   knock() {
@@ -278,14 +297,14 @@ export class TownGame {
     this.n64.dispose()
   }
 
-  private placeNateInTown() {
+  private placeHeroInTown() {
     this.pos = { ...spawn }
     this.y = 0
     this.vy = 0
     this.grounded = true
-    this.nate.root.position.set(this.pos.x, 0, this.pos.z)
-    this.nate.root.rotation.y = Math.PI
-    this.nate.root.visible = true
+    this.hero.root.position.set(this.pos.x, 0, this.pos.z)
+    this.hero.root.rotation.y = Math.PI
+    this.hero.root.visible = true
     this.camera.position.set(this.pos.x * 0.75, 6.2 + (this.pos.z + 9.2 - 15.5) * 0.35, 15.5)
     this.camera.lookAt(this.pos.x * 0.88, 1.4, this.pos.z - 2.6)
   }
@@ -391,9 +410,9 @@ export class TownGame {
       mx /= len
       mz /= len
       const target = Math.atan2(mx, mz)
-      const cur = this.nate.root.rotation.y
+      const cur = this.hero.root.rotation.y
       const diff = Math.atan2(Math.sin(target - cur), Math.cos(target - cur))
-      this.nate.root.rotation.y = cur + diff * Math.min(1, dt * 14)
+      this.hero.root.rotation.y = cur + diff * Math.min(1, dt * 14)
     }
     this.speed = len > 0 ? 1 : 0
     this.emoteT = Math.max(0, this.emoteT - dt)
@@ -422,7 +441,7 @@ export class TownGame {
         if (this.chain === 2) this.chain = -1
       }
     }
-    this.nate.root.position.set(next.x, this.y, next.z)
+    this.hero.root.position.set(next.x, this.y, next.z)
 
     const pickups = [...this.town.fries, this.town.roofFry]
     for (const f of pickups) {
@@ -489,16 +508,16 @@ export class TownGame {
     for (const e of events) {
       if (e.type === "placed") this.blips.ring()
       if (e.type === "pound" && e.squashed > 0) {
-        this.blips.bark()
+        this.blips.gobble()
         this.bossShake = 0.3
       }
-      if (e.type === "fed") this.blips.bark()
+      if (e.type === "fed") this.blips.gobble()
       if (e.type === "landed") {
         this.blips.landed()
         this.bossShake = 0.35
       }
       if (e.type === "declined") this.blips.declined()
-      if (e.type === "uber" || e.type === "uberAir") this.blips.bark()
+      if (e.type === "turkey" || e.type === "turkeyAir") this.blips.gobble()
       if (e.type === "hurt") {
         this.blips.hurt()
         this.hurtFlash = 0.4
@@ -549,32 +568,39 @@ export class TownGame {
 
   private syncBoss() {
     const s = this.sim
-    this.nate.root.position.set(s.x, s.y, ARENA_Z + 0.6)
-    this.nate.root.rotation.y = Math.PI / 2
-    this.nate.root.visible = s.inv > 0 ? Math.floor(this.clock * 20) % 2 === 0 : true
+    this.hero.root.position.set(s.x, s.y, ARENA_Z + 0.6)
+    this.hero.root.rotation.y = Math.PI / 2
+    this.hero.root.visible = s.inv > 0 ? Math.floor(this.clock * 20) % 2 === 0 : true
     this.speed = this.mode === "boss" && (this.isDown("left") || this.isDown("right")) && s.onGround ? 1 : 0
 
-    const liveU = new Set(s.ubers.map((u) => u.id))
-    for (const [id, mesh] of this.uberMesh) {
-      if (!liveU.has(id)) {
+    const liveT = new Set(s.turkeys.map((u) => u.id))
+    for (const [id, mesh] of this.turkeyMesh) {
+      if (!liveT.has(id)) {
         mesh.visible = false
-        this.uberPool.push(mesh)
-        this.uberMesh.delete(id)
+        this.turkeyPool.push(mesh)
+        this.turkeyMesh.delete(id)
       }
     }
-    for (const u of s.ubers) {
-      let mesh = this.uberMesh.get(u.id)
+    for (const u of s.turkeys) {
+      let mesh = this.turkeyMesh.get(u.id)
       if (!mesh) {
-        mesh = this.uberPool.pop()
+        mesh = this.turkeyPool.pop()
         if (!mesh) continue
-        this.uberMesh.set(u.id, mesh)
+        this.turkeyMesh.set(u.id, mesh)
         mesh.visible = true
       }
       mesh.position.set(u.x, u.air ? AIR_Y + Math.sin(this.clock * 6 + u.id) * 0.12 : 0, ARENA_Z + 0.6)
       mesh.rotation.z = u.air ? Math.sin(this.clock * 3 + u.id) * 0.08 : 0
+      const running = u.speed > 0.5 && !u.air
+      const stride = running ? Math.sin(this.clock * 18 + u.id) * 0.8 : 0
+      const flap = u.air ? Math.sin(this.clock * 16 + u.id) * 0.7 : 0
       mesh.traverse((o) => {
-        if (o.name === "wheel") o.rotation.y = u.fed && u.speed === 0 ? o.rotation.y : this.clock * 14
-        if (o.name === "dog") o.rotation.z = u.fed ? Math.sin(this.clock * 16 + u.id) * 0.3 : Math.sin(this.clock * 10 + u.id) * 0.15
+        if (o.name === "legL") o.rotation.z = u.air ? 0.6 : stride
+        if (o.name === "legR") o.rotation.z = u.air ? 0.6 : -stride
+        if (o.name === "wingL") o.rotation.x = -flap
+        if (o.name === "wingR") o.rotation.x = flap
+        if (o.name === "head") o.rotation.z = u.fed ? -0.5 + Math.sin(this.clock * 9 + u.id) * 0.25 : Math.sin(this.clock * 12 + u.id) * 0.08
+        if (o.name === "tail") o.rotation.x = Math.sin(this.clock * 5 + u.id) * 0.1
         if (o.name === "treat") o.visible = u.fed
       })
     }
@@ -629,39 +655,37 @@ export class TownGame {
 
   private animate(dt: number) {
     const t = this.clock
-    animateRig(this.nate, t, this.speed)
-    if (this.mode === "boss" && !this.sim.onGround && this.nate.legL && this.nate.legR) {
-      this.nate.legL.rotation.x = this.sim.pounding ? -1.2 : -0.6
-      this.nate.legR.rotation.x = this.sim.pounding ? -1.2 : 0.3
+    animateRig(this.hero, t, this.speed)
+    if (this.mode === "boss" && !this.sim.onGround && this.hero.legL && this.hero.legR) {
+      this.hero.legL.rotation.x = this.sim.pounding ? -1.2 : -0.6
+      this.hero.legR.rotation.x = this.sim.pounding ? -1.2 : 0.3
     }
     if (this.mode === "town") {
-      if (this.flip > 0) this.nate.body.rotation.x = -((1 - Math.max(0, this.vy) / (JUMPS[2] ?? 13)) * Math.PI * 2)
-      else this.nate.body.rotation.x = this.pounding ? 0.4 : 0
-      if (!this.grounded && this.nate.legL && this.nate.legR) {
-        this.nate.legL.rotation.x = this.pounding ? -1.2 : -0.5
-        this.nate.legR.rotation.x = this.pounding ? -1.2 : 0.4
+      if (this.flip > 0) this.hero.body.rotation.x = -((1 - Math.max(0, this.vy) / (JUMPS[2] ?? 13)) * Math.PI * 2)
+      else this.hero.body.rotation.x = this.pounding ? 0.4 : 0
+      if (!this.grounded && this.hero.legL && this.hero.legR) {
+        this.hero.legL.rotation.x = this.pounding ? -1.2 : -0.5
+        this.hero.legR.rotation.x = this.pounding ? -1.2 : 0.4
       }
-      if (this.nate.cape) {
-        if (this.gliding) this.nate.cape.rotation.x = 1.25
-        else if (!this.grounded) this.nate.cape.rotation.x = 0.7
+      if (this.hero.cape) {
+        if (this.gliding) this.hero.cape.rotation.x = 1.25
+        else if (!this.grounded) this.hero.cape.rotation.x = 0.7
       }
-      if (this.emoteT > 0 && this.nate.armR) {
-        this.nate.armR.rotation.x = -2.5
-        this.nate.armR.rotation.z = -0.5
+      if (this.emoteT > 0 && this.hero.armR) {
+        this.hero.armR.rotation.x = -2.5
+        this.hero.armR.rotation.z = -0.5
       }
     } else {
-      this.nate.body.rotation.x = 0
+      this.hero.body.rotation.x = 0
     }
-    const pole = this.town.group.getObjectByName("pole")
-    if (pole) pole.rotation.y = t * 2
     this.town.sensor.rotation.y = t * 5
     this.knockT = Math.max(0, this.knockT - dt)
     this.town.door.position.x = Math.sin(t * 60) * this.knockT * 0.15
-    if (this.mode === "win" && this.speed === 0 && this.nate.armR) {
-      this.nate.armR.rotation.x = -2.5
-      this.nate.armR.rotation.z = -0.5
-    } else if (this.nate.armR && this.emoteT === 0) {
-      this.nate.armR.rotation.z = 0
+    if (this.mode === "win" && this.speed === 0 && this.hero.armR) {
+      this.hero.armR.rotation.x = -2.5
+      this.hero.armR.rotation.z = -0.5
+    } else if (this.hero.armR && this.emoteT === 0) {
+      this.hero.armR.rotation.z = 0
     }
     for (const [id, rig] of this.npcs) {
       const spot = npcSpots[id]
@@ -709,8 +733,12 @@ export class TownGame {
       puff.position.y = 1 + k * 3
       puff.scale.setScalar(0.6 + k * 1.2)
     })
-    this.flags.forEach((f, i) => {
-      f.rotation.y = Math.sin(t * 3 + i) * 0.35
-    })
+    for (const column of this.smoke) {
+      column.children.forEach((puff, i) => {
+        const k = (t * 0.35 + i / 5) % 1
+        puff.position.set(Math.sin(t * 0.8 + i) * k * 0.4, k * 2.6, 0)
+        puff.scale.setScalar(0.7 + k * 1.3)
+      })
+    }
   }
 }

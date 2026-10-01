@@ -2,22 +2,22 @@
 
 import * as THREE from "three"
 import { defaultLook, disposeTextures, makeTextures, type Look } from "@/components/town/look"
-import { animateRig, makeCharacter, makeDogUber, type CharacterId, type Rig } from "@/components/town/models"
+import { animateRig, makeCharacter, makeTurkey, type CharacterId, type Rig } from "@/components/town/models"
 import { BASE_H, BASE_W, disposeObject, N64Renderer } from "@/components/town/n64-renderer"
 import { renderPortraits } from "@/components/town/portraits"
 import { ARENA_Z, applyShadows, arena, buildArena, buildTown, makeScene, setArea } from "@/components/town/stage"
-import { gate, npcSpots } from "@/lib/town/world"
+import { npcSpots } from "@/lib/town/world"
 import { useEffect, useRef, useState } from "react"
 
 type View = "behind" | "side" | "arena"
 
 const roster: { id: CharacterId; name: string; role: string }[] = [
-  { id: "nate", name: "SUPERNATE", role: "Builder" },
+  { id: "you", name: "YOU", role: "Caller" },
   { id: "doctor", name: "DOCTOR", role: "Karibu Health" },
-  { id: "barber", name: "BARBER", role: "Chief of Staff" },
+  { id: "ranger", name: "RANGER", role: "Missed Call State Forest" },
   { id: "vest", name: "TECH BRO", role: "Healthcare AIO" },
   { id: "guide", name: "GUIDE", role: "CappaWork" },
-  { id: "hedgehawkins", name: "HEDGEHAWKINS", role: "CEO, PostHog" },
+  { id: "nate", name: "SUPERNATE", role: "Recluse, the woods" },
 ]
 
 export function Lookbook() {
@@ -26,7 +26,7 @@ export function Lookbook() {
   const [walking, setWalking] = useState(true)
   const [tab, setTab] = useState<"stage" | "select">("stage")
   const [portraits, setPortraits] = useState<Partial<Record<CharacterId, string>>>({})
-  const [pick, setPick] = useState<CharacterId>("nate")
+  const [pick, setPick] = useState<CharacterId>("you")
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const viewRef = useRef<View>(view)
@@ -50,9 +50,9 @@ export function Lookbook() {
     const stage = buildArena(tex)
     scene.add(stage.group)
 
-    const nate = makeCharacter("nate", look.segments)
-    nate.root.position.set(0, 0, 3.5)
-    scene.add(nate.root)
+    const hero = makeCharacter("you", look.segments)
+    hero.root.position.set(0, 0, 3.5)
+    scene.add(hero.root)
 
     const cast: Rig[] = []
     for (const id of ["doctor", "vest", "guide"] as const) {
@@ -63,23 +63,18 @@ export function Lookbook() {
       scene.add(rig.root)
       cast.push(rig)
     }
-    const perched = makeCharacter("hedgehawkins", look.segments)
-    perched.root.position.set(gate.x, 5.6, gate.z - 0.3)
-    perched.root.scale.setScalar(0.7)
-    scene.add(perched.root)
-
-    const arenaNate = makeCharacter("nate", look.segments)
-    arenaNate.root.position.set(-6, 0, ARENA_Z + 0.6)
-    arenaNate.root.rotation.y = Math.PI / 2
-    scene.add(arenaNate.root)
-    const boss = makeCharacter("hedgehawkins", look.segments)
-    boss.root.position.set(arena.bossX, 1.8, ARENA_Z - 0.6)
+    const arenaHero = makeCharacter("you", look.segments)
+    arenaHero.root.position.set(-6, 0, ARENA_Z + 0.6)
+    arenaHero.root.rotation.y = Math.PI / 2
+    scene.add(arenaHero.root)
+    const boss = makeCharacter("nate", look.segments)
+    boss.root.position.set(arena.bossX, arena.porchY, ARENA_Z - 0.6)
     boss.root.rotation.y = -Math.PI / 2 + 0.4
     boss.root.scale.setScalar(1.35)
     scene.add(boss.root)
-    const uber = makeDogUber(look.segments)
-    uber.position.set(1.5, 0, ARENA_Z + 0.6)
-    scene.add(uber)
+    const turkey = makeTurkey(look.segments)
+    turkey.position.set(1.5, 0, ARENA_Z + 0.6)
+    scene.add(turkey)
     applyShadows(scene)
 
     const camera = new THREE.PerspectiveCamera(45, 4 / 3, 0.1, 400)
@@ -90,20 +85,20 @@ export function Lookbook() {
       const v = viewRef.current
       const speed = walkRef.current ? 1 : 0
       setArea(scene, tex, v === "arena" ? "arena" : "town")
-      if (v === "side") nate.root.rotation.y = Math.PI / 2
-      else nate.root.rotation.y = Math.PI
-      animateRig(nate, t, speed)
+      if (v === "side") hero.root.rotation.y = Math.PI / 2
+      else hero.root.rotation.y = Math.PI
+      animateRig(hero, t, speed)
       for (const rig of cast) animateRig(rig, t + rig.root.position.x, 0)
-      animateRig(perched, t, 0)
-      animateRig(arenaNate, t, speed)
+      animateRig(arenaHero, t, speed)
       animateRig(boss, t, 0)
-      uber.position.x = 3 - ((t * 4) % 12)
-      uber.traverse((o) => {
-        if (o.name === "wheel") o.rotation.y = t * 10
-        if (o.name === "dog") o.rotation.z = Math.sin(t * 8) * 0.1
+      turkey.position.x = 3 - ((t * 4) % 12)
+      turkey.traverse((o) => {
+        if (o.name === "legL") o.rotation.z = Math.sin(t * 18) * 0.8
+        if (o.name === "legR") o.rotation.z = -Math.sin(t * 18) * 0.8
+        if (o.name === "head") o.rotation.z = Math.sin(t * 12) * 0.08
       })
 
-      const p = nate.root.position
+      const p = hero.root.position
       if (v === "behind") {
         camera.fov = 45
         camera.position.set(p.x, 5, p.z + 8.6)

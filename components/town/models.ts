@@ -1,15 +1,12 @@
 import * as THREE from "three"
 
-export type CharacterId =
-  | "nate"
-  | "doctor"
-  | "vest"
-  | "guide"
-  | "hedgehawkins"
-  | "barber"
-  | "engineer"
-  | "sommelier"
-  | "gerald"
+/** "you" is the player. "nate" is SuperNate, the recluse at the end of the trail. */
+export type CharacterId = "you" | "nate" | "doctor" | "vest" | "guide" | "engineer" | "ranger" | "gerald"
+
+export interface CharacterOpts {
+  /** The player's name, printed on the hero's badge. */
+  name?: string
+}
 
 export interface Rig {
   root: THREE.Group
@@ -120,9 +117,9 @@ function face(head: THREE.Object3D, r: number, seg: number, opts: FaceOpts) {
 }
 
 /**
- * SuperNate, rebuilt as a hero: athletic F-Zero-pilot proportions instead of a
- * chibi mascot. Long legs, flared jet boots, broad tapered chest, gloves, a
- * smaller head in a visored helmet, and a determined jaw.
+ * SuperNate: athletic F-Zero-pilot proportions, long legs, flared jet boots,
+ * broad tapered chest, gloves, a smaller head in a visored helmet, and a
+ * determined jaw. He has been in the woods a while, so there is a beard now.
  */
 export function makeNate(seg: number): Rig {
   const root = new THREE.Group()
@@ -250,6 +247,11 @@ export function makeNate(seg: number): Rig {
   jaw.scale.set(1.25, 0.72, 0.9)
   at(jaw, 0, -0.26, 0.16)
   head.add(jaw)
+  // The recluse beard, short and squared off.
+  const beard = sphere(0.19, seg, plastic("#4a2e1d", 18))
+  beard.scale.set(1.35, 0.8, 0.95)
+  at(beard, 0, -0.34, 0.17)
+  head.add(beard)
   const faceAnchor = new THREE.Group()
   at(faceAnchor, 0, -0.06, 0.1)
   face(faceAnchor, 0.3, seg, { skin: skinTone, brows: "determined" })
@@ -498,208 +500,6 @@ export function makeGuide(seg: number): Rig {
   return rig
 }
 
-export function makeHedgeHawkins(seg: number): Rig {
-  const root = new THREE.Group()
-  const body = new THREE.Group()
-  root.add(body)
-  root.add(blobShadow(1.4))
-
-  const fur = plastic("#8a5a36", 24)
-  const belly = plastic("#f2d9b3", 16)
-  const spikeMat = plastic("#4a2e1d", 40)
-
-  const torso = sphere(1.2, seg + 4, fur)
-  torso.scale.set(1, 1.05, 0.95)
-  at(torso, 0, 1.35, 0)
-  body.add(torso)
-  const tummy = sphere(0.95, seg + 4, belly)
-  tummy.scale.set(0.95, 1.05, 0.6)
-  at(tummy, 0, 1.2, 0.55)
-  body.add(tummy)
-
-  const count = 70
-  const golden = Math.PI * (3 - Math.sqrt(5))
-  for (let i = 0; i < count; i += 1) {
-    const y = 1 - (i / (count - 1)) * 1.6
-    const radius = Math.sqrt(Math.max(0, 1 - y * y))
-    const theta = golden * i
-    const dir = new THREE.Vector3(Math.cos(theta) * radius, y, Math.sin(theta) * radius)
-    if (dir.z > 0.35 && dir.y < 0.75) continue
-    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.7, Math.max(5, Math.round(seg / 2))), spikeMat)
-    spike.position.copy(dir.clone().multiplyScalar(1.12)).add(new THREE.Vector3(0, 1.4, 0))
-    spike.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().add(new THREE.Vector3(0, 0, -0.45)).normalize())
-    body.add(spike)
-  }
-
-  const head = new THREE.Group()
-  at(head, 0, 2.05, 0.55)
-  const snout = sphere(0.42, seg, belly)
-  snout.scale.set(1, 0.75, 1.25)
-  at(snout, 0, -0.12, 0.35)
-  head.add(snout)
-  const nose = sphere(0.13, seg, plastic("#16110e", 120))
-  at(nose, 0, -0.05, 0.86)
-  head.add(nose)
-  // Comically large gold-rimmed aviators.
-  const aviators = new THREE.Group()
-  const lensMat = plastic("#0e1118", 160)
-  const goldRim = plastic("#e8b64a", 140)
-  for (const side of [-1, 1]) {
-    const lens = sphere(0.3, seg, lensMat)
-    lens.scale.set(1, 1.2, 0.2)
-    at(lens, side * 0.31, 0.1, 0.52)
-    lens.rotation.y = side * -0.18
-    aviators.add(lens)
-    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.024, 8, 24), goldRim)
-    rim.scale.set(1, 1.2, 1)
-    at(rim, side * 0.31, 0.1, 0.58)
-    rim.rotation.y = side * -0.18
-    aviators.add(rim)
-    const temple = box(0.34, 0.03, 0.03, goldRim)
-    at(temple, side * 0.52, 0.32, 0.24)
-    temple.rotation.y = side * 0.9
-    aviators.add(temple)
-  }
-  aviators.add(at(box(0.2, 0.035, 0.04, goldRim), 0, 0.28, 0.6))
-  aviators.add(at(box(0.14, 0.045, 0.05, goldRim), 0, 0.16, 0.64))
-  head.add(aviators)
-  // A small fu manchu: a bar under the nose with two drooping strands.
-  const stacheMat = plastic("#241209", 30)
-  const lip = box(0.24, 0.045, 0.05, stacheMat)
-  at(lip, 0, -0.17, 0.84)
-  head.add(lip)
-  for (const side of [-1, 1]) {
-    const strand = capsule(0.024, 0.24, seg, stacheMat)
-    at(strand, side * 0.15, -0.32, 0.8)
-    strand.rotation.z = side * -0.12
-    strand.rotation.x = 0.15
-    head.add(strand)
-  }
-  const smirk = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.03, 6, 12, Math.PI * 0.7), matte("#3a2014"))
-  smirk.rotation.z = Math.PI * 1.1
-  at(smirk, 0.06, -0.3, 0.72)
-  head.add(smirk)
-  for (const side of [-1, 1]) {
-    const ear = sphere(0.18, seg, fur)
-    ear.scale.set(1, 1, 0.5)
-    at(ear, side * 0.62, 0.62, -0.1)
-    head.add(ear)
-  }
-  body.add(head)
-
-  const armL = limb(0.2, 0.5, seg, fur, sphere(0.24, seg, belly))
-  const armR = limb(0.2, 0.5, seg, fur, sphere(0.24, seg, belly))
-  at(armL, -1.05, 1.7, 0.3)
-  at(armR, 1.05, 1.7, 0.3)
-  armL.rotation.z = -0.5
-  armR.rotation.z = 0.2
-  armR.rotation.x = -1.2
-  body.add(armL, armR)
-
-  const phone = new THREE.Group()
-  phone.add(box(0.28, 0.5, 0.06, plastic("#18181c", 90)))
-  const screen = box(0.22, 0.4, 0.01, new THREE.MeshBasicMaterial({ color: "#ff6a3d" }))
-  screen.position.z = 0.04
-  phone.add(screen)
-  phone.position.set(0, -0.88, 0.2)
-  armR.add(phone)
-
-  for (const side of [-1, 1]) {
-    const foot = sphere(0.3, seg, belly)
-    foot.scale.set(1, 0.5, 1.4)
-    at(foot, side * 0.5, 0.15, 0.3)
-    body.add(foot)
-  }
-
-  return { root, body, armL, armR, head, prop: phone }
-}
-
-export function makeDogUber(seg: number): THREE.Group {
-  const car = new THREE.Group()
-  car.add(blobShadow(1.3))
-  const black = plastic("#141417", 110)
-  const lower = box(2.4, 0.6, 1.2, black)
-  lower.position.y = 0.55
-  car.add(lower)
-  const cabin = box(1.3, 0.55, 1.1, black)
-  cabin.position.set(-0.1, 1.1, 0)
-  car.add(cabin)
-  const glass = plastic("#8fc7e8", 140)
-  const windowFront = box(0.02, 0.4, 0.9, glass)
-  windowFront.position.set(-0.76, 1.1, 0)
-  car.add(windowFront)
-  const side = box(1.0, 0.36, 0.02, glass)
-  side.position.set(-0.1, 1.12, 0.56)
-  car.add(side)
-  const wheelMat = plastic("#2a2a2e", 20)
-  for (const x of [-0.8, 0.8]) {
-    for (const z of [-0.6, 0.6]) {
-      const wheel = cyl(0.3, 0.3, 0.2, seg, wheelMat)
-      wheel.rotation.x = Math.PI / 2
-      wheel.position.set(x, 0.3, z)
-      wheel.name = "wheel"
-      car.add(wheel)
-    }
-  }
-  for (const z of [-0.4, 0.4]) {
-    const light = box(0.04, 0.12, 0.22, new THREE.MeshBasicMaterial({ color: "#fff6c2" }))
-    light.position.set(-1.21, 0.62, z)
-    car.add(light)
-  }
-
-  const signCanvas = document.createElement("canvas")
-  signCanvas.width = 64
-  signCanvas.height = 32
-  const ctx = signCanvas.getContext("2d")
-  if (ctx) {
-    ctx.fillStyle = "#ffffff"
-    ctx.fillRect(0, 0, 64, 32)
-    ctx.fillStyle = "#111"
-    ctx.font = "bold 18px sans-serif"
-    ctx.textAlign = "center"
-    ctx.textBaseline = "middle"
-    ctx.fillText("WOOF", 32, 17)
-  }
-  const signTex = new THREE.CanvasTexture(signCanvas)
-  signTex.colorSpace = THREE.SRGBColorSpace
-  const sign = box(0.7, 0.3, 0.3, new THREE.MeshBasicMaterial({ map: signTex }))
-  sign.position.set(-0.1, 1.53, 0)
-  car.add(sign)
-
-  const dog = new THREE.Group()
-  const fur = plastic("#d9a45a", 20)
-  dog.add(sphere(0.3, seg, fur))
-  const muzzle = sphere(0.16, seg, plastic("#f2d4a0", 20))
-  muzzle.scale.set(1.3, 0.9, 1)
-  muzzle.position.set(-0.26, -0.06, 0)
-  dog.add(muzzle)
-  dog.add(at(sphere(0.06, 8, plastic("#111", 120)), -0.44, -0.02, 0))
-  for (const zs of [-1, 1]) {
-    const ear = sphere(0.14, seg, plastic("#8a5a2a", 20))
-    ear.scale.set(0.6, 1.4, 0.5)
-    ear.position.set(0.04, -0.06, zs * 0.28)
-    dog.add(ear)
-    dog.add(at(sphere(0.05, 8, plastic("#111", 120)), -0.2, 0.1, zs * 0.12))
-  }
-  const tongue = sphere(0.07, 8, plastic("#ff7a90", 30))
-  tongue.scale.set(0.7, 1.4, 0.8)
-  tongue.position.set(-0.32, -0.2, 0.05)
-  dog.add(tongue)
-  dog.position.set(-0.35, 1.25, 0.72)
-  dog.scale.setScalar(1.35)
-  dog.name = "dog"
-  car.add(dog)
-  // The fry a fed dog is eating. Hidden until the all-fries run feeds him.
-  const treat = makeFry()
-  treat.scale.setScalar(0.8)
-  treat.position.set(-1.15, 1.05, 0.72)
-  treat.rotation.z = 0.35
-  treat.name = "treat"
-  treat.visible = false
-  car.add(treat)
-  return car
-}
-
 export function makePhoneProjectile(): THREE.Group {
   const g = new THREE.Group()
   g.add(box(0.3, 0.5, 0.08, plastic("#18181c", 120)))
@@ -805,7 +605,7 @@ export function makeStarfighter(seg: number): THREE.Group {
 }
 
 /** A Slack-style message bubble that always faces the camera. */
-export function makePing(): THREE.Sprite {
+export function makePing(from = "You"): THREE.Sprite {
   const c = document.createElement("canvas")
   c.width = 256
   c.height = 112
@@ -826,17 +626,17 @@ export function makePing(): THREE.Sprite {
     ctx.font = "bold 28px sans-serif"
     ctx.textAlign = "center"
     ctx.textBaseline = "middle"
-    ctx.fillText("N", 42, 43)
+    ctx.fillText(from.slice(0, 1).toUpperCase(), 42, 43)
     ctx.textAlign = "left"
     ctx.fillStyle = "#1d1c1d"
     ctx.font = "bold 20px sans-serif"
-    ctx.fillText("SuperNate", 76, 30)
+    ctx.fillText(from, 76, 30)
     ctx.fillStyle = "#1264a3"
     ctx.font = "bold 22px sans-serif"
-    ctx.fillText("@Hawkins", 76, 60)
+    ctx.fillText("@Nate", 76, 60)
     ctx.fillStyle = "#616061"
     ctx.font = "18px sans-serif"
-    ctx.fillText("quick call? re: the job", 76, 88)
+    ctx.fillText("quick call? re: my company", 76, 88)
   }
   const tex = new THREE.CanvasTexture(c)
   tex.colorSpace = THREE.SRGBColorSpace
@@ -844,46 +644,6 @@ export function makePing(): THREE.Sprite {
   sprite.scale.set(2.6, 1.14, 1)
   sprite.name = "ping"
   return sprite
-}
-
-export function makeBarber(seg: number): Rig {
-  const rig = makePerson(seg, {
-    skin: "#e2b08a",
-    hair: "#2a1a12",
-    hairStyle: "slick",
-    top: "#f4f4f4",
-    bottom: "#23232a",
-    shoes: "#111114",
-    brows: "friendly",
-    smile: true,
-  })
-  const vest = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.37, 0.39, 0.7, seg, 1, true, Math.PI * 0.14, Math.PI * 1.72),
-    new THREE.MeshPhongMaterial({ color: "#1d1d24", shininess: 30, side: THREE.DoubleSide }),
-  )
-  at(vest, 0, 1.22, 0)
-  rig.body.add(vest)
-  if (rig.head) {
-    const fold = new THREE.Mesh(new THREE.TorusGeometry(0.47, 0.07, 6, seg * 2), plastic("#141418", 20))
-    fold.rotation.x = Math.PI / 2
-    fold.position.y = 0.08
-    rig.head.add(fold)
-    const stache = sphere(0.1, seg, plastic("#2a1a12", 30))
-    stache.scale.set(2.2, 0.6, 0.8)
-    at(stache, 0, -0.16, 0.44)
-    rig.head.add(stache)
-  }
-  const scissors = new THREE.Group()
-  for (const r of [-0.3, 0.3]) {
-    const blade = box(0.04, 0.34, 0.02, plastic("#d6dae2", 140))
-    blade.rotation.z = r
-    scissors.add(blade)
-  }
-  scissors.position.set(0, -0.62, 0.12)
-  rig.armR?.add(scissors)
-  if (rig.armR) rig.armR.rotation.x = -0.9
-  rig.prop = scissors
-  return rig
 }
 
 export function makeEngineer(seg: number): Rig {
@@ -919,44 +679,6 @@ export function makeEngineer(seg: number): Rig {
   return rig
 }
 
-export function makeSommelier(seg: number): Rig {
-  const rig = makePerson(seg, {
-    skin: "#f2cfb0",
-    hair: "#1b1b1f",
-    hairStyle: "short",
-    top: "#ffffff",
-    bottom: "#1b1b1f",
-    shoes: "#3a2418",
-    coat: "#7a1f2b",
-    brows: "friendly",
-    smile: true,
-  })
-  if (rig.head) {
-    const beret = sphere(0.36, seg, plastic("#1b1b1f", 20))
-    beret.scale.set(1.2, 0.35, 1.2)
-    at(beret, 0.06, 0.44, -0.02)
-    rig.head.add(beret)
-    const stache = sphere(0.1, seg, plastic("#1b1b1f", 30))
-    stache.scale.set(2.4, 0.55, 0.8)
-    at(stache, 0, -0.16, 0.44)
-    rig.head.add(stache)
-  }
-  const glass = new THREE.Group()
-  const bowl = new THREE.Mesh(new THREE.SphereGeometry(0.12, seg, seg, 0, Math.PI * 2, Math.PI * 0.35, Math.PI * 0.65), new THREE.MeshPhongMaterial({ color: "#e8f2ff", transparent: true, opacity: 0.6, side: THREE.DoubleSide }))
-  bowl.position.y = 0.18
-  glass.add(bowl)
-  glass.add(at(cyl(0.015, 0.015, 0.18, 6, plastic("#e8f2ff")), 0, 0.02, 0))
-  const fry = box(0.04, 0.24, 0.04, plastic("#ffcf3f"))
-  fry.position.set(0.02, 0.26, 0)
-  fry.rotation.z = 0.3
-  glass.add(fry)
-  glass.position.set(0, -0.62, 0.12)
-  rig.armR?.add(glass)
-  if (rig.armR) rig.armR.rotation.x = -1.1
-  rig.prop = glass
-  return rig
-}
-
 export function makeGerald(seg: number): Rig {
   const root = new THREE.Group()
   const body = new THREE.Group()
@@ -981,8 +703,243 @@ export function makeGerald(seg: number): Rig {
   return { root, body, head: crown }
 }
 
-export function makeCharacter(id: CharacterId, seg: number): Rig {
+
+function badgeTexture(name: string): THREE.CanvasTexture {
+  const c = document.createElement("canvas")
+  c.width = 128
+  c.height = 72
+  const ctx = c.getContext("2d")
+  if (ctx) {
+    ctx.fillStyle = "#ffffff"
+    ctx.fillRect(0, 0, 128, 72)
+    ctx.fillStyle = "#d8352a"
+    ctx.fillRect(0, 0, 128, 24)
+    ctx.fillStyle = "#ffffff"
+    ctx.font = "bold 11px sans-serif"
+    ctx.textAlign = "center"
+    ctx.textBaseline = "middle"
+    ctx.fillText("HELLO MY NAME IS", 64, 12)
+    ctx.fillStyle = "#1a1a1f"
+    let size = 30
+    ctx.font = `bold ${size}px sans-serif`
+    while (size > 10 && ctx.measureText(name).width > 116) {
+      size -= 1
+      ctx.font = `bold ${size}px sans-serif`
+    }
+    ctx.fillText(name, 64, 48)
+  }
+  const t = new THREE.CanvasTexture(c)
+  t.colorSpace = THREE.SRGBColorSpace
+  return t
+}
+
+/**
+ * The player: a visitor in town with a bomber jacket, a backpack, a lanyard with
+ * a "hello my name is" badge, and a phone to ping with. Not a superhero. Just
+ * someone with a company and a problem.
+ */
+export function makeHero(seg: number, name = "YOU"): Rig {
+  const rig = makePerson(seg, {
+    skin: "#d9a579",
+    hair: "#3b2a1e",
+    hairStyle: "short",
+    top: "#2fa58a",
+    bottom: "#2c3140",
+    shoes: "#f2f2ee",
+    coat: "#e0792b",
+    brows: "determined",
+    smile: true,
+  })
+  const cord = plastic("#1f2f55", 30)
+  for (const side of [-1, 1]) {
+    const strap = box(0.03, 0.46, 0.03, cord)
+    at(strap, side * 0.11, 1.44, 0.38)
+    strap.rotation.z = side * 0.2
+    rig.body.add(strap)
+  }
+  const white = plastic("#ffffff", 40)
+  const badge = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.2, 0.03), [
+    white,
+    white,
+    white,
+    white,
+    new THREE.MeshBasicMaterial({ map: badgeTexture(name) }),
+    white,
+  ])
+  at(badge, 0, 1.18, 0.4)
+  badge.name = "badge"
+  rig.body.add(badge)
+  const pack = box(0.5, 0.56, 0.24, plastic("#3b4252", 20))
+  at(pack, 0, 1.22, -0.42)
+  rig.body.add(pack)
+  const phone = new THREE.Group()
+  phone.add(box(0.14, 0.26, 0.04, plastic("#18181c", 90)))
+  const screen = box(0.11, 0.2, 0.01, new THREE.MeshBasicMaterial({ color: "#7dffa0" }))
+  screen.position.z = 0.025
+  phone.add(screen)
+  phone.position.set(0, -0.6, 0.14)
+  phone.rotation.x = -0.4
+  rig.armR?.add(phone)
+  rig.prop = phone
+  return rig
+}
+
+/** Reprints the hero's badge once the player has typed a name. */
+export function setHeroName(rig: Rig, name: string) {
+  const badge = rig.root.getObjectByName("badge") as THREE.Mesh | undefined
+  if (!badge || !Array.isArray(badge.material)) return
+  const front = badge.material[4] as THREE.MeshBasicMaterial | undefined
+  if (!front) return
+  front.map?.dispose()
+  front.map = badgeTexture(name)
+  front.needsUpdate = true
+}
+
+/** Ranger Deb: campaign hat, khaki shirt, a star, and one fry in an evidence bag. */
+export function makeRanger(seg: number): Rig {
+  const rig = makePerson(seg, {
+    skin: "#c98a66",
+    hair: "#2a1a12",
+    hairStyle: "short",
+    top: "#c9b27c",
+    bottom: "#5a6b3a",
+    shoes: "#4a2e1a",
+    brows: "friendly",
+    smile: false,
+  })
+  if (rig.head) {
+    const hatMat = plastic("#6b4a2b", 20)
+    const brim = cyl(0.74, 0.74, 0.05, seg, hatMat)
+    at(brim, 0, 0.3, 0)
+    rig.head.add(brim)
+    const crown = new THREE.Mesh(new THREE.SphereGeometry(0.42, seg, seg, 0, Math.PI * 2, 0, Math.PI * 0.5), hatMat)
+    at(crown, 0, 0.3, 0)
+    rig.head.add(crown)
+    const band = cyl(0.43, 0.43, 0.07, seg, plastic("#2a1a12", 20))
+    at(band, 0, 0.35, 0)
+    rig.head.add(band)
+  }
+  const star = new THREE.Mesh(new THREE.CircleGeometry(0.09, 5), plastic("#ffd23b", 120))
+  at(star, -0.18, 1.42, 0.35)
+  rig.body.add(star)
+  const bag = new THREE.Group()
+  const sack = box(0.28, 0.36, 0.1, new THREE.MeshPhongMaterial({ color: "#e8f2ff", transparent: true, opacity: 0.45, shininess: 90 }))
+  bag.add(sack)
+  const seal = box(0.29, 0.05, 0.11, plastic("#d8352a", 40))
+  seal.position.y = 0.17
+  bag.add(seal)
+  const fry = makeFry()
+  fry.scale.setScalar(0.5)
+  fry.position.y = -0.1
+  bag.add(fry)
+  bag.position.set(0, -0.62, 0.12)
+  rig.armR?.add(bag)
+  if (rig.armR) rig.armR.rotation.x = -0.8
+  rig.prop = bag
+  return rig
+}
+
+/**
+ * A wild turkey, running toward -x. Parts are named so the fight can animate
+ * them: legL, legR, wingL, wingR, head, tail, and the fry a fed one eats.
+ */
+export function makeTurkey(seg: number): THREE.Group {
+  const t = new THREE.Group()
+  t.add(blobShadow(1.0))
+  const dark = plastic("#4a3320", 18)
+  const bronze = plastic("#6e4a2a", 40)
+  const tip = plastic("#d9b27a", 20)
+  const body = sphere(0.62, seg, dark)
+  body.scale.set(1.25, 1, 0.95)
+  body.position.y = 0.95
+  t.add(body)
+  const breast = sphere(0.42, seg, bronze)
+  breast.scale.set(1, 0.9, 0.9)
+  breast.position.set(-0.45, 0.8, 0)
+  t.add(breast)
+
+  // The fan is turned to face the side camera, so it reads as a fan instead of a stick.
+  const tail = new THREE.Group()
+  for (let i = -3; i <= 3; i += 1) {
+    const feather = new THREE.Group()
+    const quill = box(0.22, 1.0, 0.05, dark)
+    quill.position.y = 0.5
+    feather.add(quill)
+    const end = box(0.23, 0.16, 0.055, tip)
+    end.position.y = 0.95
+    feather.add(end)
+    feather.rotation.z = i * 0.3
+    feather.position.z = i * 0.012
+    tail.add(feather)
+  }
+  tail.position.set(0.5, 0.9, 0)
+  tail.rotation.z = -0.55
+  tail.name = "tail"
+  t.add(tail)
+
+  for (const side of [-1, 1]) {
+    const wing = box(0.8, 0.08, 0.5, bronze)
+    wing.geometry.translate(0, 0, side * 0.25)
+    wing.position.set(0, 1.05, side * 0.5)
+    wing.name = side < 0 ? "wingL" : "wingR"
+    t.add(wing)
+  }
+
+  const head = new THREE.Group()
+  const red = plastic("#c04a5a", 30)
+  const neck = capsule(0.09, 0.45, seg, red)
+  neck.rotation.z = 0.5
+  neck.position.set(-0.14, 0.26, 0)
+  head.add(neck)
+  const skull = sphere(0.17, seg, plastic("#7f8fc9", 30))
+  skull.position.set(-0.32, 0.5, 0)
+  head.add(skull)
+  const beak = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.18, 6), plastic("#f0b04a", 30))
+  beak.rotation.z = Math.PI / 2
+  beak.position.set(-0.52, 0.48, 0)
+  head.add(beak)
+  const wattle = sphere(0.07, 8, red)
+  wattle.scale.set(0.8, 1.4, 0.8)
+  wattle.position.set(-0.4, 0.34, 0)
+  head.add(wattle)
+  const snood = capsule(0.025, 0.12, 6, red)
+  snood.position.set(-0.5, 0.42, 0)
+  head.add(snood)
+  for (const z of [-0.1, 0.1]) head.add(at(sphere(0.035, 6, plastic("#111", 120)), -0.42, 0.55, z))
+  head.position.set(-0.6, 1.2, 0)
+  head.name = "head"
+  t.add(head)
+
+  const legMat = plastic("#d98a4a", 20)
+  const foot = () => {
+    const f = box(0.26, 0.04, 0.16, legMat)
+    f.position.x = -0.06
+    return f
+  }
+  const legL = limb(0.05, 0.42, seg, legMat, foot())
+  const legR = limb(0.05, 0.42, seg, legMat, foot())
+  at(legL, -0.15, 0.52, -0.2)
+  at(legR, -0.15, 0.52, 0.2)
+  legL.name = "legL"
+  legR.name = "legR"
+  t.add(legL, legR)
+
+  const treat = makeFry()
+  treat.scale.setScalar(0.6)
+  treat.position.set(-1.25, 1.1, 0)
+  treat.rotation.z = 0.3
+  treat.name = "treat"
+  treat.visible = false
+  t.add(treat)
+
+  t.scale.setScalar(1.1)
+  return t
+}
+
+export function makeCharacter(id: CharacterId, seg: number, opts: CharacterOpts = {}): Rig {
   switch (id) {
+    case "you":
+      return makeHero(seg, opts.name)
     case "nate":
       return makeNate(seg)
     case "doctor":
@@ -991,14 +948,10 @@ export function makeCharacter(id: CharacterId, seg: number): Rig {
       return makeVest(seg)
     case "guide":
       return makeGuide(seg)
-    case "hedgehawkins":
-      return makeHedgeHawkins(seg)
-    case "barber":
-      return makeBarber(seg)
     case "engineer":
       return makeEngineer(seg)
-    case "sommelier":
-      return makeSommelier(seg)
+    case "ranger":
+      return makeRanger(seg)
     case "gerald":
       return makeGerald(seg)
   }

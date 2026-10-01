@@ -7,8 +7,11 @@ import {
   bossIntro,
   calendly,
   declines,
+  defaultName,
   emoteAlone,
   emoteLines,
+  fightLines,
+  fill,
   gateLine,
   intro,
   itemOrder,
@@ -16,8 +19,10 @@ import {
   knocks,
   missed,
   moggedLine,
+  nameMax,
   npcs,
-  phone,
+  townName,
+  townPop,
   winLine,
   type ItemId,
 } from "@/lib/town/npcs"
@@ -32,15 +37,14 @@ import { renderPortraits } from "@/components/town/portraits"
 import { SiteBrowser } from "@/components/town/site-browser"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-type Screen = "title" | "story" | "town" | "dialog" | "site" | "bossIntro" | "boss" | "won" | "direct" | "end"
+type Screen = "title" | "name" | "story" | "town" | "dialog" | "site" | "bossIntro" | "boss" | "won" | "direct" | "end"
 
 const npcPortrait: Partial<Record<NpcId, CharacterId>> = {
   guide: "guide",
   doctor: "doctor",
   vest: "vest",
-  barber: "barber",
   engineer: "engineer",
-  sommelier: "sommelier",
+  ranger: "ranger",
   gerald: "gerald",
 }
 
@@ -58,6 +62,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
   const blips = useMemo(() => new Blips(), [])
 
   const [screen, setScreen] = useState<Screen>("title")
+  const [name, setName] = useState(defaultName)
   const [portraits, setPortraits] = useState<Partial<Record<CharacterId, string>>>({})
   const [got, setGot] = useState<ItemId[]>([])
   const [claimed, setClaimed] = useState<NpcId[]>([])
@@ -82,6 +87,8 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
 
   const screenRef = useRef(screen)
   screenRef.current = screen
+  const nameRef = useRef(name)
+  nameRef.current = name
   const quipTimer = useRef(0)
   const toastTimer = useRef(0)
   const quipTurn = useRef(0)
@@ -92,6 +99,9 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
   const fedAnnounced = useRef(false)
   const knockCount = useRef(0)
   const friesRef = useRef(0)
+
+  /** Drops the player's name into a line. */
+  const L = useCallback((line: string) => fill(line, nameRef.current), [])
 
   const say = useCallback((line: string, ms = 1500) => {
     setQuip(line)
@@ -106,12 +116,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
   }, [])
 
   useEffect(() => {
-    setPortraits(
-      renderPortraits(
-        ["nate", "doctor", "vest", "guide", "hedgehawkins", "barber", "engineer", "sommelier", "gerald"],
-        defaultLook.segments,
-      ),
-    )
+    setPortraits(renderPortraits(["you", "nate", "doctor", "vest", "guide", "engineer", "ranger", "gerald"], defaultLook.segments, 256, defaultName))
   }, [])
 
   useEffect(() => {
@@ -129,24 +134,24 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
           if (e.type === "declined") {
             const line = declines[quipTurn.current % declines.length] ?? "Declined."
             quipTurn.current += 1
-            say(line)
+            say(L(line))
           } else if (e.type === "landed" && e.patience % 12 === 0) {
             say(missed[Math.floor(e.patience / 12) % missed.length] ?? "Missed call.", 1000)
           } else if (e.type === "phase" && e.phase === 1) {
-            say("Two dogs. Both have five stars.", 1800)
+            say(fightLines.phase1, 1800)
           } else if (e.type === "phase" && e.phase === 2) {
-            say("UBER POOL.", 1600)
-          } else if (e.type === "uberAir" && !airAnnounced.current) {
+            say(fightLines.phase2, 2000)
+          } else if (e.type === "turkeyAir" && !airAnnounced.current) {
             airAnnounced.current = true
-            say("Uber Air. Yes, the dogs can fly now.", 1800)
+            say(fightLines.air, 1800)
           } else if (e.type === "pound" && e.squashed > 0 && !poundAnnounced.current) {
             poundAnnounced.current = true
-            say("Dog fine. Uber totaled.", 1500)
+            say(fightLines.pound, 1500)
           } else if (e.type === "fed" && !fedAnnounced.current) {
             fedAnnounced.current = true
-            say("Fed him a fry. He's off track. Five stars.", 1800)
+            say(fightLines.fed, 1800)
           } else if (e.type === "respawn") {
-            say("Battery dead. Plug in and try again. I'll wait. I won't.", 2000)
+            say(fightLines.respawn, 2000)
           } else if (e.type === "won") {
             analytics.capture("boss_patience_depleted", {
               calls_placed: s.placed,
@@ -154,7 +159,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
               hits_taken: s.hitsTaken,
               seconds: Math.round(s.t),
             })
-            say(friesRef.current >= FRY_TOTAL ? allFriesWin : winLine, 2600)
+            say(friesRef.current >= FRY_TOTAL ? allFriesWin : L(winLine), 2600)
             setBig("GAME!")
             window.setTimeout(() => setBig(null), 1500)
             setScreen("won")
@@ -173,7 +178,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
         onWinShot: () => {
           setStamp(true)
           blips.playClip(music.congrats, 0.65)
-          analytics.capture("hopped_on_a_quick_call", { with: "hedgehawkins" })
+          analytics.capture("hopped_on_a_quick_call", { with: "supernate" })
           window.setTimeout(() => {
             setStamp(false)
             setScreen("end")
@@ -191,7 +196,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
       gameRef.current = null
       blips.stopMusic(0.1)
     }
-  }, [blips, say])
+  }, [blips, say, L])
 
   useEffect(() => {
     const game = gameRef.current
@@ -218,9 +223,19 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
   const start = useCallback(() => {
     blips.unlock()
     blips.select()
+    setScreen("name")
+  }, [blips])
+
+  /** The name screen is done. Print it on the badge, the pings, and the portrait, then roll the story. */
+  const confirmName = useCallback((n: string) => {
+    setName(n)
+    nameRef.current = n
+    gameRef.current?.setPlayerName(n)
+    setPortraits((prev) => ({ ...prev, ...renderPortraits(["you"], defaultLook.segments, 256, n) }))
+    analytics.capture("name_entered", { letters: n.length, kept_default: n === defaultName })
     setStoryPage(0)
     setScreen("story")
-  }, [blips])
+  }, [])
 
   const land = useCallback(() => {
     blips.gate()
@@ -273,23 +288,25 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
     const portrait = face ? portraits[face] : undefined
     const base = { speaker: npc.name, title: npc.title, portrait, real: npc.real }
     const seeSite = { id: "site", label: npc.id === "guide" ? "See CappaWork" : "See the site" }
+    const pages = npc.pages.map(L)
+    const ask = L(npc.ask)
     let next: Script
     if (npc.id === "ship") {
-      next = { ...base, pages: [...npc.pages, npc.ask], choices: [{ id: "1987", label: npc.take }, { id: "bye", label: "Leave it" }] }
+      next = { ...base, pages: [...pages, ask], choices: [{ id: "1987", label: npc.take }, { id: "bye", label: "Leave it" }] }
     } else if (npc.id === "cya") {
       next = claimed.includes("cya")
-        ? { ...base, pages: [npc.after], choices: [{ id: "bye", label: "Walk tall" }] }
-        : { ...base, pages: [...npc.pages, npc.ask], choices: [{ id: "knock", label: npc.take }, { id: "bye", label: "Leave" }] }
+        ? { ...base, pages: [L(npc.after)], choices: [{ id: "bye", label: "Walk tall" }] }
+        : { ...base, pages: [...pages, ask], choices: [{ id: "knock", label: npc.take }, { id: "bye", label: "Leave" }] }
     } else if (npc.item) {
       next = got.includes(npc.item)
-        ? { ...base, pages: [npc.after], choices: [seeSite, { id: "bye", label: "Bye" }] }
-        : { ...base, pages: [...npc.pages, npc.ask], choices: [{ id: "take", label: npc.take }, seeSite, { id: "bye", label: "Later" }] }
+        ? { ...base, pages: [L(npc.after)], choices: [seeSite, { id: "bye", label: "Bye" }] }
+        : { ...base, pages: [...pages, ask], choices: [{ id: "take", label: npc.take }, seeSite, { id: "bye", label: "Later" }] }
     } else if (claimed.includes(npc.id)) {
-      next = { ...base, pages: [npc.after], choices: [{ id: "bye", label: "Bye" }] }
+      next = { ...base, pages: [L(npc.after)], choices: [{ id: "bye", label: "Bye" }] }
     } else {
       next = {
         ...base,
-        pages: [...npc.pages, npc.ask],
+        pages: [...pages, ask],
         choices: [{ id: npc.reward === "fry" ? "fry" : "egg", label: npc.take }, { id: "bye", label: "Later" }],
       }
     }
@@ -324,7 +341,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
       })
       flash(`GOT: ${item.name.toUpperCase()}`, 1800)
       setScript((prev) =>
-        prev ? { ...prev, pages: [npc.yes], choices: [{ id: "bye", label: next.length === 3 ? "To the mansion" : "Nice" }] } : prev,
+        prev ? { ...prev, pages: [L(npc.yes)], choices: [{ id: "bye", label: next.length === 3 ? "To the trail" : "Nice" }] } : prev,
       )
       return
     }
@@ -332,13 +349,13 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
       setClaimed((prev) => [...prev, npc.id])
       gameRef.current?.grantFry()
       analytics.capture("easter_egg_found", { egg: `${npc.id}_fry` })
-      setScript((prev) => (prev ? { ...prev, pages: [npc.yes], choices: [{ id: "bye", label: "Nice" }] } : prev))
+      setScript((prev) => (prev ? { ...prev, pages: [L(npc.yes)], choices: [{ id: "bye", label: "Nice" }] } : prev))
       return
     }
     if (id === "egg") {
       setClaimed((prev) => [...prev, npc.id])
       analytics.capture("easter_egg_found", { egg: npc.id })
-      setScript((prev) => (prev ? { ...prev, pages: [npc.yes], choices: [{ id: "bye", label: "…OK" }] } : prev))
+      setScript((prev) => (prev ? { ...prev, pages: [L(npc.yes)], choices: [{ id: "bye", label: "…OK" }] } : prev))
       return
     }
     if (id === "knock") {
@@ -352,7 +369,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
         gameRef.current?.setMogged(true)
         analytics.capture("easter_egg_found", { egg: "heightmogged" })
         setScript((prev) =>
-          prev ? { ...prev, pages: [line, moggedLine], choices: [{ id: "mogwin", label: "Take the direct intro" }] } : prev,
+          prev ? { ...prev, pages: [line, L(moggedLine)], choices: [{ id: "mogwin", label: "Take the direct intro" }] } : prev,
         )
       } else {
         setScript((prev) =>
@@ -362,8 +379,8 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
       return
     }
     if (id === "mogwin") {
-      // Heightmogged: investors wave you through, Hawkins takes the direct intro. Skips the fight.
-      analytics.capture("hopped_on_a_quick_call", { with: "hawkins", via: "heightmog_direct_intro" })
+      // Heightmogged: investors wave you through, Nate takes the direct intro. Skips the fight.
+      analytics.capture("hopped_on_a_quick_call", { with: "supernate", via: "heightmog_direct_intro" })
       setTalking(null)
       setScript(null)
       blips.win()
@@ -431,12 +448,12 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
 
   const objective =
     got.length === 0
-      ? "Hawkins won't take a cold call. The PostHog door wants: meds, a call time, an agent."
+      ? "SuperNate won't take a cold call. The trail gate wants: meds, a call time, an agent."
       : got.length < 3
-        ? `Unlock the PostHog door. ${got.length} of 3.`
-        : "The door's open. Go land your quick call with Hawkins."
+        ? `Unlock the trail gate. ${got.length} of 3.`
+        : "The gate's open. Go land your quick call with SuperNate."
   const objectiveShort =
-    got.length === 0 ? "Get 3 things for the door" : got.length < 3 ? `Door items: ${got.length} of 3` : "Door's open. Go in."
+    got.length === 0 ? "Get 3 things for the gate" : got.length < 3 ? `Gate items: ${got.length} of 3` : "Gate's open. Go in."
 
   const pad = (action: Parameters<TownGame["setVirtual"]>[0]) => ({
     onPointerDown: (e: React.PointerEvent) => {
@@ -452,6 +469,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
   const inTown = screen === "town" || screen === "dialog"
   const inBoss = screen === "boss" || screen === "won"
   const patienceColor = hud.patience > 60 ? "#ffffff" : hud.patience > 25 ? "#ffd23b" : "#ff4a3a"
+  const upperName = name.toUpperCase()
 
   return (
     <div className="min-h-screen bg-[#120d18] text-white">
@@ -460,17 +478,17 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
           <canvas
             ref={canvasRef}
             className="n64-canvas block aspect-[4/3] w-full"
-            aria-label="SuperNate 64. Walk the town, talk to people, then land a quick call with Hawkins, CEO of PostHog."
+            aria-label="SuperNate 64. Walk the town of Missed Call, talk to people, then get SuperNate to pick up a quick call at his cabin in the woods."
           />
 
           {inTown && (
             <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-2 sm:p-3">
               <div className="party-panel flex items-center gap-2 px-2 py-1.5 sm:gap-3 sm:px-3">
                 <div className="h-9 w-9 overflow-hidden rounded-full border-2 border-white bg-[#ffd23b] sm:h-12 sm:w-12">
-                  {portraits.nate && <img src={portraits.nate} alt="" className="h-full w-full object-cover" />}
+                  {portraits.you && <img src={portraits.you} alt="" className="h-full w-full object-cover" />}
                 </div>
                 <div>
-                  <p className="party-type text-[11px] leading-none sm:text-sm">QUICK CALL KIT</p>
+                  <p className="party-type text-[11px] leading-none sm:text-sm">{upperName}&apos;S CALL KIT</p>
                   <div className="mt-1 flex gap-1">
                     {itemOrder.map((id) => (
                       <ItemIcon key={id} id={id} lit={got.includes(id)} />
@@ -517,14 +535,14 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
             <>
               <div className="pointer-events-none absolute inset-x-0 top-2 px-2 text-center font-mono text-[10px] text-white/75 sm:text-xs">
                 {touch
-                  ? "◀ ▶ move · A jump · ▼ in the air pounds the dog-Ubers · B ping · 10 pings land the call"
-                  : "← → move · SPACE jump · ↓ or SHIFT in the air ground-pounds the dog-Ubers · J or click to ping · 10 pings land the call"}
+                  ? "◀ ▶ move · A jump · ▼ in the air pounds the turkeys · B ping · 10 pings land the call"
+                  : "← → move · SPACE jump · ↓ or SHIFT in the air ground-pounds the turkeys · J or click to ping · 10 pings land the call"}
               </div>
               <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between p-3 sm:p-4">
                 <div className="flex items-end gap-2">
-                  <HudPortrait src={portraits.nate} color="#d8352a" />
+                  <HudPortrait src={portraits.you} color="#e0792b" />
                   <div>
-                    <p className="smash-type text-xs sm:text-sm">SUPERNATE</p>
+                    <p className="smash-type text-xs sm:text-sm">{upperName}</p>
                     <div className="flex gap-1">
                       {[0, 1, 2].map((i) => (
                         <PhoneIcon key={i} lit={i < hud.batteries} small />
@@ -534,13 +552,13 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
                 </div>
                 <div className="flex items-end gap-2 text-right">
                   <div>
-                    <p className="smash-type text-xs sm:text-sm">HEDGEHAWKINS</p>
+                    <p className="smash-type text-xs sm:text-sm">SUPERNATE</p>
                     <p className="smash-type text-3xl leading-none sm:text-5xl" style={{ color: patienceColor }}>
                       {hud.patience}%
                     </p>
                     <p className="font-mono text-[10px] tracking-[0.2em] text-white/80">PATIENCE</p>
                   </div>
-                  <HudPortrait src={portraits.hedgehawkins} color="#3553c9" />
+                  <HudPortrait src={portraits.nate} color="#d8352a" />
                 </div>
               </div>
               {hud.declining && screen === "boss" && (
@@ -569,10 +587,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
 
           {big && (
             <div className="pointer-events-none absolute inset-0 grid place-items-center">
-              <p
-                key={big}
-                className="smash-type animate-in zoom-in-50 text-7xl duration-200 sm:text-9xl"
-              >
+              <p key={big} className="smash-type animate-in zoom-in-50 text-7xl duration-200 sm:text-9xl">
                 {big}
               </p>
             </div>
@@ -588,12 +603,14 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
 
           {screen === "title" && <TitleCard portraits={portraits} onStart={start} />}
 
+          {screen === "name" && <NameCard blips={blips} onDone={confirmName} />}
+
           {screen === "story" && (
             <div className="absolute inset-0 grid place-items-center bg-[#2a3f8a]/60 p-4">
               <div className="w-full max-w-xl rounded-2xl border-4 border-[#c9a26b] bg-[#fbf1d6] p-4 text-[#3a2a14] shadow-[0_8px_0_#1a2a5a] sm:p-6">
-                <p className="party-type text-sm sm:text-lg">MEANWHILE, ON HOGPATCH…</p>
+                <p className="party-type text-sm sm:text-lg">MEANWHILE, IN {townName}…</p>
                 <p className="mt-2 min-h-[4.5em] text-sm leading-snug sm:text-lg" aria-live="polite">
-                  {intro[storyPage]}
+                  {L(intro[storyPage] ?? "")}
                 </p>
                 <div className="mt-3 flex items-center justify-between">
                   <div className="flex gap-1">
@@ -616,8 +633,8 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
 
           {banner && (
             <div className="pointer-events-none absolute inset-x-0 top-[30%] text-center">
-              <p className="party-type animate-in fade-in zoom-in-75 text-5xl duration-300 sm:text-8xl">HOGPATCH</p>
-              <p className="party-type mt-1 text-sm text-[#ffd23b] sm:text-xl">POP. MOSTLY HEDGEHOGS</p>
+              <p className="party-type animate-in fade-in zoom-in-75 text-5xl duration-300 sm:text-8xl">{townName}</p>
+              <p className="party-type mt-1 text-sm text-[#ffd23b] sm:text-xl">{townPop}</p>
             </div>
           )}
 
@@ -625,21 +642,21 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
             <div className="smash-backdrop absolute inset-0 grid place-items-center p-4 text-center">
               <div>
                 <div className="flex items-center justify-center gap-3 sm:gap-8">
-                  <VsCard src={portraits.nate} name="SUPERNATE" role="APPLICANT" color="#d8352a" />
+                  <VsCard src={portraits.you} name={upperName} role="CALLER" color="#e0792b" />
                   <span className="smash-type text-4xl text-[#ffcc33] sm:text-7xl">VS</span>
-                  <VsCard src={portraits.hedgehawkins} name="HEDGEHAWKINS" role="CEO, POSTHOG" color="#3553c9" />
+                  <VsCard src={portraits.nate} name="SUPERNATE" role="RECLUSE · THE WOODS" color="#d8352a" />
                 </div>
                 <div className="mx-auto mt-2 max-w-lg space-y-1 text-xs sm:mt-4 sm:text-lg">
                   {bossIntro.map((line) => (
-                    <p key={line}>{line}</p>
+                    <p key={line}>{L(line)}</p>
                   ))}
                 </div>
                 <p className="mt-2 hidden font-mono text-xs text-white/70 sm:block">
-                  Drain his patience. Jump the dogs. He only picks up when he&apos;s out of patience.
+                  Drain his patience. Jump the turkeys. Three hits and his patience is back to full, so dodge.
                 </p>
                 {fries >= FRY_TOTAL && (
                   <p className="mt-1 font-mono text-xs text-[#ffd23b]">
-                    You brought all {FRY_TOTAL} fries. The dogs can smell them.
+                    You brought all {FRY_TOTAL} fries. The turkeys can smell them.
                   </p>
                 )}
                 <button
@@ -654,7 +671,7 @@ export function NateTown({ onEnter1987 }: { onEnter1987: () => void }) {
           )}
 
           {screen === "end" && (
-            <EndCard portraits={portraits} onOpen={(s) => openSite(s, "end")} onAgain={restart} onEnter1987={onEnter1987} />
+            <EndCard name={name} portraits={portraits} onOpen={(s) => openSite(s, "end")} onAgain={restart} onEnter1987={onEnter1987} />
           )}
         </div>
 
@@ -788,7 +805,7 @@ function PadButton({
 }
 
 function TitleCard({ portraits, onStart }: { portraits: Partial<Record<CharacterId, string>>; onStart: () => void }) {
-  const cast: CharacterId[] = ["doctor", "barber", "nate", "vest", "guide"]
+  const cast: CharacterId[] = ["doctor", "you", "nate", "vest", "guide"]
   return (
     <div className="smash-backdrop absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
       <p className="hidden font-mono text-[11px] tracking-[0.35em] text-[#ffcc33] sm:block">A NATE PINCHES PRODUCTION</p>
@@ -807,8 +824,7 @@ function TitleCard({ portraits, onStart }: { portraits: Partial<Record<Character
         ))}
       </div>
       <p className="mt-4 hidden max-w-md text-sm text-white/85 sm:block sm:text-base">
-        SuperNate crash-landed outside PostHog HQ. His dream job is inside, and Hawkins won&apos;t take a cold call. Make him
-        pick up.
+        SuperNate lives in a cabin past the tree line and will not take a cold call. You need one. Make him pick up.
       </p>
       <button
         type="button"
@@ -818,6 +834,109 @@ function TitleCard({ portraits, onStart }: { portraits: Partial<Record<Character
         PRESS START
       </button>
       <p className="mt-1 font-mono text-[10px] text-white/60 sm:mt-2 sm:text-[11px]">About two minutes · sound on</p>
+    </div>
+  )
+}
+
+/** The old RPG name screen: type a name, then "Is that right?" with YES and NO. */
+function NameCard({ blips, onDone }: { blips: Blips; onDone: (name: string) => void }) {
+  const [draft, setDraft] = useState("")
+  const [step, setStep] = useState<"type" | "confirm">("type")
+  const [sel, setSel] = useState(0)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const clean = draft.replace(/[^A-Za-z0-9 '.-]/g, "").toUpperCase().slice(0, nameMax)
+  const name = clean.trim() || defaultName
+  const stateRef = useRef({ step, sel, name })
+  stateRef.current = { step, sel, name }
+
+  useEffect(() => {
+    if (step === "type") inputRef.current?.focus()
+  }, [step])
+
+  const toConfirm = () => {
+    blips.select()
+    setSel(0)
+    setStep("confirm")
+  }
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const s = stateRef.current
+      if (s.step !== "confirm") return
+      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "KeyA", "KeyD", "KeyW", "KeyS"].includes(e.code)) {
+        e.preventDefault()
+        setSel((v) => 1 - v)
+        blips.text()
+      } else if (["Enter", "Space", "KeyE"].includes(e.code)) {
+        e.preventDefault()
+        if (e.repeat) return
+        blips.select()
+        if (s.sel === 0) onDone(s.name)
+        else setStep("type")
+      }
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [blips, onDone])
+
+  return (
+    <div className="absolute inset-0 grid place-items-center bg-[#2a3f8a]/60 p-4">
+      <div className="w-full max-w-xl rounded-2xl border-4 border-[#c9a26b] bg-[#fbf1d6] p-4 text-[#3a2a14] shadow-[0_8px_0_#1a2a5a] sm:p-6">
+        {step === "type" ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              toConfirm()
+            }}
+          >
+            <p className="party-type text-sm sm:text-lg">WHAT&apos;S YOUR NAME?</p>
+            <input
+              ref={inputRef}
+              value={clean}
+              onChange={(e) => setDraft(e.target.value)}
+              maxLength={nameMax}
+              autoComplete="off"
+              autoCapitalize="characters"
+              spellCheck={false}
+              placeholder={defaultName}
+              aria-label="Your name"
+              className="mt-3 w-full rounded-lg border-[3px] border-[#c9a26b] bg-white px-3 py-2 font-mono text-2xl uppercase tracking-[0.3em] text-[#1a0f08] outline-none placeholder:text-[#1a0f08]/30 focus:border-[#e2372e] sm:text-4xl"
+            />
+            <div className="mt-3 flex items-center justify-between">
+              <p className="font-mono text-[11px] text-[#3a2a14]/70">{nameMax} letters. Like a cartridge save.</p>
+              <button type="submit" className="party-type party-panel px-4 py-1 text-sm sm:text-base">
+                OK ▶
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div>
+            <p className="party-type text-sm sm:text-lg">SO YOUR NAME IS…</p>
+            <p className="mt-2 font-mono text-3xl tracking-[0.2em] text-[#e2372e] sm:text-5xl">{name}</p>
+            <p className="mt-2 text-sm sm:text-lg">Is that right?</p>
+            <div className="mt-3 flex gap-2">
+              {["YES", "NO"].map((label, i) => (
+                <button
+                  key={label}
+                  type="button"
+                  onMouseEnter={() => setSel(i)}
+                  onClick={() => {
+                    blips.select()
+                    if (i === 0) onDone(name)
+                    else setStep("type")
+                  }}
+                  className={`smash-type rounded-md border-2 px-4 py-1 text-base sm:text-lg ${
+                    sel === i ? "border-[#ffe066] bg-[#d8352a]" : "border-[#1a0f08]/20 bg-[#1a0f08]/10"
+                  }`}
+                >
+                  {sel === i ? "▶ " : ""}
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -870,11 +989,13 @@ function FryIcon() {
 }
 
 function EndCard({
+  name,
   portraits,
   onOpen,
   onAgain,
   onEnter1987,
 }: {
+  name: string
   portraits: Partial<Record<CharacterId, string>>
   onOpen: (s: Site) => void
   onAgain: () => void
@@ -884,43 +1005,45 @@ function EndCard({
     <div className="smash-backdrop absolute inset-0 overflow-y-auto p-3 sm:p-6">
       <div className="mx-auto max-w-2xl">
         <div className="flex items-center gap-3">
-          <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border-[3px] border-[#1a0f08] bg-[#3553c9] sm:h-20 sm:w-20">
-            {portraits.hedgehawkins && <img src={portraits.hedgehawkins} alt="" className="h-full w-full object-cover" />}
+          <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border-[3px] border-[#1a0f08] bg-[#d8352a] sm:h-20 sm:w-20">
+            {portraits.nate && <img src={portraits.nate} alt="" className="h-full w-full object-cover" />}
           </div>
           <div>
-            <p className="font-mono text-[11px] tracking-[0.3em] text-[#ffcc33]">HEDGEHAWKINS, CEO OF POSTHOG, SAYS</p>
+            <p className="font-mono text-[11px] tracking-[0.3em] text-[#ffcc33]">SUPERNATE, FROM THE PORCH, SAYS</p>
             <h2 className="smash-type text-3xl sm:text-5xl">&ldquo;FINE. QUICK CALL.&rdquo;</h2>
-            <p className="mt-1 text-sm text-white/85 sm:text-base">SuperNate got the quick call. Now it&apos;s your turn.</p>
+            <p className="mt-1 text-sm text-white/85 sm:text-base">
+              {name.toUpperCase()} got the quick call. That was the game. This is the real one.
+            </p>
           </div>
         </div>
 
         <div className="mt-4 rounded-2xl border-4 border-[#1a0f08] bg-[#fbf1d6] p-4 text-[#1a0f08] shadow-[0_6px_0_#1a0f08] sm:p-5">
-          <p className="font-mono text-[11px] tracking-[0.25em] text-[#8f1d14]">YOUR QUICK CALL WITH NATE</p>
-          <a
-            href={phone.href}
-            onClick={() => analytics.capture("phone_clicked", { from: "end_card" })}
-            className="smash-type mt-1 block text-4xl text-[#e2372e] sm:text-6xl"
-          >
-            {phone.display}
-          </a>
+          <p className="font-mono text-[11px] tracking-[0.25em] text-[#8f1d14]">OUT OF CHARACTER FOR A SECOND</p>
+          <p className="smash-type mt-1 text-2xl leading-tight text-[#e2372e] sm:text-4xl">NATE ACTUALLY WANTS THIS CALL.</p>
+          <p className="mt-2 text-sm leading-snug sm:text-base">
+            SuperNate declined you 1,400 times. The real Nate won&apos;t decline once. If your company has Computer Work piling up,
+            he wants to hear about it. No pitch deck, no turkeys, 15 minutes.
+          </p>
           <a
             href={calendly}
             target="_blank"
             rel="noreferrer"
             onClick={() => analytics.capture("calendly_clicked", { from: "end_card" })}
-            className="smash-type mt-3 inline-block rounded-xl bg-[#ffcc33] px-5 py-2 text-xl sm:text-2xl"
+            className="smash-type mt-3 block rounded-xl bg-[#ffcc33] px-5 py-3 text-center text-xl sm:text-3xl"
           >
-            BOOK AN ACTUAL QUICK CALL WITH NATE ▶
+            BOOK THE REAL QUICK CALL ▶
           </a>
-          <p className="mt-2 break-all font-mono text-xs text-[#1a0f08]/70">{calendly.replace("https://", "")}</p>
+          <p className="mt-2 text-center font-mono text-xs text-[#1a0f08]/70">
+            Picks a time on his actual calendar. He picks up. Promise.
+          </p>
         </div>
 
         <p className="mt-3 text-sm text-white/85 sm:text-base">
-          Nate actually wants a job at PostHog. And it&apos;s not to pitch his startup FlyFry, which delivers fries by pigeon.
+          He built the three things the town kept mentioning. The turkeys are not real.
         </p>
 
         <p className="smash-type mt-4 text-lg sm:text-xl">NATE ACTUALLY BUILT THESE</p>
-        <p className="mt-1 text-xs text-white/70">Everything else in HogPatch is a joke. These three are real.</p>
+        <p className="mt-1 text-xs text-white/70">Everything else in Missed Call is a joke. These three are real.</p>
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {siteList.map((s) => (
             <div key={s.id} className="rounded-lg border-2 border-[#1a0f08] bg-black/40 p-2.5">

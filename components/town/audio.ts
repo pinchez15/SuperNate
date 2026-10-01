@@ -134,9 +134,11 @@ export class Blips {
     this.tone(392, 0, 0.08, "square", 0.04)
     this.tone(262, 0.08, 0.12, "square", 0.04)
   }
-  bark() {
-    this.tone(520, 0, 0.05, "sawtooth", 0.05)
-    this.tone(380, 0.05, 0.08, "sawtooth", 0.05)
+  /** A quick three-note warble for every turkey. */
+  gobble() {
+    this.tone(620, 0, 0.04, "sawtooth", 0.045)
+    this.tone(470, 0.04, 0.04, "sawtooth", 0.045)
+    this.tone(560, 0.08, 0.07, "sawtooth", 0.045)
   }
   hurt() {
     this.tone(160, 0, 0.2, "sawtooth", 0.07)

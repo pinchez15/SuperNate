@@ -17,18 +17,10 @@ export const bounds = { minX: -31, maxX: 31, minZ: -12.4, maxZ: 12.6 }
 
 export const spawn: Vec2 = { x: 0, z: 11.2 }
 
+/** The trail gate in the north fence. Past it is the woods, and Nate. */
 export const gate = { x: 0, z: -12.9, halfWidth: 1.6 }
 
-export type NpcId =
-  | "guide"
-  | "doctor"
-  | "vest"
-  | "ship"
-  | "barber"
-  | "gerald"
-  | "engineer"
-  | "cya"
-  | "sommelier"
+export type NpcId = "guide" | "doctor" | "vest" | "ship" | "gerald" | "engineer" | "cya" | "ranger"
 
 export interface Spot extends Vec2 {
   y: number
@@ -40,27 +32,29 @@ export const npcSpots: Record<NpcId, Spot> = {
   doctor: { x: -6.6, z: -0.6, y: 0, facing: 0.7 },
   vest: { x: 2.3, z: -6.8, y: 0, facing: -0.5 },
   ship: { x: -6.4, z: 8.6, y: 0, facing: 0 },
-  barber: { x: -19.5, z: 1.3, y: 0, facing: 0.3 },
   gerald: { x: -27, z: 9.5, y: 4.2, facing: 1.2 },
   engineer: { x: 19.5, z: -5.4, y: 0, facing: -0.2 },
   cya: { x: -24, z: -4.6, y: 0, facing: 0 },
-  sommelier: { x: 20.5, z: 1.8, y: 0, facing: 0.4 },
+  ranger: { x: 20.5, z: 1.8, y: 0, facing: 0.4 },
 }
 
 /** Townspeople with a rigged body. The ship and the academy door are props. */
-export const peopleIds = ["guide", "doctor", "vest", "barber", "gerald", "engineer", "sommelier"] as const
+export const peopleIds = ["guide", "doctor", "vest", "gerald", "engineer", "ranger"] as const
 
-/** Where SuperNate's 1987 starfighter came down. */
+/** Where the player's 1987 starfighter came down. */
 export const crashSite = { x: -8.2, z: 10.4, angle: 0.5 }
 
 export const layout = {
   loft: { x: -27, z: 9.5, w: 3, d: 3, h: 4.2 },
-  barbershop: { x: -19.5, z: -1.3, w: 4.4, d: 2.6, h: 3.2 },
+  diner: { x: -19.5, z: -1.3, w: 4.4, d: 2.6, h: 3.2 },
   waymo: { x: 19.5, z: -7.8, w: 3.8, d: 1.9, h: 1.7 },
   academy: { x: -24, z: -7.6, w: 6, d: 4, h: 3.6 },
-  // The vineyard sits right behind its sign at the east courtyard entrance.
-  vineX: 23,
-  vineRows: [3.6, 5.6, 7.6],
+  // The ranger station: a kiosk, and two log piles you can hop.
+  kiosk: { x: 25, z: 1.2, w: 2.2, d: 2.2, h: 2.6 },
+  logPiles: [
+    { x: 23, z: 4.4, w: 3.4, d: 1.2, h: 0.9 },
+    { x: 23.6, z: 7, w: 3.4, d: 1.2, h: 1.5 },
+  ],
 }
 
 const hedgeH = 1.3
@@ -78,21 +72,22 @@ export const propBoxes: Box[] = [
   { x: -13.8, z: 8.95, w: 1.1, d: 9.1, h: hedgeH },
   { x: 13.8, z: -6.35, w: 1.1, d: 14.3, h: hedgeH },
   { x: 13.8, z: 8.35, w: 1.1, d: 10.3, h: hedgeH },
-  // West: pigeon loft with a crate staircase, the barbershop, Combinator Y Academy.
+  // West: pigeon loft with a crate staircase, the diner, Combinator Y Academy.
   { ...layout.loft },
   { x: -22.7, z: 9.5, w: 1.2, d: 1.2, h: 1.1 },
   { x: -23.9, z: 9.5, w: 1.2, d: 1.2, h: 2.2 },
   { x: -25.1, z: 9.5, w: 1.2, d: 1.2, h: 3.2 },
-  { ...layout.barbershop },
+  { ...layout.diner },
   { ...layout.academy },
-  // East: the Waymo (with a step-up crate for the roof fry) and the vineyard.
+  // East: the Waymo (with a step-up crate for the roof fry) and the ranger station.
   { ...layout.waymo },
   { x: 17, z: -7.8, w: 1.4, d: 1.4, h: 0.85 },
-  ...layout.vineRows.map((z) => ({ x: layout.vineX, z, w: 7, d: 0.6, h: 0.9 })),
+  { ...layout.kiosk },
+  ...layout.logPiles,
 ]
 
 /** Fries you earn from townspeople, plus one on the Waymo roof. */
-export const earnedFries = ["gerald", "barber", "sommelier"] as const
+export const earnedFries = ["gerald", "ranger"] as const
 
 export const roofFry = { x: layout.waymo.x, z: layout.waymo.z, y: layout.waymo.h + 0.9 }
 
@@ -111,11 +106,12 @@ const visibleSpots: Vec2[] = [
   { x: 18, z: 2 },
   { x: -29, z: -3 },
   { x: 29.5, z: -2.5 },
-  { x: 24, z: 8 },
+  { x: 24, z: 9.6 },
   { x: -10.5, z: -9.5 },
   { x: 10.5, z: -9.5 },
   { x: -16.5, z: 8.6 },
   { x: 16.5, z: 8.2 },
+  { x: -19.5, z: 3.8 },
 ]
 
 /** Fries lying around in plain sight, trimmed so the grand total is exactly 20. */

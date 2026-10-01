@@ -10,9 +10,9 @@ export interface Item {
 }
 
 export const items: Record<ItemId, Item> = {
-  meds: { id: "meds", name: "Interview-nerve pills", blurb: "Non-drowsy. For candidates about to say 'culture fit' out loud." },
-  call: { id: "call", name: "Booked call time", blurb: "The last 15 minutes on Hawkins's calendar, booked from his own website." },
-  agent: { id: "agent", name: "CappaWork agent", blurb: "Nate built the studio. The agent does the Computer Work." },
+  meds: { id: "meds", name: "Cold-call nerve pills", blurb: "Non-drowsy. For founders about to say 'synergy' out loud." },
+  call: { id: "call", name: "Booked call time", blurb: "The last 15 minutes on SuperNate's calendar, booked from his own website." },
+  agent: { id: "agent", name: "CappaWork agent", blurb: "SuperNate built the studio. The agent does the Computer Work." },
 }
 
 export const itemOrder: ItemId[] = ["meds", "call", "agent"]
@@ -35,6 +35,19 @@ export interface Npc {
   after: string
 }
 
+/** The town, and what the welcome sign says about it. */
+export const townName = "MISSED CALL"
+export const townPop = "POP. 9 · ALL ON MUTE"
+
+/** What the player is called if they skip the name screen. Ten letters max, like a cartridge save. */
+export const defaultName = "CALLER"
+export const nameMax = 10
+
+/** Lines use {name} for the player's name. */
+export function fill(line: string, name: string): string {
+  return line.split("{name}").join(name)
+}
+
 export const npcs: Record<NpcId, Npc> = {
   guide: {
     id: "guide",
@@ -44,11 +57,11 @@ export const npcs: Record<NpcId, Npc> = {
     item: "agent",
     real: true,
     pages: [
-      "You're Nate, right? You built CappaWork — the agent studio. Computers do the Computer Work, people do the Human Work.",
+      "{name}, right? Here for SuperNate? He built CappaWork — the agent studio. Computers do the Computer Work, people do the Human Work.",
     ],
-    ask: "Bring one of your own agents to the interview. Show Hawkins something that ships.",
+    ask: "Take one of his agents up the trail. He likes people who've met one.",
     take: "Take the agent",
-    yes: "It already drafted your thank-you email.",
+    yes: "It already drafted your follow-up email.",
     after: "Meds are at the clinic. Call time from the guy in the vest.",
   },
   doctor: {
@@ -59,12 +72,12 @@ export const npcs: Record<NpcId, Npc> = {
     item: "meds",
     real: true,
     pages: [
-      "Say ahh. You built Karibu — the offline-first medical record my clinic in rural Uganda runs on a cheap Android.",
+      "Say ahh. SuperNate built Karibu — the offline-first medical record my clinic in rural Uganda runs on a cheap Android.",
     ],
-    ask: "Interview-nerve pills. Take one before you say 'culture fit' out loud.",
+    ask: "Cold-call nerve pills. Take one before you say 'synergy' out loud.",
     take: "Take the meds",
     yes: "Side effects include confidence and a sudden urge to say 'ship it'.",
-    after: "You built the thing. Just tell him that.",
+    after: "He built the thing. Just tell him what's broken at yours.",
   },
   vest: {
     id: "vest",
@@ -74,9 +87,9 @@ export const npcs: Record<NpcId, Npc> = {
     item: "call",
     real: true,
     pages: [
-      "Bro, you built Healthcare AIO — it measures how doctors show up when patients ask an AI instead of Google.",
+      "Bro. SuperNate built Healthcare AIO — it measures how doctors show up when patients ask an AI instead of Google.",
     ],
-    ask: "I asked the AIs how to reach Hawkins. His own website has a booking page — I grabbed you the last 15 minutes.",
+    ask: "I asked the AIs how to reach SuperNate. His own website has a booking page — I grabbed you the last 15 minutes.",
     take: "Take the call time",
     yes: "Confirmed. He'll decline it. That's normal.",
     after: "Did you get my follow-up? I sent it during this sentence.",
@@ -86,24 +99,10 @@ export const npcs: Record<NpcId, Npc> = {
     name: "Your Starfighter",
     title: "Model year 1987",
     pages: ["It's smoking. There's still a cartridge in the slot."],
-    ask: "Play the 1987 cartridge? The aliens are still up there.",
+    ask: "Play the 1987 cartridge? It's SuperNate's old save. The aliens are still up there.",
     take: "Insert the cartridge",
     yes: "",
     after: "",
-  },
-  barber: {
-    id: "barber",
-    name: "Sal, Blindfolded Barber",
-    title: "Fade Labs · HedgeHawkins's Chief of Staff",
-    reward: "fry",
-    pages: [
-      "I'm Hawkins's chief of staff, I have intel on everyone in SF. But he makes me cut his hair blindfolded.",
-      "The insider SF scoop is to just keep knocking at Combinator Y Academy.",
-    ],
-    ask: "Found this fry in a customer's hood. Want it?",
-    take: "Take the fry",
-    yes: "No charge. Now go knock. Keep knocking.",
-    after: "Still here? The Academy door. Knock until something changes.",
   },
   gerald: {
     id: "gerald",
@@ -112,23 +111,25 @@ export const npcs: Record<NpcId, Npc> = {
     reward: "fry",
     pages: [
       "Coo. I just launched from Combinator Y Academy. I founded FlyFry. Fries delivered by carrier pigeon.",
-      "Right, we can only carry one fry at a time. And yes, we eat a lot of them. But we think the TAM is bigger than GrubHub.",
+      "One fry per pigeon. We eat most of them. The TAM is still bigger than GrubHub.",
+      "Academy tip: keep knocking. Knock six is the one.",
     ],
     ask: "I saved you one. Don't tell the customer.",
     take: "Take Gerald's fry",
     yes: "Coo. It got lost in transit.",
-    after: "Coo. (He is eating a fry.)",
+    after: "Coo. (He is eating a fry.) Knock six.",
   },
   engineer: {
     id: "engineer",
     name: "10x Engineer",
-    title: "Building superintelligence",
+    title: "Waymo Lot · Building AGI",
     pages: [
-      "Four laptops, four hundred cloud agents. I'm building superintelligence.",
+      "300,000 lines of code, all running, all written from the back of this Waymo. I'm building AGI.",
+      "Shipped so far: nothing. The Waymo has shipped more than me.",
     ],
-    ask: "Say 'make no mistakes' if you're an agent.",
-    take: "make no mistakes",
-    yes: "Knew it.",
+    ask: "Want to see the demo?",
+    take: "See the demo",
+    yes: "It's loading. It's been loading since March.",
     after: "Busy. Agent 312 is refactoring agent 311.",
   },
   cya: {
@@ -142,18 +143,16 @@ export const npcs: Record<NpcId, Npc> = {
     yes: "",
     after: "The door is quiet. Your stilts are very tall.",
   },
-  sommelier: {
-    id: "sommelier",
-    name: "Le Sommelier",
-    title: "Intelligence Artificielle Générale, AOC",
+  ranger: {
+    id: "ranger",
+    name: "Ranger Deb",
+    title: "Missed Call State Forest",
     reward: "fry",
-    pages: [
-      "It's only AGI if it comes from the Intelligence Artificielle Générale region of France. Otherwise it's sparkling harness.",
-    ],
-    ask: "Taste this — a 2019 fry, aged in oak. Notes of salt and venture debt.",
+    pages: ["Don't feed the turkeys. SuperNate does. They work for him now."],
+    ask: "Confiscated this fry off a turkey. Want it?",
     take: "Take the fry",
-    yes: "Magnifique. You may stay in SF.",
-    after: "Non. One fry per terroir.",
+    yes: "Evidence. Don't tell the turkey.",
+    after: "The turkeys know your face now. Jump.",
   },
 }
 
@@ -167,47 +166,43 @@ export const knocks = [
   "FINE. Accepted. Batch: Never. Perk: stilts — investors fund tall founders.",
 ]
 
-/** What each townsperson says when SuperNate does the quick-call emote nearby. */
+/** What each townsperson says when the player does the quick-call emote nearby. */
 export const emoteLines: Partial<Record<NpcId, string>> = {
   guide: "Look at you, hopping on a quick call. Very human work.",
   doctor: "Holding the phone that close? Doctor's orders: ten minutes, max.",
   vest: "Bro. Put me on speaker. Circle me in.",
-  barber: "Hold still. I'm cutting while you talk.",
   gerald: "Coo? (Gerald tries to deliver a fry into the phone.)",
-  engineer: "Can you take that outside? My agents are thinking.",
-  sommelier: "A call from the Champagne region? Non. Sparkling voicemail.",
+  engineer: "Can you take that outside? My Waymo is thinking.",
+  ranger: "Keep it down. A turkey can hear a ringtone from two miles.",
   ship: "The starfighter beeps back. It misses the 80s.",
 }
 
 export const emoteAlone = "Nobody picked up. Classic."
 
-export const moggedLine = "Whoa. You're tall now. You can heightmog and get a direct intro — Hawkins takes calls from people this tall."
+export const moggedLine = "Whoa. You're tall now. You can heightmog a direct intro — SuperNate takes calls from people this tall."
 
 /** When the player brings all 20 fries into the fight. */
 export const allFriesWin = "Are those fries? All twenty? Fine. Quick call. Bring the fries."
 
 export const intro = [
-  "SuperNate's starfighter has crash-landed on HogPatch — right outside PostHog HQ.",
-  "His dream job is inside. HedgeHawkins, the CEO, does not take cold calls.",
-  "The front door wants three things: meds, a call time, and an agent. Go show him you ship.",
+  "{name}, your company is drowning in Computer Work. SuperNate fixes that.",
+  "SuperNate lives in a cabin past the tree line. He has declined 1,400 calls this year.",
+  "The trail gate wants three things: meds, a call time, and an agent. Go get them.",
 ]
 
-export const gateLine = "Fine. The door's open. I'm not picking up, though. — Hawkins"
+export const gateLine = "Fine. The gate's open. I'm not picking up, though. — SuperNate"
 
-export const bossIntro = [
-  "You want a quick call? About a job?",
-  "I'm running PostHog. Take it up with my dogs.",
-]
+export const bossIntro = ["You want a quick call? About your company?", "I moved to the woods for a reason. Take it up with the turkeys."]
 
 export const declines = [
-  "Do Not Disturb. Sent from my Vision Pro.",
-  "Can this be an email?",
-  "Apply through the careers page. It loops.",
-  "Talk to my chief of staff. He's a barber.",
-  "I'm in a shared Waymo. It's not shared.",
-  "Muted. You're in the mute pile.",
-  "My AI assistant will call you back. It booked 37 of them.",
-  "Snoozed until Q3.",
+  "Do Not Disturb. Sent from a cabin.",
+  "Can this be an email? Can the email be nothing?",
+  "The turkeys handle my inbound.",
+  "No signal out here. Except for this decline.",
+  "Muted. You're in the mute pile, {name}.",
+  "My agent will call you back. It booked 37 of them. I declined all 37.",
+  "I'm chopping wood. Metaphorically. Also literally.",
+  "Snoozed until the leaves come back.",
 ]
 
 export const missed = [
@@ -215,16 +210,19 @@ export const missed = [
   "Who gave you my booking page?",
   "Stop pinging. Wait, is that a fry?",
   "Patience: dropping.",
-  "Why is there a pigeon in my DMs?",
+  "Why is there a pigeon on my porch?",
 ]
 
-export const winLine = "Fine. Quick call."
-
-export const phone = { display: "570-575-0421", href: "tel:+15705750421" }
-export const calendly = "https://calendly.com/cappawork/quick-call"
-
-export function feltLine(hitsTaken: number): string {
-  if (hitsTaken === 0) return "Honestly? Impressed. He asked when you can start."
-  if (hitsTaken <= 3) return "Mildly respected. He said 'huh, you actually ship.'"
-  return "Exhausted, but he picked up. That's an interview."
+/** One-off quips during the fight, each shown the first time it happens. */
+export const fightLines = {
+  phase1: "Two turkeys. Both very motivated.",
+  phase2: "A RAFTER. That's the word for a flock of turkeys.",
+  air: "Yes, wild turkeys fly. Look it up.",
+  pound: "Scattered. Turkeys hate that.",
+  fed: "Fed it a fry. It's done with you. Good turkey.",
+  respawn: "Three turkeys. He forgot you existed. Patience: 100%. Go again.",
 }
+
+export const winLine = "Fine, {name}. Quick call."
+
+export const calendly = "https://calendly.com/cappawork/quick-call"

@@ -1,20 +1,26 @@
 # SuperNate 64: Hop On A Quick Call
 
-**Story:** SuperNate crash-lands on HogPatch with a startup idea: FlyFry. Carrier pigeons deliver fries, only fries, each one individually wrapped, and FlyFry ships 70% extra because the pigeons get lost or eat them. HedgeHawkins is too busy running his B2B SaaS company to take a quick call, so SuperNate collects a quick-call kit: pitch-nerve pills from the Doctor, the last 15-minute block from HR, and a Slack Connect invite from Chad the tech bro. Then he fights HedgeHawkins with Slack pings. HedgeHawkins's line at 0% is "Fine. Quick call." The end card shows Nate's phone number and the Calendly "Quick call" link. Talking to the crashed starfighter is a hidden way into the 1987 shooter.
+A small 3D game that ends in a real discovery call with Nate. Live at supernate.dev.
 
-The homepage is a small 3D game built with Three.js and no asset files. The town plays like Mario Party or Mario 64, with a bright lawn, a board-space path, coins, and a cream castle with red turrets. The boss fight plays like Super Smash Bros. on a floating stage. SuperNate gets a phone from the CappaWork Guide, then earns three quick-call invites from townspeople who each explain a product:
+**Story:** You type your name, like a cartridge save. Your starfighter comes down in Missed Call, the last town before the woods (pop. 9, all on mute). Your company is drowning in Computer Work, and Nate fixes that, but Nate is a recluse in a cabin past the tree line who has declined 1,400 calls this year. The trail gate wants three things, and each one comes from a townsperson who tells you about something Nate actually built: cold-call nerve pills from the Doctor (Karibu Health), the last 15 minutes on Nate's own booking page from Chad the tech bro (Healthcare AIO), and an agent from the Guide (CappaWork). Those three carry a green "REAL" badge so they stand apart from the jokes. Then you walk up the trail and SuperNate, on his porch, declines you and sends wild turkeys at you. Ten landed pings drain his patience and he says "Fine. Quick call." Three turkey hits refill his patience to 100%, but you stay in the fight. The end card is Nate's real phone number and Calendly link.
 
-- The Doctor explains Karibu Health.
-- Harriet from HR explains ArborKey.
-- Chad, the vest guy, explains Healthcare AIO.
+The town plays like Mario 64 or Mario Party, with a bright lawn, hedges, and a trailhead gate. The fight plays like Super Smash Bros. on a side-view clearing with fallen-log platforms and the cabin on the right. Everything is Three.js with no asset files.
 
-Every dialogue has a "See the site" option that opens that product's homepage in a window on the page. Three invites open the gate. HedgeHawkins then fights from a Smash-style side stage. He sends Ubers driven by dogs, declines calls, and picks up when his patience hits 0%. The 1987 shooter is still on the end card.
+**Side trips and easter eggs:**
 
-- **Controls:** WASD or arrows move. E or Space talks. In the boss fight, Space jumps and J or a click places a call. On phones, an on-screen D-pad and A/B buttons appear.
+- Gerald, a pigeon who founded FlyFry (fries by carrier pigeon, one fry per bird). He also tells you to keep knocking at Combinator Y Academy.
+- Combinator Y Academy: knock six times and you get stilts. Being tall gets you a direct intro, which skips the fight.
+- The 10x Engineer in the Waymo lot has 300,000 lines of code running and has shipped nothing.
+- Ranger Deb at the ranger station: "Don't feed the turkeys. Nate does. They work for him now." She has a fry in an evidence bag.
+- Fries: 20 are scattered around town. Bring all 20 into the fight and the turkeys stop to eat instead of hitting you.
+- Ground pound (Shift or down in the air) scatters ground turkeys. Flying turkeys cross at platform height.
+- Talking to the crashed starfighter is the hidden way into the 1987 shooter.
+
+- **Controls:** WASD or arrows move. E or Space talks. Q does the quick-call emote. In the fight, Space jumps, Shift or down in the air pounds, and J or a click pings. On phones, an on-screen D-pad and A/B buttons appear.
 - **Look tuning:** `/lookbook` shows the stage, a camera switch, the character select screen, and sliders for texture blur, roundness, fog, dither, and resolution.
-- **Boss timing test:** `pnpm test:boss` runs the fight headless with three bots. The dodging bot has to win in 25 to 50 seconds, and every bot has to win.
-- **Framed sites:** CappaWork and Healthcare AIO block iframes, so `/api/peek` serves those two exact homepages same-origin. Karibu and ArborKey embed directly.
-- **PostHog events:** `level_started`, `invite_received`, `product_card_opened`, `boss_patience_depleted`, `hopped_on_a_quick_call`.
+- **Boss timing test:** `pnpm test:boss` runs the fight headless with four bots. The dodging bot has to win in 8 to 45 seconds, the camper and pounder have to win, and the bot that never dodges has to lose, since three turkey hits refill SuperNate's patience.
+- **Framed sites:** CappaWork and Healthcare AIO block iframes, so `/api/peek` serves those two exact homepages same-origin. Karibu embeds directly.
+- **Analytics events:** `name_entered`, `level_started`, `invite_received`, `product_card_opened`, `easter_egg_found`, `boss_patience_depleted`, `hopped_on_a_quick_call`, `phone_clicked`, `calendly_clicked`. The player's name is never sent.
 
 Code lives in `components/town/` (renderer, models, stage, game loop, UI) and `lib/town/` (world layout, dialogue, and the boss simulation).
 
@@ -100,7 +106,7 @@ For the fastest setup, see [SETUP.md](./SETUP.md) - it covers the essential 5 st
 ### 🎯 Essential Customization Checklist
 
 **Must Replace (Required):**
-- [ ] **Your Resume PDF**: Replace `public/N Pinches Resume 10.22.25.docx.pdf` with your resume
+- [ ] **Your Resume PDF**: Replace `public/NP-resume-6.3.26.pdf` with your resume
 - [ ] **Your Profile Picture**: Replace `public/Nate.png` with your photo
 - [ ] **Your Character Image**: Replace `public/SuperNate.png` with your character sprite
 - [ ] **Work Experience Data**: Update `lib/work-experiences.ts` with your career history
@@ -118,7 +124,7 @@ For the fastest setup, see [SETUP.md](./SETUP.md) - it covers the essential 5 st
 #### 1. Replace Your Resume PDF
 ```bash
 # Replace this file with your resume
-public/N Pinches Resume 10.22.25.docx.pdf → public/your-resume.pdf
+public/NP-resume-6.3.26.pdf → public/your-resume.pdf
 ```
 
 #### 2. Replace Your Images

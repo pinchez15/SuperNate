@@ -55,7 +55,7 @@ export function ResumeShooter({ onBack }: { onBack: () => void }) {
           onClick={onBack}
           className="rounded-md bg-[#F54E00] px-3 py-1.5 font-bold text-[#151515] shadow-[0_2px_0_#7a2700] hover:bg-[#ff6a1f]"
         >
-          ⏏ EJECT · BACK TO HOGPATCH
+          ⏏ EJECT · BACK TO MISSED CALL
         </button>
       </div>
       <header className="py-6 text-center border-b-2 border-[#F54E00]">
