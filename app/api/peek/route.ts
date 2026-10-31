@@ -27,7 +27,12 @@ export async function GET(req: Request) {
     }
     const html = await upstream.text()
     const base = `https://${host}/`
-    const stripped = html.replace(/<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]*>/gi, "")
+    // Serve the server-rendered HTML as a static snapshot. Their Next.js router and Clerk
+    // crash when they boot on supernate.dev's origin (replaceState SecurityError).
+    const stripped = html
+      .replace(/<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]*>/gi, "")
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+      .replace(/<link[^>]+rel=["'](?:preload|modulepreload)["'][^>]*as=["']script["'][^>]*>/gi, "")
     const withBase = /<head[^>]*>/i.test(stripped)
       ? stripped.replace(/<head([^>]*)>/i, `<head$1><base href="${base}">`)
       : `<head><base href="${base}"></head>${stripped}`
